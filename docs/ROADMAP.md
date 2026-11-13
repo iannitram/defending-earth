@@ -43,8 +43,7 @@ keyed by item name.
 
 Checked: release build clean, self-test passes, three leftover-name sweeps of
 source, docs and the built program came back clean. The two old data files
-are out of the app (kept outside it in `.work/removed/`). The old
-pictures that showed old names were moved out of the app on 2026-11-13.
+and the old pictures that showed old names were deleted on 2026-11-13.
 
 ### 1.0 — The single-player game, looking right
 Two separate campaigns chosen on the campaign screen. Goal: prove the look and
