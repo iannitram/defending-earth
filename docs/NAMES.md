@@ -1,0 +1,352 @@
+# DEFENDING EARTH — NAMES
+
+Version 0.9. Companion to `ART_BIBLE.md` and `ROADMAP.md`.
+
+Every name in the game and what it is for. All of them are this project's own.
+The code is the authority for spelling; this file is the readable list. When a
+name changes in `src/`, change it here in the same edit.
+
+Several tables below are index-stable: the code stores a row number, so rows
+may be renamed but not reordered, inserted or removed. Those are marked
+**(fixed order)**.
+
+## 1. Organisation, campaigns and screens
+
+| Name | What it is |
+|---|---|
+| **Joint Task Force HEARTH** (`HEARTH`, formal short form `JTF HEARTH`) | The player's organisation |
+| **the Charter Assembly** ("the Assembly") | The funding body |
+| Charter states | The 16 funding nations of the land campaign (real countries) |
+| sea-lane groups | The 13 funding members of the sea campaign (section 9) |
+| SEPARATE TERMS | The status of a member that has left and made its own peace with the enemy |
+| **LANDFALL** ("Operation Landfall") | The land-and-air campaign. Starts 2027 |
+| **UNDERTOW** ("Operation Undertow") | The sea-floor campaign. Starts 2027 |
+| SITUATION MAP | The world-map screen |
+| FIELD VIEW | The tactical screen |
+| CITY RAID ("raid") | An enemy attack on a city |
+| RAID CRAFT | The enemy craft carrying out a city raid |
+| DIVE GEAR, DIVE ARMS, divers | Underwater kit, weapons and soldiers |
+| TRAUMA KIT | The healing item |
+| live study | Research on a live captive |
+| HEARTH ALPHA, BRAVO, CHARLIE … | Land base names, in founding order |
+| HEARTH DEEP 1, 2, 3 … | Sea-floor station names, in founding order |
+| the Registrar | The enemy: a cataloguing machine. First met as a broken fragment of the word. Lore only, not yet in the UI (see `LORE.md`) |
+
+### Ranks (fixed order)
+
+`RECRUIT`, `PRIVATE`, `CORPORAL`, `SERGEANT`, `LIEUTENANT`, `CAPTAIN`, `MAJOR`.
+
+### Design steps
+
+The four words used across weapons, armour, craft and base modules.
+
+| Step | Meaning | How the name shows it |
+|---|---|---|
+| **Issue** | What armies and police have today | Named the way a quartermaster would list it: service rifle, machine gun, frag grenade |
+| **Adapted** | The same kit rebuilt around a recovered part | *Cored* on land (a sealed lattice core in place of a magazine); *cav* at sea (a brine-driven slug that travels in its own vapour pocket) |
+| **Enemy tool** | The enemy's own equipment, used as found | Named by our soldiers after workshop tools: arc stylus, cutter, torch on land; pressure awl, bore, ram at sea |
+| **Derived** | Our own design, built their way | Plain functional names: breacher, implosion pod, deep frame |
+
+## 2. Creatures
+
+One maker's work (see `ART_BIBLE.md` section 5). Names are single words; the
+live-study matching relies on that.
+
+### Land (kinds 0..10, fixed order)
+
+| Kind | Name | Role |
+|---|---|---|
+| 0 | **Tender** | Small handler. Fragile, quick, strong-minded |
+| 1 | **Kite** | Gliding membrane scout. Fast, sharp reactions, tears easily |
+| 2 | **Lash** | Serpent hunter. Scaled, steady shot |
+| 3 | **Maul** | Heavy infantry. Carries the arc torch |
+| 4 | **Regent** | Psi commander. The only land kind that routs and takes soldiers |
+| 5 | **Brooder** | Parasite breeder. Fast melee |
+| 6 | **Lathe** | Hovering fabrication drone turned weapon |
+| 7 | **Gorger** | Large pack beast. Melee, soft underside |
+| 8 | **Trestle** | Walking weapons platform. Heaviest plate in the game |
+| 9 | **Bloat** | Drifting spitter |
+| 10 | **Cinder** | Slow mineral-bodied crawler. Not yet in any spawn pool |
+
+### Sea (kinds 0..8, fixed order)
+
+| Kind | Name | Role |
+|---|---|---|
+| 0 | **Fathom** | Line infantry |
+| 1 | **Wader** | Amphibious raider. Quick, scaled |
+| 2 | **Mantle** | Armoured heavy. Carries the pressure ram |
+| 3 | **Deacon** | Psi officer. The only sea kind that routs and takes soldiers |
+| 4 | **Bell** | Pressure-shelled brute. Slow melee, very hard shell |
+| 5 | **Silt** | Small bottom-lying ambusher. Fast melee, almost no armour |
+| 6 | **Lamp** | Lure-light drone. Floats, cannot be stunned |
+| 7 | **Wreath** | Drifting parasite. Fast floating melee |
+| 8 | **Hulk** | Massive beast. The biggest health pool in the game |
+
+### Reserved
+
+**Husk** — a taken soldier or animal, still wearing what it wore. Not a row in
+either table: it is a state of a soldier record, kept for the taken-soldier
+mechanic and "DO IT." (see `ROADMAP.md`). Armour class 0 is held for it.
+
+## 3. Soldier weapons (fixed order)
+
+| # | Name | Short | Step | What it is |
+|---|---|---|---|---|
+| 0 | SERVICE PISTOL | PST | Issue | Sidearm. Feeds 9MM MAGAZINE |
+| 1 | SERVICE RIFLE | RIF | Issue | Standard rifle. Feeds 5.56 MAGAZINE |
+| 2 | HEAVY RIFLE | HVR | Issue | Anti-materiel rifle. Feeds .50 MAGAZINE |
+| 3 | MACHINE GUN | MG | Issue | Squad support gun. Feeds 7.62 BELT |
+| 4 | AT LAUNCHER | ATL | Issue | Shoulder launcher. Fires HE ROCKET |
+| 5 | CORED PISTOL | CRP | Adapted | Service pistol frame with a sealed core. No magazine |
+| 6 | CORED RIFLE | CRR | Adapted | Service rifle layout with a sealed core |
+| 7 | CORED HEAVY GUN | CRH | Adapted | Heavy mount for the largest carried core |
+| 8 | ARC STYLUS | AST | Enemy tool | Their small hand tool. Feeds STYLUS CELL |
+| 9 | ARC CUTTER | ACT | Enemy tool | Their standard tool. Feeds CUTTER CELL |
+| 10 | ARC TORCH | ATR | Enemy tool | Their heavy tool. Feeds TORCH CELL |
+| 11 | FRAG GRENADE | FRG | Issue | Thrown fragmentation grenade |
+| 12 | DEMO CHARGE | DMO | Issue | Thrown demolition charge |
+| 13 | STUN BATON | BTN | Issue | Melee stun, for live captures |
+| 14 | DIVE PISTOL | DPS | Issue | Underwater sidearm. Feeds PISTOL BOLTS |
+| 15 | DIVE RIFLE | DRF | Issue | Underwater rifle. Feeds RIFLE BOLTS |
+| 16 | HEAVY DIVE RIFLE | HDR | Issue | Heavy underwater rifle. Feeds HEAVY BOLTS |
+| 17 | DIVE MG | DMG | Issue | Underwater support gun. Feeds BOLT BELT |
+| 18 | TORPEDO TUBE | TRP | Issue | Shoulder tube. Fires MINI TORPEDO |
+| 19 | DIVE CHARGE | CHG | Issue | Thrown underwater charge |
+| 20 | STUN PROD | PRD | Issue | Underwater melee stun |
+| 21 | DIVE KNIFE | KNF | Issue | Underwater blade |
+| 22 | CAV PISTOL | CVP | Adapted | Dive pistol with a cav barrel. Feeds CAV PISTOL MAG |
+| 23 | CAV RIFLE | CVR | Adapted | Dive rifle layout with a cav barrel. Feeds CAV RIFLE MAG |
+| 24 | CAV HEAVY GUN | CVH | Adapted | Heavy cav mount. Feeds CAV HEAVY MAG |
+| 25 | PRESSURE AWL | AWL | Enemy tool | Their small hand tool at sea. Feeds AWL CHARGE |
+| 26 | PRESSURE BORE | BOR | Enemy tool | Their standard tool at sea. Feeds BORE CHARGE |
+| 27 | PRESSURE RAM | RAM | Enemy tool | Their heavy tool at sea. Feeds RAM CHARGE |
+| 28 | SNARE PROJECTOR | SNR | Adapted | Ranged stun launcher. Fires SNARE CHARGE |
+| 29 | IMPLOSION POD | IMP | Derived | Thrown charge that collapses the water around it |
+| 30 | NATURAL WEAPON | NAT | — | Claws and teeth. Land creatures only; never offered to soldiers |
+| 31 | NATURAL WEAPON (DEEP) | NAT | — | The same, for sea creatures |
+
+## 4. Other items
+
+Both item tables hold 80 fixed slots; unused slots are named `RESERVED`.
+
+| Name | Table | What it is |
+|---|---|---|
+| SMOKE GRENADE | Land | Thrown smoke |
+| TRIP MINE | Land | Placed charge set off by movement |
+| HANDHELD RADAR | Land | Short-range movement detector |
+| HANDHELD SONAR | Sea | The same, underwater |
+| TRAUMA KIT | Both | Healing item |
+| `<NAME>` CORPSE | Both | A dead creature brought back for study, one item per kind |
+| LATHE WRECK, TRESTLE WRECK, LAMP WRECK | Both | The same for the three machine kinds |
+| LIVE `<NAME>` | Both | A live captive, one item per kind |
+| DISABLED LATHE, DISABLED TRESTLE, DISABLED LAMP | Both | The same for the three machine kinds |
+| ALIEN CORPSE | Stores | The generic body item a won mission adds to base stores |
+| LIVE ALIEN CAPTIVE | Stores | The generic market entry for a held captive |
+
+Soldier pack slots in the field view also show `SMOKE CHARGE` (the pack label
+for a carried smoke grenade) and `EMPTY COMPARTMENT`.
+
+## 5. Materials and fuel
+
+| Name | Short | Campaign | What it is |
+|---|---|---|---|
+| RECOVERED LATTICE | LATTICE | LANDFALL | The printed frame under every creature and hull. Structure material |
+| ELECTROLYTE | — | LANDFALL | The charged fluid the frame runs on. Power material and Adapted craft fuel |
+| NACRE PLATE | NACRE | UNDERTOW | The layered shell the sea-going builds grow instead of lattice. Structure material |
+| LIVE BRINE | BRINE | UNDERTOW | Their electrolyte at sea; stays charged only while cold and dark. Power material and Adapted craft fuel |
+| JET FUEL | — | LANDFALL | Fuel for Issue aircraft |
+| DIESEL-ELECTRIC | — | UNDERTOW | Power for Issue submarines |
+
+Blueprint costs name the two materials generically as *structure* and *power*.
+
+## 6. Soldier armour (fixed order)
+
+| # | Name | Step | What it is |
+|---|---|---|---|
+| 0 | COMBAT UNIFORM | Issue | Fatigues, helmet and webbing. What a soldier arrives in |
+| 1 | LATTICE CARRIER | Adapted | Plate carrier with cut lattice plates |
+| 2 | SEALED FRAME | Derived | Powered sealed shell on a lattice frame |
+| 3 | DIVE RIG | Issue | Chest plate and twin rebreather bottles |
+| 4 | NACRE DIVE RIG | Adapted | The dive rig with nacre plate over it |
+| 5 | DEEP FRAME | Derived | Powered pressure suit grown in nacre |
+
+DEEP FRAME THRUST PACK is the workshop upgrade that adds a guided thrust pack
+and trim fins to the Deep Frame.
+
+## 7. Damage types and armour classes (fixed ids)
+
+| Id | Land label | Sea label | What it is |
+|---|---|---|---|
+| 0 | KIN | KIN | Bullets and bolts |
+| 1 | HEAT | HEAT | Fire and burning |
+| 2 | BLAST | BLAST | Explosive overpressure and fragments |
+| 3 | CORE | CAV | Adapted weapons: core discharge on land, cavitating slug at sea |
+| 4 | ARC | PRES | Enemy tools: arc on land, pressure at sea |
+| 5 | STUN | STUN | Shock, and smoke |
+| 6 | CUT | CUT | Blades, claws, teeth |
+| 7 | ACID | ACID | Corrosive spit (reserved) |
+
+| Class | Name | Who has it |
+|---|---|---|
+| 0 | Bare | Reserved: civilians, animals, Husks |
+| 1 | Soft | Soldier in combat uniform; Tender; Fathom |
+| 2 | Plated | Lattice Carrier, Dive Rig |
+| 3 | Sealed shell | Sealed Frame, Nacre Dive Rig, Deep Frame |
+| 4 | Membrane | Kite, Bloat, Wreath |
+| 5 | Scaled | Lash, Wader |
+| 6 | Insulated | Regent, Deacon |
+| 7 | Heavy build | Maul, Mantle |
+| 8 | Mineral | Cinder |
+| 9 | Slick | Brooder, Silt |
+| 10 | Beast hide | Gorger, Hulk |
+| 11 | Machine plate | Trestle |
+| 12 | Drone casing | Lathe, Lamp |
+| 13 | Pressure shell | Bell |
+
+## 8. Craft
+
+### Enemy craft classes
+
+Reporting names are botanical, in keeping with the Seed and the Root. On the
+map and in interception each shows as `<NAME>-CLASS UFO` in the air or
+`<NAME>-CLASS USO` at sea.
+
+| Class | Role | Weapon |
+|---|---|---|
+| SPORE | Light scout | ARC NEEDLE |
+| BURR | Collector: takes people and livestock | ARC LANCE |
+| THORN | City raider | ARC VOLLEY |
+| RHIZOME | Undersea runner (sea only) | PRESSURE LANCE |
+| TAPROOT | Capital craft | MAIN DISCHARGE |
+
+### Player craft
+
+Named after birds: land birds and long-range fliers for aircraft, diving
+seabirds for submarines.
+
+| Name | Campaign | Step | Role |
+|---|---|---|---|
+| HERON | LANDFALL | Issue | Tiltrotor troop transport. Slow, long-legged, lands anywhere |
+| SWIFT | LANDFALL | Issue | Twin-engine interceptor with two hardpoints |
+| PEREGRINE | LANDFALL | Adapted | Interceptor: a human airframe around a recovered power plant |
+| IBIS | LANDFALL | Adapted | Assault transport. Carries a squad and one weapon |
+| ALBATROSS | LANDFALL | Derived | Long-range transport. The only craft that can reach Noctis Labyrinthus |
+| GANNET | UNDERTOW | Issue | Transport submersible with a lock-out chamber for a full dive team |
+| SKUA | UNDERTOW | Issue | Small attack submarine with two torpedo stations |
+| CORMORANT | UNDERTOW | Adapted | Attack sub: a human hull around a recovered brine drive |
+| RAZORBILL | UNDERTOW | Adapted | Assault sub. Carries a dive team and one weapon |
+| EMPEROR | UNDERTOW | Derived | Deep transport. The only craft rated for Verity Deep |
+
+### Craft weapons
+
+| Name | Campaign | Step | What it is |
+|---|---|---|---|
+| SHORT-RANGE MISSILE | LANDFALL | Issue | Heat-seeking missile. Six to a rail set |
+| LONG-RANGE MISSILE | LANDFALL | Issue | Radar-guided missile. Reaches further, carries fewer |
+| GUN POD (20MM) | LANDFALL | Issue | Rotary cannon. Short reach, deep magazine |
+| CORED LANCE | LANDFALL | Adapted | A sealed core behind a long barrel. Never needs rearming |
+| ARC PROJECTOR | LANDFALL | Enemy tool | An enemy arc tool scaled up and bolted to a human pylon |
+| BREACHER MISSILE | LANDFALL | Derived | Two rounds, each built to open a capital craft |
+| LIGHT TORPEDO | UNDERTOW | Issue | Homing torpedo. Eight to a load |
+| HEAVY TORPEDO | UNDERTOW | Issue | Wire-guided torpedo. Slower to reload, harder hit |
+| BOLT CANNON | UNDERTOW | Issue | Rapid-fire bolt gun for knife-fight range |
+| CAV CANNON | UNDERTOW | Adapted | Brine-driven slugs that travel in their own vapour pocket |
+| PRESSURE PROJECTOR | UNDERTOW | Enemy tool | An enemy pressure tool scaled up and mounted in a human turret |
+| BREACHER TORPEDO | UNDERTOW | Derived | Two rounds, each built to open a capital hull |
+
+## 9. Base modules
+
+| Land name | Sea name | What it is |
+|---|---|---|
+| ENTRY SHAFT | MOON POOL | Shaft and lock to the outside. Every other module must connect back to it |
+| BARRACKS | BERTHING | Bunks, mess and showers for soldiers, scientists and engineers |
+| RESEARCH LAB | WET LAB | Bench space for scientists |
+| MACHINE SHOP | MACHINE SHOP | Floor space and tooling for engineers |
+| SEARCH RADAR | SEARCH SONAR | Rotating search set |
+| LONG-RANGE RADAR | TOWED ARRAY | Large fixed array with twice the reach |
+| SAM BATTERY | TORPEDO BATTERY | Issue point-defence battery |
+| SUPPLY BAY | SUPPLY BAY | Racked storage for kit and recovered material |
+| HOLDING BLOCK | HOLDING TANK | Sealed cells for live captives awaiting study |
+| CORED BATTERY | CAV BATTERY | Adapted point defence. Fast and accurate |
+| ARC BATTERY | PRESSURE BATTERY | Enemy tools on a human mount. Hits hard, runs hot |
+| DERIVED BATTERY | DERIVED BATTERY | Our own design, built their way. The last line, and the heaviest |
+| FARADAY SCREEN | BAFFLE SCREEN | Bleeds off incoming fire and slows the attackers' approach |
+| PSI DAMPER | PSI DAMPER | Keeps the base quiet to whatever the enemy listens with |
+| PSI WING | PSI WING | Testing and training rooms for soldiers who show psi ability |
+| SIGINT STATION | SIGINT STATION | Reads the enemy's traffic: every contact in range, with class, crew and heading |
+| HANGAR | WET DOCK | 2×2 bay for one craft, with fuel, arming and a way out |
+
+Sea-lane groups (the 13 UNDERTOW funding members, fixed order): NORTH ATLANTIC
+COMPACT, EUROPEAN SHELF GROUP, EAST ASIA SEA LANES, CORAL SEA GROUP, SOUTH
+ATLANTIC COMPACT, GULF OF GUINEA GROUP, ARABIAN SEA GROUP, RED SEA AUTHORITY,
+NORTH PACIFIC COMPACT, NORDIC AND BALTIC GROUP, ARCTIC ROUTE AUTHORITY, TASMAN
+GROUP, CARIBBEAN AND CANAL AUTHORITY. The first four are also drawn as regions
+on the situation map and are matched to their outlines by name.
+
+## 10. Research
+
+Categories: Weapons, Armor, Materials, Propulsion, Craft, Facilities,
+Psi, Story, Live Study.
+
+### LANDFALL
+
+| Topic | Category | Leads to |
+|---|---|---|
+| CORED WEAPONS | Weapons | Cored Pistol, Cored Rifle, Cored Heavy Gun |
+| CORED PISTOL | Weapons | Armoury: Cored Pistol |
+| CORED RIFLE | Weapons | Armoury: Cored Rifle |
+| CORED HEAVY GUN | Weapons | Armoury: Cored Heavy Gun |
+| CORED LANCE | Craft | Aircraft weapon: Cored Lance |
+| RECOVERED LATTICE | Materials | Lattice Carrier, enemy craft studies |
+| LATTICE CARRIER | Armor | Workshop: Lattice Carrier |
+| SEALED FRAME | Armor | Workshop: Sealed Frame |
+| ARC TOOLS | Weapons | Arc Stylus, Arc Cutter, Arc Torch |
+| ELECTROLYTE | Propulsion | Sealed Frame, enemy power plant study |
+| ENEMY POWER PLANT | Propulsion | Enemy airframe study |
+| ENEMY GUIDANCE | Propulsion | SIGINT Station, enemy airframe study |
+| ENEMY AIRFRAME | Craft | Workshop: Peregrine |
+| SIGINT STATION | Facilities | Facility: SIGINT Station |
+| PSI STUDIES | Psi | Facility: Psi Wing |
+| THE NOCTIS SIGNAL | Story | Objective: Noctis Labyrinthus, Mars |
+| LIVE STUDY: TENDER / LASH / MAUL / REGENT | Live Study | That creature's file |
+
+### UNDERTOW
+
+| Topic | Category | Leads to |
+|---|---|---|
+| NACRE PLATE | Materials | Nacre Dive Rig, enemy sea guidance study |
+| NACRE DIVE RIG | Armor | Workshop: Nacre Dive Rig |
+| DEEP FRAME | Armor | Workshop: Deep Frame |
+| DEEP FRAME THRUST PACK | Armor | Workshop: Deep Frame Thrust Pack |
+| CAV WEAPONS | Weapons | Cav Pistol, Cav Rifle, Cav Heavy Gun |
+| CAV RIFLE | Weapons | Workshop: Cav Rifle |
+| CAV HEAVY GUN | Weapons | Armoury: Cav Heavy Gun |
+| PRESSURE TOOLS | Weapons | Pressure Awl, Pressure Bore, Pressure Ram |
+| LIVE BRINE | Propulsion | Deep Frame, brine drive study |
+| ENEMY SEA GUIDANCE | Propulsion | SIGINT Station, enemy pressure hull study |
+| BRINE DRIVE | Propulsion | Enemy pressure hull study |
+| ENEMY PRESSURE HULL | Craft | Workshop: Cormorant |
+| SIGINT STATION | Facilities | Facility: SIGINT Station |
+| PSI STUDIES | Psi | Facility: Psi Wing |
+| THE ROOT SIGNAL | Story | Verity Deep study |
+| VERITY DEEP | Story | Objective: Verity Deep |
+| LIVE STUDY: FATHOM / WADER / MANTLE / DEACON | Live Study | That creature's file |
+
+### Workshop blueprints
+
+LANDFALL: LATTICE CARRIER, SEALED FRAME, CORED PISTOL, CORED RIFLE, CORED HEAVY
+GUN, CORED LANCE, PEREGRINE INTERCEPTOR, ALBATROSS TRANSPORT.
+
+UNDERTOW: NACRE DIVE RIG, DEEP FRAME, DEEP FRAME THRUST PACK, CAV RIFLE,
+CORMORANT ATTACK SUB, EMPEROR TRANSPORT SUB.
+
+## 11. The two final sites
+
+| | LANDFALL | UNDERTOW |
+|---|---|---|
+| Place | **Noctis Labyrinthus, Mars** — a real region: the maze of canyons at the western end of Valles Marineris, about 7°S 101°W | **Verity Deep** — our invention: a hadal basin in the South Pacific near the point furthest from any land, about 47°S 126°W, named in the fiction for the survey ship that first sounded it |
+| Enemy installation | **the Seed** — the Registrar's crashed seed | **the Root** — what the Seed put down on Earth |
+| Why there | A seed that has been consuming a planet would look, from orbit, like a labyrinth of collapsed canyons | The deepest, quietest water on Earth, with nobody near it |
+| Found by research | THE NOCTIS SIGNAL | THE ROOT SIGNAL, then VERITY DEEP |
+| Craft needed | ALBATROSS | EMPEROR |
+| Map label | NOCTIS LABYRINTHUS // FINAL ASSAULT | VERITY DEEP // FINAL ASSAULT |

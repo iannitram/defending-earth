@@ -1,0 +1,3277 @@
+{
+  "version": 2,
+  "values": [
+    {
+      "name": "rng multiplier",
+      "group": "rng",
+      "value": 214013,
+      "unit": "constant",
+      "source": "src/data.rs Rng"
+    },
+    {
+      "name": "rng increment",
+      "group": "rng",
+      "value": 2531011,
+      "unit": "constant",
+      "source": "src/data.rs Rng"
+    },
+    {
+      "name": "rand(n) range",
+      "group": "rng",
+      "value": "0..=n",
+      "unit": "formula",
+      "source": "src/data.rs Rng::rand"
+    },
+    {
+      "name": "chance(p)",
+      "group": "rng",
+      "value": "rand(100) < p",
+      "unit": "formula",
+      "source": "src/data.rs Rng::chance"
+    },
+    {
+      "name": "map size",
+      "group": "field",
+      "value": 26,
+      "unit": "tiles per side",
+      "source": "src/tactical.rs MAP"
+    },
+    {
+      "name": "squad size",
+      "group": "field",
+      "value": 8,
+      "unit": "soldiers",
+      "source": "src/tactical.rs start"
+    },
+    {
+      "name": "hostiles max",
+      "group": "field",
+      "value": 8,
+      "unit": "units",
+      "source": "src/tactical.rs start"
+    },
+    {
+      "name": "walk TU per tile",
+      "group": "movement",
+      "value": 4,
+      "unit": "TU",
+      "source": "src/tactical.rs walk_cost"
+    },
+    {
+      "name": "level up extra",
+      "group": "movement",
+      "value": 4,
+      "unit": "TU",
+      "source": "src/tactical.rs walk_cost"
+    },
+    {
+      "name": "level down extra",
+      "group": "movement",
+      "value": 2,
+      "unit": "TU",
+      "source": "src/tactical.rs walk_cost"
+    },
+    {
+      "name": "polar ground extra",
+      "group": "movement",
+      "value": 3,
+      "unit": "TU",
+      "source": "src/tactical.rs walk_cost"
+    },
+    {
+      "name": "diagonal multiplier",
+      "group": "movement",
+      "value": 1.5,
+      "unit": "x",
+      "source": "src/tactical.rs walk_cost"
+    },
+    {
+      "name": "kneel cost",
+      "group": "movement",
+      "value": 4,
+      "unit": "TU",
+      "source": "src/tactical.rs kneel"
+    },
+    {
+      "name": "stand up cost",
+      "group": "movement",
+      "value": 8,
+      "unit": "TU",
+      "source": "src/tactical.rs kneel"
+    },
+    {
+      "name": "reload cost",
+      "group": "movement",
+      "value": 15,
+      "unit": "TU",
+      "source": "src/tactical.rs update"
+    },
+    {
+      "name": "grenade throw cost",
+      "group": "movement",
+      "value": 25,
+      "unit": "% of max TU",
+      "source": "src/tactical.rs throw_grenade"
+    },
+    {
+      "name": "grenade range",
+      "group": "movement",
+      "value": 12,
+      "unit": "tiles",
+      "source": "src/tactical.rs throw_grenade"
+    },
+    {
+      "name": "trauma kit action",
+      "group": "movement",
+      "value": 10,
+      "unit": "TU",
+      "source": "src/tactical.rs use_trauma_kit"
+    },
+    {
+      "name": "psi action",
+      "group": "psi",
+      "value": 25,
+      "unit": "TU",
+      "source": "src/tactical.rs psi actions"
+    },
+    {
+      "name": "draw from shoulder",
+      "group": "inventory",
+      "value": 3,
+      "unit": "TU",
+      "source": "src/tactical.rs inventory panel"
+    },
+    {
+      "name": "take from belt",
+      "group": "inventory",
+      "value": 4,
+      "unit": "TU",
+      "source": "src/tactical.rs inventory panel"
+    },
+    {
+      "name": "take from backpack",
+      "group": "inventory",
+      "value": 8,
+      "unit": "TU",
+      "source": "src/tactical.rs inventory panel"
+    },
+    {
+      "name": "stow weapon to backpack",
+      "group": "inventory",
+      "value": 12,
+      "unit": "TU",
+      "source": "src/tactical.rs inventory panel"
+    },
+    {
+      "name": "set grenade fuse",
+      "group": "inventory",
+      "value": 14,
+      "unit": "TU",
+      "source": "src/tactical.rs inventory panel"
+    },
+    {
+      "name": "trauma kit heal",
+      "group": "field",
+      "value": 12,
+      "unit": "HP",
+      "source": "src/tactical.rs use_trauma_kit"
+    },
+    {
+      "name": "auto burst",
+      "group": "combat",
+      "value": 3,
+      "unit": "rounds",
+      "source": "src/tactical.rs fire"
+    },
+    {
+      "name": "kneel accuracy",
+      "group": "combat",
+      "value": "acc * 115 / 100",
+      "unit": "formula",
+      "source": "src/data.rs hit_chance"
+    },
+    {
+      "name": "health modifier",
+      "group": "combat",
+      "value": "max(10, 75 + 25*hp/max_hp - 10*wounds)",
+      "unit": "formula",
+      "source": "src/data.rs hit_chance"
+    },
+    {
+      "name": "hit chance",
+      "group": "combat",
+      "value": "(health_mod * acc / 100) * weapon_acc / 100",
+      "unit": "formula",
+      "source": "src/data.rs hit_chance"
+    },
+    {
+      "name": "elevation bonus",
+      "group": "combat",
+      "value": 10,
+      "unit": "% points",
+      "source": "src/tactical.rs fire"
+    },
+    {
+      "name": "hit chance clamp",
+      "group": "combat",
+      "value": "5..95",
+      "unit": "%",
+      "source": "src/tactical.rs fire"
+    },
+    {
+      "name": "fire TU cost",
+      "group": "combat",
+      "value": "max_tu * percent / 100",
+      "unit": "formula",
+      "source": "src/data.rs tu_cost"
+    },
+    {
+      "name": "damage roll",
+      "group": "combat",
+      "value": "rand(power * 2)",
+      "unit": "formula",
+      "source": "src/data.rs roll_damage"
+    },
+    {
+      "name": "blast damage roll",
+      "group": "combat",
+      "value": "rand(power) + power / 2",
+      "unit": "formula",
+      "source": "src/data.rs roll_damage"
+    },
+    {
+      "name": "damage after armour",
+      "group": "combat",
+      "value": "max(0, roll * table% / 100 - facing armour)",
+      "unit": "formula",
+      "source": "src/tactical.rs damage_unit"
+    },
+    {
+      "name": "armour wear",
+      "group": "combat",
+      "value": "modified / 10 + 1",
+      "unit": "formula",
+      "source": "src/tactical.rs damage_unit"
+    },
+    {
+      "name": "wound chance",
+      "group": "combat",
+      "value": "rand(10) < damage -> rand(2) + 1 wounds, cap 6",
+      "unit": "formula",
+      "source": "src/tactical.rs damage_unit"
+    },
+    {
+      "name": "morale loss on hit",
+      "group": "morale",
+      "value": "((bravery_mod * damage) / 10) * 100 / leadership",
+      "unit": "formula",
+      "source": "src/tactical.rs damage_unit"
+    },
+    {
+      "name": "soldier bravery_mod",
+      "group": "morale",
+      "value": "11 - bravery / 10",
+      "unit": "formula",
+      "source": "src/tactical.rs start"
+    },
+    {
+      "name": "creature bravery_mod",
+      "group": "morale",
+      "value": 3,
+      "unit": "constant",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "leadership: Recruit, Private",
+      "group": "morale",
+      "value": 100,
+      "unit": "%",
+      "source": "src/tactical.rs team_leadership"
+    },
+    {
+      "name": "leadership: Corporal",
+      "group": "morale",
+      "value": 110,
+      "unit": "%",
+      "source": "src/tactical.rs team_leadership"
+    },
+    {
+      "name": "leadership: Sergeant, Lieutenant",
+      "group": "morale",
+      "value": 115,
+      "unit": "%",
+      "source": "src/tactical.rs team_leadership"
+    },
+    {
+      "name": "leadership: Captain",
+      "group": "morale",
+      "value": 125,
+      "unit": "%",
+      "source": "src/tactical.rs team_leadership"
+    },
+    {
+      "name": "leadership: Major",
+      "group": "morale",
+      "value": 150,
+      "unit": "%",
+      "source": "src/tactical.rs team_leadership"
+    },
+    {
+      "name": "panic check",
+      "group": "morale",
+      "value": "morale < 50 and rand(100) <= 100 - morale*2",
+      "unit": "formula",
+      "source": "src/tactical.rs check_unit_panic"
+    },
+    {
+      "name": "turn start morale",
+      "group": "morale",
+      "value": 15,
+      "unit": "points",
+      "source": "src/tactical.rs begin_player_turn"
+    },
+    {
+      "name": "wound bleed",
+      "group": "morale",
+      "value": 1,
+      "unit": "HP per wound per turn",
+      "source": "src/tactical.rs begin_player_turn"
+    },
+    {
+      "name": "reaction score",
+      "group": "reaction",
+      "value": "reactions * tu / max_tu",
+      "unit": "formula",
+      "source": "src/tactical.rs reaction fire"
+    },
+    {
+      "name": "reaction shots per step",
+      "group": "reaction",
+      "value": 2,
+      "unit": "max",
+      "source": "src/tactical.rs reaction fire"
+    },
+    {
+      "name": "psi attack",
+      "group": "psi",
+      "value": "rand(55) + strength * skill / 50 - distance / 2",
+      "unit": "formula",
+      "source": "src/tactical.rs psi actions"
+    },
+    {
+      "name": "psi take defence bonus",
+      "group": "psi",
+      "value": 25,
+      "unit": "points",
+      "source": "src/tactical.rs psi actions"
+    },
+    {
+      "name": "psi rout drain",
+      "group": "psi",
+      "value": "min(75, max(attack - defence, 25) + 15)",
+      "unit": "formula",
+      "source": "src/tactical.rs psi actions"
+    },
+    {
+      "name": "blast radius",
+      "group": "explosion",
+      "value": "clamp(power / 20, 2.0, 5.5)",
+      "unit": "tiles",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "smoke radius",
+      "group": "explosion",
+      "value": "clamp(power / 20, 2.5, 6.0)",
+      "unit": "tiles",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "heat radius",
+      "group": "explosion",
+      "value": "clamp(power / 30, 2.0, 5.0)",
+      "unit": "tiles",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "frag grenade power",
+      "group": "explosion",
+      "value": 64,
+      "unit": "blast",
+      "source": "src/tactical.rs throw_grenade"
+    },
+    {
+      "name": "smoke grenade power",
+      "group": "explosion",
+      "value": 48,
+      "unit": "stun",
+      "source": "src/tactical.rs throw_grenade"
+    },
+    {
+      "name": "high wall armour",
+      "group": "cover",
+      "value": 35,
+      "unit": "points",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "high wall hp",
+      "group": "cover",
+      "value": 80,
+      "unit": "HP",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "low wall armour",
+      "group": "cover",
+      "value": 25,
+      "unit": "points",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "low wall hp",
+      "group": "cover",
+      "value": 60,
+      "unit": "HP",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "tree armour",
+      "group": "cover",
+      "value": 10,
+      "unit": "points",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "tree hp",
+      "group": "cover",
+      "value": 40,
+      "unit": "HP",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "boulder armour",
+      "group": "cover",
+      "value": 20,
+      "unit": "points",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "boulder hp",
+      "group": "cover",
+      "value": 50,
+      "unit": "HP",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "smoke cap",
+      "group": "smoke",
+      "value": 15,
+      "unit": "per tile",
+      "source": "src/tactical.rs explode"
+    },
+    {
+      "name": "smoke sight block",
+      "group": "smoke",
+      "value": 18,
+      "unit": "summed along line",
+      "source": "src/tactical.rs line of sight"
+    },
+    {
+      "name": "sight radius",
+      "group": "field",
+      "value": 12,
+      "unit": "tiles",
+      "source": "src/tactical.rs line of sight"
+    },
+    {
+      "name": "recruit tu",
+      "group": "soldiers",
+      "value": "48..=62",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit stamina",
+      "group": "soldiers",
+      "value": "45..=75",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit health",
+      "group": "soldiers",
+      "value": "32..=44",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit bravery",
+      "group": "soldiers",
+      "value": "20..=70",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit reactions",
+      "group": "soldiers",
+      "value": "32..=58",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit firing",
+      "group": "soldiers",
+      "value": "38..=66",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit throwing",
+      "group": "soldiers",
+      "value": "45..=75",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit strength",
+      "group": "soldiers",
+      "value": "25..=55",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "recruit psi strength",
+      "group": "soldiers",
+      "value": "5..=95",
+      "unit": "range",
+      "source": "src/data.rs Stats::recruit"
+    },
+    {
+      "name": "ranks",
+      "group": "soldiers",
+      "value": "RECRUIT, PRIVATE, CORPORAL, SERGEANT, LIEUTENANT, CAPTAIN, MAJOR",
+      "unit": "list",
+      "source": "src/data.rs RANKS"
+    },
+    {
+      "name": "promotion quotas",
+      "group": "soldiers",
+      "value": "N/5, N/11, N/23, N/30, 1 if N >= 30",
+      "unit": "formula",
+      "source": "src/data.rs evaluate_force_promotions"
+    },
+    {
+      "name": "COMBAT UNIFORM",
+      "group": "armour",
+      "value": {
+        "#": 0,
+        "step": "Issue",
+        "front": 8,
+        "side": 6,
+        "rear": 5,
+        "under": 2,
+        "class": "1 Soft",
+        "weight": 0,
+        "where": "Land"
+      },
+      "unit": "suit",
+      "source": "src/data.rs ARMORS"
+    },
+    {
+      "name": "LATTICE CARRIER",
+      "group": "armour",
+      "value": {
+        "#": 1,
+        "step": "Adapted",
+        "front": 46,
+        "side": 30,
+        "rear": 36,
+        "under": 20,
+        "class": "2 Plated",
+        "weight": 9,
+        "where": "Land"
+      },
+      "unit": "suit",
+      "source": "src/data.rs ARMORS"
+    },
+    {
+      "name": "SEALED FRAME",
+      "group": "armour",
+      "value": {
+        "#": 2,
+        "step": "Derived",
+        "front": 90,
+        "side": 72,
+        "rear": 64,
+        "under": 50,
+        "class": "3 Sealed",
+        "weight": 18,
+        "where": "Land"
+      },
+      "unit": "suit",
+      "source": "src/data.rs ARMORS"
+    },
+    {
+      "name": "DIVE RIG",
+      "group": "armour",
+      "value": {
+        "#": 3,
+        "step": "Issue",
+        "front": 40,
+        "side": 28,
+        "rear": 24,
+        "under": 16,
+        "class": "2 Plated",
+        "weight": 14,
+        "where": "Sea"
+      },
+      "unit": "suit",
+      "source": "src/data.rs ARMORS"
+    },
+    {
+      "name": "NACRE DIVE RIG",
+      "group": "armour",
+      "value": {
+        "#": 4,
+        "step": "Adapted",
+        "front": 84,
+        "side": 60,
+        "rear": 56,
+        "under": 40,
+        "class": "3 Sealed",
+        "weight": 17,
+        "where": "Sea"
+      },
+      "unit": "suit",
+      "source": "src/data.rs ARMORS"
+    },
+    {
+      "name": "DEEP FRAME",
+      "group": "armour",
+      "value": {
+        "#": 5,
+        "step": "Derived",
+        "front": 118,
+        "side": 88,
+        "rear": 80,
+        "under": 60,
+        "class": "3 Sealed",
+        "weight": 22,
+        "where": "Sea"
+      },
+      "unit": "suit",
+      "source": "src/data.rs ARMORS"
+    },
+    {
+      "name": "Tender",
+      "group": "creatures, land",
+      "value": {
+        "#": 0,
+        "hp": 24,
+        "tu": 62,
+        "react": 52,
+        "acc": 45,
+        "armour": "2/2/2/1/0",
+        "class": 1,
+        "psi str": 55,
+        "psi skill": 0,
+        "weapon": "ARC STYLUS",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Kite",
+      "group": "creatures, land",
+      "value": {
+        "#": 1,
+        "hp": 30,
+        "tu": 66,
+        "react": 68,
+        "acc": 48,
+        "armour": "5/4/4/3/8",
+        "class": 4,
+        "psi str": 20,
+        "psi skill": 0,
+        "weapon": "ARC CUTTER",
+        "melee": 0,
+        "floats": "yes"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Lash",
+      "group": "creatures, land",
+      "value": {
+        "#": 2,
+        "hp": 52,
+        "tu": 48,
+        "react": 55,
+        "acc": 55,
+        "armour": "16/14/14/12/8",
+        "class": 5,
+        "psi str": 30,
+        "psi skill": 0,
+        "weapon": "ARC CUTTER",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Maul",
+      "group": "creatures, land",
+      "value": {
+        "#": 3,
+        "hp": 110,
+        "tu": 52,
+        "react": 50,
+        "acc": 62,
+        "armour": "24/20/20/16/8",
+        "class": 7,
+        "psi str": 25,
+        "psi skill": 0,
+        "weapon": "ARC TORCH",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Regent",
+      "group": "creatures, land",
+      "value": {
+        "#": 4,
+        "hp": 48,
+        "tu": 60,
+        "react": 70,
+        "acc": 55,
+        "armour": "30/26/26/22/18",
+        "class": 6,
+        "psi str": 60,
+        "psi skill": 38,
+        "weapon": "ARC CUTTER",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Brooder",
+      "group": "creatures, land",
+      "value": {
+        "#": 5,
+        "hp": 84,
+        "tu": 96,
+        "react": 66,
+        "acc": 100,
+        "armour": "30/26/26/22/14",
+        "class": 9,
+        "psi str": 40,
+        "psi skill": 0,
+        "weapon": "NATURAL WEAPON",
+        "melee": 75,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Lathe",
+      "group": "creatures, land",
+      "value": {
+        "#": 6,
+        "hp": 105,
+        "tu": 58,
+        "react": 58,
+        "acc": 76,
+        "armour": "32/28/28/24/20",
+        "class": 12,
+        "psi str": 95,
+        "psi skill": 0,
+        "weapon": "ARC TORCH",
+        "melee": 0,
+        "floats": "yes"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Gorger",
+      "group": "creatures, land",
+      "value": {
+        "#": 7,
+        "hp": 150,
+        "tu": 70,
+        "react": 55,
+        "acc": 95,
+        "armour": "26/24/24/20/6",
+        "class": 10,
+        "psi str": 15,
+        "psi skill": 0,
+        "weapon": "NATURAL WEAPON",
+        "melee": 85,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Trestle",
+      "group": "creatures, land",
+      "value": {
+        "#": 8,
+        "hp": 115,
+        "tu": 50,
+        "react": 52,
+        "acc": 78,
+        "armour": "120/100/100/70/60",
+        "class": 11,
+        "psi str": 95,
+        "psi skill": 0,
+        "weapon": "ARC TORCH",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Bloat",
+      "group": "creatures, land",
+      "value": {
+        "#": 9,
+        "hp": 60,
+        "tu": 64,
+        "react": 38,
+        "acc": 60,
+        "armour": "14/14/14/14/14",
+        "class": 4,
+        "psi str": 35,
+        "psi skill": 0,
+        "weapon": "ARC STYLUS",
+        "melee": 0,
+        "floats": "yes"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Cinder",
+      "group": "creatures, land",
+      "value": {
+        "#": 10,
+        "hp": 95,
+        "tu": 34,
+        "react": 30,
+        "acc": 85,
+        "armour": "60/48/48/40/15",
+        "class": 8,
+        "psi str": 80,
+        "psi skill": 0,
+        "weapon": "NATURAL WEAPON",
+        "melee": 70,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Fathom",
+      "group": "creatures, sea",
+      "value": {
+        "#": 0,
+        "hp": 38,
+        "tu": 50,
+        "react": 50,
+        "acc": 50,
+        "armour": "8/6/6/4/2",
+        "class": 1,
+        "psi str": 25,
+        "psi skill": 0,
+        "weapon": "PRESSURE AWL",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Wader",
+      "group": "creatures, sea",
+      "value": {
+        "#": 1,
+        "hp": 46,
+        "tu": 60,
+        "react": 52,
+        "acc": 54,
+        "armour": "14/10/10/8/6",
+        "class": 5,
+        "psi str": 20,
+        "psi skill": 0,
+        "weapon": "PRESSURE BORE",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Mantle",
+      "group": "creatures, sea",
+      "value": {
+        "#": 2,
+        "hp": 98,
+        "tu": 54,
+        "react": 48,
+        "acc": 66,
+        "armour": "30/24/24/18/10",
+        "class": 7,
+        "psi str": 35,
+        "psi skill": 0,
+        "weapon": "PRESSURE RAM",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Deacon",
+      "group": "creatures, sea",
+      "value": {
+        "#": 3,
+        "hp": 70,
+        "tu": 62,
+        "react": 72,
+        "acc": 60,
+        "armour": "22/20/20/18/12",
+        "class": 6,
+        "psi str": 55,
+        "psi skill": 42,
+        "weapon": "PRESSURE BORE",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Bell",
+      "group": "creatures, sea",
+      "value": {
+        "#": 4,
+        "hp": 90,
+        "tu": 44,
+        "react": 40,
+        "acc": 90,
+        "armour": "70/60/60/50/20",
+        "class": 13,
+        "psi str": 70,
+        "psi skill": 0,
+        "weapon": "NATURAL WEAPON (DEEP)",
+        "melee": 80,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Silt",
+      "group": "creatures, sea",
+      "value": {
+        "#": 5,
+        "hp": 30,
+        "tu": 72,
+        "react": 60,
+        "acc": 85,
+        "armour": "6/5/5/4/10",
+        "class": 9,
+        "psi str": 30,
+        "psi skill": 0,
+        "weapon": "NATURAL WEAPON (DEEP)",
+        "melee": 65,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Lamp",
+      "group": "creatures, sea",
+      "value": {
+        "#": 6,
+        "hp": 100,
+        "tu": 66,
+        "react": 48,
+        "acc": 82,
+        "armour": "28/22/22/18/12",
+        "class": 12,
+        "psi str": 95,
+        "psi skill": 0,
+        "weapon": "PRESSURE RAM",
+        "melee": 0,
+        "floats": "yes"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Wreath",
+      "group": "creatures, sea",
+      "value": {
+        "#": 7,
+        "hp": 78,
+        "tu": 88,
+        "react": 74,
+        "acc": 95,
+        "armour": "18/16/16/14/10",
+        "class": 4,
+        "psi str": 85,
+        "psi skill": 0,
+        "weapon": "NATURAL WEAPON (DEEP)",
+        "melee": 85,
+        "floats": "yes"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "Hulk",
+      "group": "creatures, sea",
+      "value": {
+        "#": 8,
+        "hp": 165,
+        "tu": 58,
+        "react": 50,
+        "acc": 88,
+        "armour": "80/70/70/60/12",
+        "class": 10,
+        "psi str": 90,
+        "psi skill": 0,
+        "weapon": "PRESSURE RAM",
+        "melee": 0,
+        "floats": "no"
+      },
+      "unit": "creature",
+      "source": "src/tactical.rs alien_def"
+    },
+    {
+      "name": "SERVICE PISTOL",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 22,
+        "type": "KIN",
+        "acc auto/snap/aimed": "—/58/74",
+        "tu% auto/snap/aimed": "—/16/28",
+        "clip": 15,
+        "wt": 3,
+        "ammunition": "9MM MAGAZINE"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "SERVICE RIFLE",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 27,
+        "type": "KIN",
+        "acc auto/snap/aimed": "42/65/100",
+        "tu% auto/snap/aimed": "40/22/65",
+        "clip": 30,
+        "wt": 5,
+        "ammunition": "5.56 MAGAZINE"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "HEAVY RIFLE",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 62,
+        "type": "KIN",
+        "acc auto/snap/aimed": "—/55/115",
+        "tu% auto/snap/aimed": "—/34/78",
+        "clip": 10,
+        "wt": 15,
+        "ammunition": ".50 MAGAZINE"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "MACHINE GUN",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 34,
+        "type": "KIN",
+        "acc auto/snap/aimed": "48/52/78",
+        "tu% auto/snap/aimed": "38/30/72",
+        "clip": 50,
+        "wt": 14,
+        "ammunition": "7.62 BELT"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "AT LAUNCHER",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 90,
+        "type": "BLAST",
+        "acc auto/snap/aimed": "—/50/108",
+        "tu% auto/snap/aimed": "—/42/74",
+        "clip": 1,
+        "wt": 10,
+        "ammunition": "HE ROCKET"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "CORED PISTOL",
+      "group": "weapons, land",
+      "value": {
+        "step": "Adapted",
+        "dmg": 42,
+        "type": "CORE",
+        "acc auto/snap/aimed": "30/62/82",
+        "tu% auto/snap/aimed": "26/18/46",
+        "clip": "—",
+        "wt": 3,
+        "ammunition": "none"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "CORED RIFLE",
+      "group": "weapons, land",
+      "value": {
+        "step": "Adapted",
+        "dmg": 56,
+        "type": "CORE",
+        "acc auto/snap/aimed": "44/64/98",
+        "tu% auto/snap/aimed": "32/24/52",
+        "clip": "—",
+        "wt": 5,
+        "ammunition": "none"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "CORED HEAVY GUN",
+      "group": "weapons, land",
+      "value": {
+        "step": "Adapted",
+        "dmg": 78,
+        "type": "CORE",
+        "acc auto/snap/aimed": "—/48/88",
+        "tu% auto/snap/aimed": "—/32/72",
+        "clip": "—",
+        "wt": 12,
+        "ammunition": "none"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "ARC STYLUS",
+      "group": "weapons, land",
+      "value": {
+        "step": "enemy tool",
+        "dmg": 48,
+        "type": "ARC",
+        "acc auto/snap/aimed": "45/62/82",
+        "tu% auto/snap/aimed": "28/20/48",
+        "clip": 24,
+        "wt": 3,
+        "ammunition": "STYLUS CELL"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "ARC CUTTER",
+      "group": "weapons, land",
+      "value": {
+        "step": "enemy tool",
+        "dmg": 72,
+        "type": "ARC",
+        "acc auto/snap/aimed": "52/78/96",
+        "tu% auto/snap/aimed": "34/28/58",
+        "clip": 30,
+        "wt": 7,
+        "ammunition": "CUTTER CELL"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "ARC TORCH",
+      "group": "weapons, land",
+      "value": {
+        "step": "enemy tool",
+        "dmg": 104,
+        "type": "ARC",
+        "acc auto/snap/aimed": "46/70/108",
+        "tu% auto/snap/aimed": "36/30/62",
+        "clip": 36,
+        "wt": 11,
+        "ammunition": "TORCH CELL"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "FRAG GRENADE",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 64,
+        "type": "BLAST",
+        "acc auto/snap/aimed": "—/65/85",
+        "tu% auto/snap/aimed": "—/24/50",
+        "clip": "—",
+        "wt": 1,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "DEMO CHARGE",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 105,
+        "type": "BLAST",
+        "acc auto/snap/aimed": "—/55/75",
+        "tu% auto/snap/aimed": "—/30/55",
+        "clip": "—",
+        "wt": 3,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "STUN BATON",
+      "group": "weapons, land",
+      "value": {
+        "step": "Issue",
+        "dmg": 60,
+        "type": "STUN",
+        "acc auto/snap/aimed": "—/100/—",
+        "tu% auto/snap/aimed": "—/28/—",
+        "clip": "—",
+        "wt": 2,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "NATURAL WEAPON",
+      "group": "weapons, land",
+      "value": {
+        "step": "creatures only",
+        "dmg": 58,
+        "type": "CUT",
+        "acc auto/snap/aimed": "—/90/—",
+        "tu% auto/snap/aimed": "—/22/—",
+        "clip": "—",
+        "wt": 0,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs SURFACE_ITEMS"
+    },
+    {
+      "name": "DIVE PISTOL",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 20,
+        "type": "KIN",
+        "acc auto/snap/aimed": "—/54/70",
+        "tu% auto/snap/aimed": "—/17/30",
+        "clip": 5,
+        "wt": 3,
+        "ammunition": "PISTOL BOLTS"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "DIVE RIFLE",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 30,
+        "type": "KIN",
+        "acc auto/snap/aimed": "36/58/92",
+        "tu% auto/snap/aimed": "38/24/66",
+        "clip": 26,
+        "wt": 6,
+        "ammunition": "RIFLE BOLTS"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "HEAVY DIVE RIFLE",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 54,
+        "type": "KIN",
+        "acc auto/snap/aimed": "—/52/105",
+        "tu% auto/snap/aimed": "—/35/76",
+        "clip": 8,
+        "wt": 14,
+        "ammunition": "HEAVY BOLTS"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "DIVE MG",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 36,
+        "type": "KIN",
+        "acc auto/snap/aimed": "44/48/72",
+        "tu% auto/snap/aimed": "40/30/70",
+        "clip": 40,
+        "wt": 15,
+        "ammunition": "BOLT BELT"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "TORPEDO TUBE",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 96,
+        "type": "BLAST",
+        "acc auto/snap/aimed": "—/48/100",
+        "tu% auto/snap/aimed": "—/44/76",
+        "clip": 1,
+        "wt": 12,
+        "ammunition": "MINI TORPEDO"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "DIVE CHARGE",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 70,
+        "type": "BLAST",
+        "acc auto/snap/aimed": "—/60/80",
+        "tu% auto/snap/aimed": "—/26/52",
+        "clip": "—",
+        "wt": 2,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "STUN PROD",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 66,
+        "type": "STUN",
+        "acc auto/snap/aimed": "—/100/—",
+        "tu% auto/snap/aimed": "—/30/—",
+        "clip": "—",
+        "wt": 2,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "DIVE KNIFE",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Issue",
+        "dmg": 24,
+        "type": "CUT",
+        "acc auto/snap/aimed": "—/110/—",
+        "tu% auto/snap/aimed": "—/14/—",
+        "clip": "—",
+        "wt": 1,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "CAV PISTOL",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Adapted",
+        "dmg": 44,
+        "type": "CAV",
+        "acc auto/snap/aimed": "28/60/80",
+        "tu% auto/snap/aimed": "28/19/44",
+        "clip": 12,
+        "wt": 4,
+        "ammunition": "CAV PISTOL MAG"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "CAV RIFLE",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Adapted",
+        "dmg": 60,
+        "type": "CAV",
+        "acc auto/snap/aimed": "40/62/96",
+        "tu% auto/snap/aimed": "34/25/54",
+        "clip": 18,
+        "wt": 7,
+        "ammunition": "CAV RIFLE MAG"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "CAV HEAVY GUN",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Adapted",
+        "dmg": 82,
+        "type": "CAV",
+        "acc auto/snap/aimed": "—/46/90",
+        "tu% auto/snap/aimed": "—/33/74",
+        "clip": 10,
+        "wt": 15,
+        "ammunition": "CAV HEAVY MAG"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "PRESSURE AWL",
+      "group": "weapons, sea",
+      "value": {
+        "step": "enemy tool",
+        "dmg": 50,
+        "type": "PRES",
+        "acc auto/snap/aimed": "—/60/84",
+        "tu% auto/snap/aimed": "—/21/50",
+        "clip": 20,
+        "wt": 3,
+        "ammunition": "AWL CHARGE"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "PRESSURE BORE",
+      "group": "weapons, sea",
+      "value": {
+        "step": "enemy tool",
+        "dmg": 76,
+        "type": "PRES",
+        "acc auto/snap/aimed": "40/74/98",
+        "tu% auto/snap/aimed": "36/29/60",
+        "clip": 24,
+        "wt": 8,
+        "ammunition": "BORE CHARGE"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "PRESSURE RAM",
+      "group": "weapons, sea",
+      "value": {
+        "step": "enemy tool",
+        "dmg": 112,
+        "type": "PRES",
+        "acc auto/snap/aimed": "—/66/104",
+        "tu% auto/snap/aimed": "—/32/64",
+        "clip": 16,
+        "wt": 12,
+        "ammunition": "RAM CHARGE"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "SNARE PROJECTOR",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Adapted",
+        "dmg": 90,
+        "type": "STUN",
+        "acc auto/snap/aimed": "—/55/95",
+        "tu% auto/snap/aimed": "—/40/70",
+        "clip": 1,
+        "wt": 11,
+        "ammunition": "SNARE CHARGE"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "IMPLOSION POD",
+      "group": "weapons, sea",
+      "value": {
+        "step": "Derived",
+        "dmg": 100,
+        "type": "BLAST",
+        "acc auto/snap/aimed": "—/62/82",
+        "tu% auto/snap/aimed": "—/26/52",
+        "clip": "—",
+        "wt": 2,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "NATURAL WEAPON (DEEP)",
+      "group": "weapons, sea",
+      "value": {
+        "step": "creatures only",
+        "dmg": 62,
+        "type": "CUT",
+        "acc auto/snap/aimed": "—/90/—",
+        "tu% auto/snap/aimed": "—/22/—",
+        "clip": "—",
+        "wt": 0,
+        "ammunition": "—"
+      },
+      "unit": "weapon",
+      "source": "src/data.rs WATER_ITEMS"
+    },
+    {
+      "name": "SPORE",
+      "group": "enemy craft",
+      "value": {
+        "hull": 110,
+        "range": 14,
+        "damage": 22,
+        "accuracy": 50,
+        "weapon": "ARC NEEDLE",
+        "reload": 2.4,
+        "speed": 3000
+      },
+      "unit": "craft",
+      "source": "src/dogfight.rs DogfightState::new"
+    },
+    {
+      "name": "BURR",
+      "group": "enemy craft",
+      "value": {
+        "hull": 460,
+        "range": 22,
+        "damage": 46,
+        "accuracy": 60,
+        "weapon": "ARC LANCE",
+        "reload": 2.1,
+        "speed": 2600
+      },
+      "unit": "craft",
+      "source": "src/dogfight.rs DogfightState::new"
+    },
+    {
+      "name": "THORN",
+      "group": "enemy craft",
+      "value": {
+        "hull": 1100,
+        "range": 32,
+        "damage": 80,
+        "accuracy": 68,
+        "weapon": "ARC VOLLEY",
+        "reload": 1.9,
+        "speed": 3600
+      },
+      "unit": "craft",
+      "source": "src/dogfight.rs DogfightState::new"
+    },
+    {
+      "name": "RHIZOME",
+      "group": "enemy craft",
+      "value": {
+        "hull": 600,
+        "range": 25,
+        "damage": 55,
+        "accuracy": 62,
+        "weapon": "PRESSURE LANCE",
+        "reload": 2.1,
+        "speed": 3200
+      },
+      "unit": "craft",
+      "source": "src/dogfight.rs DogfightState::new"
+    },
+    {
+      "name": "TAPROOT",
+      "group": "enemy craft",
+      "value": {
+        "hull": 2600,
+        "range": 42,
+        "damage": 130,
+        "accuracy": 76,
+        "weapon": "MAIN DISCHARGE",
+        "reload": 1.6,
+        "speed": 4400
+      },
+      "unit": "craft",
+      "source": "src/dogfight.rs DogfightState::new"
+    },
+    {
+      "name": "SHORT-RANGE MISSILE",
+      "group": "craft weapons",
+      "value": {
+        "where": "Land",
+        "step": "Issue",
+        "range": 28,
+        "damage": 65,
+        "accuracy": 72,
+        "ammo": 6,
+        "cost": 18000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "LONG-RANGE MISSILE",
+      "group": "craft weapons",
+      "value": {
+        "where": "Land",
+        "step": "Issue",
+        "range": 58,
+        "damage": 95,
+        "accuracy": 78,
+        "ammo": 4,
+        "cost": 24000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "GUN POD (20MM)",
+      "group": "craft weapons",
+      "value": {
+        "where": "Land",
+        "step": "Issue",
+        "range": 9,
+        "damage": 12,
+        "accuracy": 30,
+        "ammo": 250,
+        "cost": 11000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "CORED LANCE",
+      "group": "craft weapons",
+      "value": {
+        "where": "Land",
+        "step": "Adapted",
+        "range": 24,
+        "damage": 75,
+        "accuracy": 40,
+        "ammo": "∞",
+        "cost": 170000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "ARC PROJECTOR",
+      "group": "craft weapons",
+      "value": {
+        "where": "Land",
+        "step": "enemy tool",
+        "range": 48,
+        "damage": 130,
+        "accuracy": 82,
+        "ammo": 80,
+        "cost": 240000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "BREACHER MISSILE",
+      "group": "craft weapons",
+      "value": {
+        "where": "Land",
+        "step": "Derived",
+        "range": 62,
+        "damage": 215,
+        "accuracy": 95,
+        "ammo": 2,
+        "cost": 310000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "LIGHT TORPEDO",
+      "group": "craft weapons",
+      "value": {
+        "where": "Sea",
+        "step": "Issue",
+        "range": 30,
+        "damage": 62,
+        "accuracy": 68,
+        "ammo": 8,
+        "cost": 17000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "HEAVY TORPEDO",
+      "group": "craft weapons",
+      "value": {
+        "where": "Sea",
+        "step": "Issue",
+        "range": 52,
+        "damage": 105,
+        "accuracy": 76,
+        "ammo": 4,
+        "cost": 25000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "BOLT CANNON",
+      "group": "craft weapons",
+      "value": {
+        "where": "Sea",
+        "step": "Issue",
+        "range": 7,
+        "damage": 14,
+        "accuracy": 28,
+        "ammo": 240,
+        "cost": 12000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "CAV CANNON",
+      "group": "craft weapons",
+      "value": {
+        "where": "Sea",
+        "step": "Adapted",
+        "range": 22,
+        "damage": 85,
+        "accuracy": 42,
+        "ammo": 60,
+        "cost": 175000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "PRESSURE PROJECTOR",
+      "group": "craft weapons",
+      "value": {
+        "where": "Sea",
+        "step": "enemy tool",
+        "range": 50,
+        "damage": 140,
+        "accuracy": 80,
+        "ammo": 90,
+        "cost": 250000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "BREACHER TORPEDO",
+      "group": "craft weapons",
+      "value": {
+        "where": "Sea",
+        "step": "Derived",
+        "range": 58,
+        "damage": 205,
+        "accuracy": 94,
+        "ammo": 2,
+        "cost": 320000
+      },
+      "unit": "craft weapon",
+      "source": "src/data.rs CRAFT_WEAPONS"
+    },
+    {
+      "name": "HERON",
+      "group": "craft",
+      "value": {
+        "where": "Land",
+        "step": "Issue",
+        "speed": 700,
+        "fuel": 1600,
+        "fuel type": "JET FUEL",
+        "seats": 12,
+        "mounts": 0,
+        "hull": 140,
+        "cost": 550000,
+        "upkeep / month": 36000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "SWIFT",
+      "group": "craft",
+      "value": {
+        "where": "Land",
+        "step": "Issue",
+        "speed": 1900,
+        "fuel": 900,
+        "fuel type": "JET FUEL",
+        "seats": 0,
+        "mounts": 2,
+        "hull": 110,
+        "cost": 650000,
+        "upkeep / month": 12000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "PEREGRINE",
+      "group": "craft",
+      "value": {
+        "where": "Land",
+        "step": "Adapted",
+        "speed": 3800,
+        "fuel": 24,
+        "fuel type": "ELECTROLYTE",
+        "seats": 0,
+        "mounts": 2,
+        "hull": 240,
+        "cost": 1300000,
+        "upkeep / month": 18000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "IBIS",
+      "group": "craft",
+      "value": {
+        "where": "Land",
+        "step": "Adapted",
+        "speed": 2900,
+        "fuel": 32,
+        "fuel type": "ELECTROLYTE",
+        "seats": 10,
+        "mounts": 1,
+        "hull": 280,
+        "cost": 1500000,
+        "upkeep / month": 24000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "ALBATROSS",
+      "group": "craft",
+      "value": {
+        "where": "Land",
+        "step": "Derived",
+        "speed": 5000,
+        "fuel": 64,
+        "fuel type": "ELECTROLYTE",
+        "seats": 20,
+        "mounts": 2,
+        "hull": 480,
+        "cost": 2800000,
+        "upkeep / month": 34000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "GANNET",
+      "group": "craft",
+      "value": {
+        "where": "Sea",
+        "step": "Issue",
+        "speed": 720,
+        "fuel": 1500,
+        "fuel type": "DIESEL-ELECTRIC",
+        "seats": 12,
+        "mounts": 0,
+        "hull": 150,
+        "cost": 550000,
+        "upkeep / month": 36000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "SKUA",
+      "group": "craft",
+      "value": {
+        "where": "Sea",
+        "step": "Issue",
+        "speed": 2200,
+        "fuel": 850,
+        "fuel type": "DIESEL-ELECTRIC",
+        "seats": 0,
+        "mounts": 2,
+        "hull": 125,
+        "cost": 650000,
+        "upkeep / month": 12000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "CORMORANT",
+      "group": "craft",
+      "value": {
+        "where": "Sea",
+        "step": "Adapted",
+        "speed": 4100,
+        "fuel": 28,
+        "fuel type": "LIVE BRINE",
+        "seats": 0,
+        "mounts": 2,
+        "hull": 260,
+        "cost": 1400000,
+        "upkeep / month": 18000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "RAZORBILL",
+      "group": "craft",
+      "value": {
+        "where": "Sea",
+        "step": "Adapted",
+        "speed": 3600,
+        "fuel": 40,
+        "fuel type": "LIVE BRINE",
+        "seats": 10,
+        "mounts": 1,
+        "hull": 320,
+        "cost": 1600000,
+        "upkeep / month": 24000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "EMPEROR",
+      "group": "craft",
+      "value": {
+        "where": "Sea",
+        "step": "Derived",
+        "speed": 5000,
+        "fuel": 64,
+        "fuel type": "LIVE BRINE",
+        "seats": 20,
+        "mounts": 2,
+        "hull": 520,
+        "cost": 2900000,
+        "upkeep / month": 38000
+      },
+      "unit": "craft",
+      "source": "src/data.rs CRAFT_CATALOG"
+    },
+    {
+      "name": "ENTRY SHAFT / MOON POOL",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 250000,
+        "build days": 2,
+        "upkeep / month": 5000,
+        "gives": "Way in and out"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "BARRACKS / BERTHING",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 350000,
+        "build days": 14,
+        "upkeep / month": 8000,
+        "gives": "Room for 48 people"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "RESEARCH LAB / WET LAB",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 700000,
+        "build days": 28,
+        "upkeep / month": 28000,
+        "gives": "40 scientists"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "MACHINE SHOP",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 750000,
+        "build days": 28,
+        "upkeep / month": 32000,
+        "gives": "40 engineers"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "SEARCH RADAR / SEARCH SONAR",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 450000,
+        "build days": 14,
+        "upkeep / month": 9000,
+        "gives": "Detection to 750 nm"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "LONG-RANGE RADAR / TOWED ARRAY",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 850000,
+        "build days": 21,
+        "upkeep / month": 17000,
+        "gives": "Detection to 1,500 nm"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "SAM BATTERY / TORPEDO BATTERY",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 250000,
+        "build days": 14,
+        "upkeep / month": 6000,
+        "gives": "Defence 450"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "SUPPLY BAY",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 200000,
+        "build days": 7,
+        "upkeep / month": 4000,
+        "gives": "60 units of storage"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "HOLDING BLOCK / HOLDING TANK",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 450000,
+        "build days": 21,
+        "upkeep / month": 14000,
+        "gives": "8 live captives"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "CORED BATTERY / CAV BATTERY",
+      "group": "facilities",
+      "value": {
+        "step": "Adapted",
+        "cost": 450000,
+        "build days": 21,
+        "upkeep / month": 9000,
+        "gives": "Defence 650"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "ARC BATTERY / PRESSURE BATTERY",
+      "group": "facilities",
+      "value": {
+        "step": "enemy tool",
+        "cost": 650000,
+        "build days": 28,
+        "upkeep / month": 13000,
+        "gives": "Defence 950"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "DERIVED BATTERY",
+      "group": "facilities",
+      "value": {
+        "step": "Derived",
+        "cost": 900000,
+        "build days": 35,
+        "upkeep / month": 18000,
+        "gives": "Defence 1300"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "FARADAY SCREEN / BAFFLE SCREEN",
+      "group": "facilities",
+      "value": {
+        "step": "Adapted",
+        "cost": 1100000,
+        "build days": 35,
+        "upkeep / month": 16000,
+        "gives": "Defence 350"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "PSI DAMPER",
+      "group": "facilities",
+      "value": {
+        "step": "Adapted",
+        "cost": 1250000,
+        "build days": 35,
+        "upkeep / month": 18000,
+        "gives": "Hides the base from scouts"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "PSI WING",
+      "group": "facilities",
+      "value": {
+        "step": "Adapted",
+        "cost": 800000,
+        "build days": 21,
+        "upkeep / month": 16000,
+        "gives": "Psi testing and training"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "SIGINT STATION",
+      "group": "facilities",
+      "value": {
+        "step": "Adapted",
+        "cost": 1500000,
+        "build days": 28,
+        "upkeep / month": 32000,
+        "gives": "Detection to 2,600 nm with class, crew and heading"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "HANGAR / WET DOCK",
+      "group": "facilities",
+      "value": {
+        "step": "Issue",
+        "cost": 250000,
+        "build days": 21,
+        "upkeep / month": 22000,
+        "gives": "One craft; takes 2×2"
+      },
+      "unit": "module",
+      "source": "src/data.rs FACILITY_CATALOG"
+    },
+    {
+      "name": "CORED WEAPONS",
+      "group": "research, landfall",
+      "value": {
+        "points": 140,
+        "needs": "—",
+        "opens": "Cored pistol, rifle, heavy gun topics"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "CORED PISTOL",
+      "group": "research, landfall",
+      "value": {
+        "points": 90,
+        "needs": "Cored Weapons",
+        "opens": "Cored Pistol"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "CORED RIFLE",
+      "group": "research, landfall",
+      "value": {
+        "points": 180,
+        "needs": "Cored Weapons",
+        "opens": "Cored Rifle"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "CORED HEAVY GUN",
+      "group": "research, landfall",
+      "value": {
+        "points": 240,
+        "needs": "Cored Weapons",
+        "opens": "Cored Heavy Gun"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "CORED LANCE",
+      "group": "research, landfall",
+      "value": {
+        "points": 320,
+        "needs": "Cored Heavy Gun",
+        "opens": "Aircraft weapon: Cored Lance"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "LATTICE",
+      "group": "research, landfall",
+      "value": {
+        "points": 220,
+        "needs": "—",
+        "opens": "Lattice Carrier, enemy craft studies"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "LATTICE CARRIER",
+      "group": "research, landfall",
+      "value": {
+        "points": 160,
+        "needs": "Lattice",
+        "opens": "Lattice Carrier"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "SEALED FRAME",
+      "group": "research, landfall",
+      "value": {
+        "points": 320,
+        "needs": "Lattice Carrier, Electrolyte",
+        "opens": "Sealed Frame"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "ARC TOOLS",
+      "group": "research, landfall",
+      "value": {
+        "points": 380,
+        "needs": "—",
+        "opens": "Arc Stylus, Arc Cutter, Arc Torch"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "ELECTROLYTE",
+      "group": "research, landfall",
+      "value": {
+        "points": 260,
+        "needs": "—",
+        "opens": "Sealed Frame, enemy power plant"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "ENEMY POWER PLANT",
+      "group": "research, landfall",
+      "value": {
+        "points": 340,
+        "needs": "Electrolyte",
+        "opens": "Enemy airframe"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "ENEMY GUIDANCE",
+      "group": "research, landfall",
+      "value": {
+        "points": 310,
+        "needs": "Lattice",
+        "opens": "SIGINT Station, enemy airframe"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "ENEMY AIRFRAME",
+      "group": "research, landfall",
+      "value": {
+        "points": 440,
+        "needs": "Enemy Power Plant, Enemy Guidance",
+        "opens": "Peregrine"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "SIGINT STATION",
+      "group": "research, landfall",
+      "value": {
+        "points": 420,
+        "needs": "Enemy Guidance",
+        "opens": "SIGINT Station module"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "PSI STUDIES",
+      "group": "research, landfall",
+      "value": {
+        "points": 360,
+        "needs": "—",
+        "opens": "Psi Wing module"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "THE NOCTIS SIGNAL",
+      "group": "research, landfall",
+      "value": {
+        "points": 520,
+        "needs": "Enemy Airframe",
+        "opens": "Noctis Labyrinthus objective, Albatross"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "LIVE STUDY: TENDER",
+      "group": "research, landfall",
+      "value": {
+        "points": 140,
+        "needs": "a live Tender",
+        "opens": "Tender file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "LIVE STUDY: LASH",
+      "group": "research, landfall",
+      "value": {
+        "points": 170,
+        "needs": "a live Lash",
+        "opens": "Lash file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "LIVE STUDY: MAUL",
+      "group": "research, landfall",
+      "value": {
+        "points": 190,
+        "needs": "a live Maul",
+        "opens": "Maul file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "LIVE STUDY: REGENT",
+      "group": "research, landfall",
+      "value": {
+        "points": 310,
+        "needs": "a live Regent",
+        "opens": "Regent file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_SURFACE"
+    },
+    {
+      "name": "NACRE PLATE",
+      "group": "research, undertow",
+      "value": {
+        "points": 230,
+        "needs": "—",
+        "opens": "Nacre Dive Rig, enemy sea guidance"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "NACRE DIVE RIG",
+      "group": "research, undertow",
+      "value": {
+        "points": 190,
+        "needs": "Nacre",
+        "opens": "Nacre Dive Rig"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "DEEP FRAME",
+      "group": "research, undertow",
+      "value": {
+        "points": 330,
+        "needs": "Nacre Dive Rig, Live Brine",
+        "opens": "Deep Frame"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "DEEP FRAME THRUST PACK",
+      "group": "research, undertow",
+      "value": {
+        "points": 410,
+        "needs": "Deep Frame, Enemy Sea Guidance",
+        "opens": "Deep Frame Thrust Pack"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "CAV WEAPONS",
+      "group": "research, undertow",
+      "value": {
+        "points": 170,
+        "needs": "—",
+        "opens": "Cav pistol, rifle, heavy gun"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "CAV RIFLE",
+      "group": "research, undertow",
+      "value": {
+        "points": 140,
+        "needs": "Cav Weapons",
+        "opens": "Cav Rifle"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "CAV HEAVY GUN",
+      "group": "research, undertow",
+      "value": {
+        "points": 230,
+        "needs": "Cav Weapons",
+        "opens": "Cav Heavy Gun"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "PRESSURE TOOLS",
+      "group": "research, undertow",
+      "value": {
+        "points": 400,
+        "needs": "—",
+        "opens": "Pressure Awl, Bore, Ram"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "LIVE BRINE",
+      "group": "research, undertow",
+      "value": {
+        "points": 260,
+        "needs": "—",
+        "opens": "Deep Frame, brine drive"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "ENEMY SEA GUIDANCE",
+      "group": "research, undertow",
+      "value": {
+        "points": 310,
+        "needs": "Nacre",
+        "opens": "SIGINT Station, enemy pressure hull"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "BRINE DRIVE",
+      "group": "research, undertow",
+      "value": {
+        "points": 370,
+        "needs": "Live Brine",
+        "opens": "Enemy pressure hull"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "ENEMY PRESSURE HULL",
+      "group": "research, undertow",
+      "value": {
+        "points": 470,
+        "needs": "Brine Drive, Enemy Sea Guidance",
+        "opens": "Cormorant"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "SIGINT STATION",
+      "group": "research, undertow",
+      "value": {
+        "points": 420,
+        "needs": "Enemy Sea Guidance",
+        "opens": "SIGINT Station module"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "PSI STUDIES",
+      "group": "research, undertow",
+      "value": {
+        "points": 370,
+        "needs": "—",
+        "opens": "Psi Wing module"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "THE ROOT SIGNAL",
+      "group": "research, undertow",
+      "value": {
+        "points": 460,
+        "needs": "Enemy Pressure Hull",
+        "opens": "Verity Deep study"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "VERITY DEEP",
+      "group": "research, undertow",
+      "value": {
+        "points": 560,
+        "needs": "The Root Signal, Enemy Pressure Hull",
+        "opens": "Verity Deep objective, Emperor"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "LIVE STUDY: FATHOM",
+      "group": "research, undertow",
+      "value": {
+        "points": 150,
+        "needs": "a live Fathom",
+        "opens": "Fathom file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "LIVE STUDY: WADER",
+      "group": "research, undertow",
+      "value": {
+        "points": 170,
+        "needs": "a live Wader",
+        "opens": "Wader file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "LIVE STUDY: MANTLE",
+      "group": "research, undertow",
+      "value": {
+        "points": 230,
+        "needs": "a live Mantle",
+        "opens": "Mantle file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "LIVE STUDY: DEACON",
+      "group": "research, undertow",
+      "value": {
+        "points": 330,
+        "needs": "a live Deacon",
+        "opens": "Deacon file"
+      },
+      "unit": "topic",
+      "source": "src/data.rs RESEARCH_WATER"
+    },
+    {
+      "name": "LATTICE CARRIER",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "Lattice Carrier",
+        "engineer hours": 700,
+        "cost": 20000,
+        "structure": 4,
+        "power": 0
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "SEALED FRAME",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "Sealed Frame",
+        "engineer hours": 1100,
+        "cost": 48000,
+        "structure": 6,
+        "power": 4
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "CORED PISTOL",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "Cored Pistol",
+        "engineer hours": 250,
+        "cost": 9000,
+        "structure": 1,
+        "power": 0
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "CORED RIFLE",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "Cored Rifle",
+        "engineer hours": 450,
+        "cost": 18000,
+        "structure": 2,
+        "power": 0
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "CORED HEAVY GUN",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "Cored Heavy Gun",
+        "engineer hours": 750,
+        "cost": 36000,
+        "structure": 4,
+        "power": 0
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "CORED LANCE",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "Cored Lance",
+        "engineer hours": 1100,
+        "cost": 170000,
+        "structure": 6,
+        "power": 0
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "PEREGRINE INTERCEPTOR",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "Enemy Airframe",
+        "engineer hours": 4200,
+        "cost": 1300000,
+        "structure": 22,
+        "power": 14
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "ALBATROSS TRANSPORT",
+      "group": "workshop",
+      "value": {
+        "campaign": "LANDFALL",
+        "needs research": "The Noctis Signal",
+        "engineer hours": 8500,
+        "cost": 2800000,
+        "structure": 42,
+        "power": 32
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "NACRE DIVE RIG",
+      "group": "workshop",
+      "value": {
+        "campaign": "UNDERTOW",
+        "needs research": "Nacre Dive Rig",
+        "engineer hours": 750,
+        "cost": 22000,
+        "structure": 4,
+        "power": 0
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "DEEP FRAME",
+      "group": "workshop",
+      "value": {
+        "campaign": "UNDERTOW",
+        "needs research": "Deep Frame",
+        "engineer hours": 1150,
+        "cost": 50000,
+        "structure": 6,
+        "power": 4
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "DEEP FRAME THRUST PACK",
+      "group": "workshop",
+      "value": {
+        "campaign": "UNDERTOW",
+        "needs research": "Deep Frame Thrust Pack",
+        "engineer hours": 1500,
+        "cost": 62000,
+        "structure": 8,
+        "power": 7
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "CAV RIFLE",
+      "group": "workshop",
+      "value": {
+        "campaign": "UNDERTOW",
+        "needs research": "Cav Rifle",
+        "engineer hours": 450,
+        "cost": 19000,
+        "structure": 2,
+        "power": 0
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "CORMORANT ATTACK SUB",
+      "group": "workshop",
+      "value": {
+        "campaign": "UNDERTOW",
+        "needs research": "Enemy Pressure Hull",
+        "engineer hours": 4400,
+        "cost": 1400000,
+        "structure": 24,
+        "power": 14
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "EMPEROR TRANSPORT SUB",
+      "group": "workshop",
+      "value": {
+        "campaign": "UNDERTOW",
+        "needs research": "Verity Deep",
+        "engineer hours": 9200,
+        "cost": 2900000,
+        "structure": 46,
+        "power": 36
+      },
+      "unit": "blueprint",
+      "source": "src/data.rs WORKSHOP_BLUEPRINTS"
+    },
+    {
+      "name": "SERVICE RIFLE",
+      "group": "market",
+      "value": 2600,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "5.56 MAGAZINE",
+      "group": "market",
+      "value": 300,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "HEAVY RIFLE",
+      "group": "market",
+      "value": 7200,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "DIVE RIFLE",
+      "group": "market",
+      "value": 2900,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "RIFLE BOLTS",
+      "group": "market",
+      "value": 340,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "HEAVY DIVE RIFLE",
+      "group": "market",
+      "value": 7600,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "FRAG GRENADE",
+      "group": "market",
+      "value": 250,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "DIVE CHARGE",
+      "group": "market",
+      "value": 280,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "TRAUMA KIT",
+      "group": "market",
+      "value": 800,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "HANDHELD RADAR / HANDHELD SONAR",
+      "group": "market",
+      "value": 1500,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "SWIFT INTERCEPTOR / SKUA ATTACK SUB",
+      "group": "market",
+      "value": 650000,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "HERON TRANSPORT / GANNET TRANSPORT SUB",
+      "group": "market",
+      "value": 550000,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "LATTICE",
+      "group": "sale",
+      "value": 6000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "ELECTROLYTE",
+      "group": "sale",
+      "value": 5500,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "NACRE PLATE",
+      "group": "sale",
+      "value": 7000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "LIVE BRINE",
+      "group": "sale",
+      "value": 6500,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "LIVE ALIEN CAPTIVE",
+      "group": "sale",
+      "value": 45000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "ARC TORCH",
+      "group": "sale",
+      "value": 160000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "ARC CUTTER",
+      "group": "sale",
+      "value": 115000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "CUTTER CELL",
+      "group": "sale",
+      "value": 8000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "PRESSURE RAM",
+      "group": "sale",
+      "value": 175000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "PRESSURE BORE",
+      "group": "sale",
+      "value": 130000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "ALIEN CORPSE",
+      "group": "sale",
+      "value": 18000,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "SERVICE RIFLE",
+      "group": "sale",
+      "value": 1300,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "DIVE RIFLE",
+      "group": "sale",
+      "value": 1450,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "Anything else",
+      "group": "sale",
+      "value": 700,
+      "unit": "$",
+      "source": "src/base.rs sale list"
+    },
+    {
+      "name": "damage modifiers, land",
+      "group": "damage table",
+      "value": "see MECHANICS.md section 6",
+      "unit": "% [type][armour class]",
+      "source": "src/data.rs DAMAGE_MODS"
+    },
+    {
+      "name": "damage modifiers, under water",
+      "group": "damage table",
+      "value": "see MECHANICS.md section 6",
+      "unit": "% [type][armour class]",
+      "source": "src/data.rs DAMAGE_MODS_WATER"
+    },
+    {
+      "name": "stance distance: SHADOW",
+      "group": "interception",
+      "value": 65,
+      "unit": "km",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "stance distance: PRESS",
+      "group": "interception",
+      "value": 22,
+      "unit": "km",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "stance distance: CLOSE IN",
+      "group": "interception",
+      "value": 7.5,
+      "unit": "km",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "stance distance: BREAK OFF",
+      "group": "interception",
+      "value": 85,
+      "unit": "km",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "craft hit chance",
+      "group": "interception",
+      "value": "clamp(acc/2 + ((acc/2) / (5 - stance)) * 3, 5, 100); stance 1 LONG SHOT, 2 PRESS, 3 CLOSE IN",
+      "unit": "formula",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "craft hit damage",
+      "group": "interception",
+      "value": "max(1, (rand(damage) + damage) / 2)",
+      "unit": "formula",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "contact breaks up",
+      "group": "interception",
+      "value": 140,
+      "unit": "single-hit damage",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "enemy hit chance",
+      "group": "interception",
+      "value": "rand(100) > 40",
+      "unit": "formula",
+      "source": "src/dogfight.rs update_combat"
+    },
+    {
+      "name": "starting fund",
+      "group": "money",
+      "value": 6000000,
+      "unit": "$",
+      "source": "src/main.rs new_campaign"
+    },
+    {
+      "name": "hire soldier",
+      "group": "money",
+      "value": 40000,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "hire scientist",
+      "group": "money",
+      "value": 60000,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "hire engineer",
+      "group": "money",
+      "value": 50000,
+      "unit": "$",
+      "source": "src/base.rs market list"
+    },
+    {
+      "name": "soldier salary",
+      "group": "money",
+      "value": 20000,
+      "unit": "$",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "scientist salary",
+      "group": "money",
+      "value": 30000,
+      "unit": "$",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "engineer salary",
+      "group": "money",
+      "value": 25000,
+      "unit": "$",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "minimum member funding",
+      "group": "money",
+      "value": 40000,
+      "unit": "$",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "deficit notice debt",
+      "group": "money",
+      "value": 1000000,
+      "unit": "$",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "funding change",
+      "group": "money",
+      "value": "5..=21 % up when net activity > 30 or satisfaction >= 80; down when net activity < -30 or panic > 50",
+      "unit": "formula",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "separate terms",
+      "group": "money",
+      "value": "satisfaction < 15 and panic >= 70",
+      "unit": "formula",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "rating thresholds",
+      "group": "money",
+      "value": ">500 EXCELLENT, >0 GOOD, >-300 SATISFACTORY, >-600 POOR, else TERRIBLE",
+      "unit": "score",
+      "source": "src/main.rs monthly_tick"
+    },
+    {
+      "name": "score: mission won",
+      "group": "score",
+      "value": 100,
+      "unit": "points",
+      "source": "src/main.rs finish_mission"
+    },
+    {
+      "name": "score: per hostile down",
+      "group": "score",
+      "value": 20,
+      "unit": "points",
+      "source": "src/main.rs finish_mission"
+    },
+    {
+      "name": "score: per soldier lost",
+      "group": "score",
+      "value": -15,
+      "unit": "points",
+      "source": "src/main.rs finish_mission"
+    },
+    {
+      "name": "score: mission lost",
+      "group": "score",
+      "value": -60,
+      "unit": "points",
+      "source": "src/main.rs finish_mission"
+    },
+    {
+      "name": "score: site went cold",
+      "group": "score",
+      "value": -30,
+      "unit": "points",
+      "source": "src/main.rs update"
+    },
+    {
+      "name": "score: live study completed",
+      "group": "score",
+      "value": 150,
+      "unit": "points",
+      "source": "src/main.rs daily_tick"
+    },
+    {
+      "name": "research rate",
+      "group": "base",
+      "value": 24,
+      "unit": "points per scientist per day",
+      "source": "src/main.rs daily_tick"
+    },
+    {
+      "name": "workshop rate",
+      "group": "base",
+      "value": 24,
+      "unit": "hours per engineer per day",
+      "source": "src/main.rs daily_tick"
+    },
+    {
+      "name": "holding capacity",
+      "group": "base",
+      "value": 8,
+      "unit": "captives per module",
+      "source": "src/main.rs holding_cap"
+    },
+    {
+      "name": "contact interval",
+      "group": "situation map",
+      "value": "600..=1600",
+      "unit": "game minutes",
+      "source": "src/main.rs update"
+    }
+  ]
+}

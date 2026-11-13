@@ -1,0 +1,20 @@
+{
+  "steps": [
+    {
+      "detail": "move_dist=2.00 (min 1.5)",
+      "passed": true,
+      "step": "move"
+    },
+    {
+      "detail": "shots_fired=6, hits=1",
+      "passed": true,
+      "step": "act"
+    },
+    {
+      "detail": "hud_health=true, hud_ammo=true, hud_objective=true",
+      "passed": true,
+      "step": "hud"
+    }
+  ],
+  "version": 1
+}
