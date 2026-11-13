@@ -72,7 +72,8 @@ user until the land campaign is much further along.
 1. **Graphics phase 3:** flashlights, flares, fire.
 2. Overcast, storm and night skies from Poly Haven HDRIs (downloads need the
    Tailscale exit node on).
-3. Phases 4–7 as listed in `ROADMAP.md`.
+3. Phases 4–9 as listed in `ROADMAP.md`, which now holds the full list of
+   things to design and animate and which AI model does which part.
 4. Lore: continue from "Proposed, not yet answered" in `LORE.md`.
 
 ## Known flaws

@@ -62,6 +62,107 @@ frame-time check):
 5. Enemy creatures.
 6. Weapon, armour and item designs across the three design steps.
 7. Base modules.
+8. Environment objects: trees, plants, rocks, buildings, walls, fences,
+   crates and field clutter for all seven biomes, with broken versions.
+9. Vehicles and craft: player craft, enemy craft (flying, landed and
+   crashed), ground vehicles seen in towns and farms.
+
+Phases 4 to 9 together must cover **every** thing in the game. The full list,
+the motions each thing needs, and which AI model does which part are in
+"Design and animation catalogue" below. A phase is not done until every row
+it owns is designed, built, animated and judged in screenshots.
+
+#### Design and animation catalogue (added 2026-11-13, the user's request)
+
+Every thing goes through the same five steps:
+1. **Design sheet.** What it is, what it is for, how it looks, written and
+   agreed with the user (creatures: lore first, in `LORE.md`).
+2. **Model.** Built in Blender by script, with baked textures, checked in a
+   test render.
+3. **Rig.** A skeleton inside it, for anything that bends or has moving parts.
+4. **Motions.** Each motion in its list, posed from reference frames, checked
+   as a strip of pictures.
+5. **In the game.** Exported, drawn by the game, judged in screenshots at
+   the real camera height.
+
+Counts come from `NAMES.md` and the code today; sea rows wait until the sea
+campaign is picked up again.
+
+| Group | What must be designed | How many today | Phase |
+|---|---|---|---|
+| Soldiers | Body builds, faces, skin, hair; the appearance generator | 1 generator, many results | 4 |
+| Soldier armour | Every armour, in its design step, worn and damaged | 6 | 4 and 6 |
+| Land creatures | Every kind in the land table, plus its corpse or wreck and its captive form | 11 kinds | 5 |
+| Sea creatures | Every kind in the sea table (deferred) | 9 kinds | 5, later |
+| Soldier weapons | Every weapon and its ammunition, held, slung, dropped | 32 | 6 |
+| Other items | Grenades, smoke, trip mine, radar, sonar, trauma kit, flares, lights, pack | about 10 | 3 and 6 |
+| Materials and recovered parts | Each material and fuel as an object in stores and in wrecks | 6 | 6 |
+| Base modules | Every module, outside and inside, with broken versions | 17 | 7 |
+| Base people | Small figures of soldiers, scientists and engineers at work (the user's base-view idea) | 3 roles | 7 |
+| Trees and plants | Per biome: 2 to 4 trees, bushes, ground plants, crops; each in four seasons | 7 biomes | 8 |
+| Rocks and ground forms | Boulders, cliffs, dunes, ice ridges, river banks | per biome | 8 |
+| Buildings | Per biome: houses, barns, sheds, shops, with insides and broken versions | 7 biomes | 8 |
+| Field clutter | Walls, fences, hedges, crates, hay bales, log piles, signs, poles, wells, street things | about 30 | 8 |
+| Civilians and animals | Townspeople and livestock (they are what the collector craft takes) | to be decided with the user | 8 |
+| Player craft | Every craft, outside, inside (the troop bay is on the battlefield), on the ground and in the air | 5 land, 5 sea later | 9 |
+| Enemy craft | Every class: flying, landed, crashed, and its inside | 4 land, 1 sea later | 9 |
+| Craft weapons | Each weapon as fitted to a craft | 12 | 9 |
+| Ground vehicles | Cars, trucks, tractors, wrecks as cover | about 8 | 9 |
+| The two final sites | Nocturne and Verity Deep: their own structures and objects | 2 | 9, after lore |
+| Effects | Muzzle flash, tracers, smoke, fire, blasts, dust kicks, arcs, blood, debris | about 15 | 3, then each phase |
+
+Motions each group needs:
+
+| Group | Motions |
+|---|---|
+| Soldiers | Stand, walk, run, crouch walk, kneel, go prone, turn; aim, fire (single, burst, auto), reload, throw, use item, heal another; climb, drop, open door; hit reactions by body part, stagger, panic, burning; fall dead in several ways, lie wounded, be carried; idle fidgets. Each weapon class changes the carry, aim and reload |
+| Land creatures | For every kind: idle, move in its own way (walk, slither with a real body wave, glide, hover, drift, crawl), turn, attack (each kind of attack), take a hit, die, lie dead; special acts (psi, spawning, spitting, taking a body); the electrical flicker that stops at death |
+| Husks | A taken soldier's motions, made wrong: delayed, off balance |
+| Civilians and animals | Stand, walk, run, cower, fall |
+| Player craft | Fly, hover, land, take off; rotors, ramps and doors; gear; damage and smoke |
+| Enemy craft | Fly, hover, land, crash; doors; power glow; breaking up |
+| Ground vehicles | Parked; burning; wrecked (they do not drive in battles) |
+| Base modules and people | Doors, lifts, machines running, lights; people walking, working, sleeping |
+| Trees, plants, cloth | Wind sway by strength of wind; fall when destroyed; burn |
+| Buildings and clutter | Doors and windows; break in stages; burn; collapse |
+| Weapons and items | Moving parts when fired and reloaded; shells; magazines; pin and lever on grenades |
+
+Two things must be built before any of the motions can be shown, at the
+start of phase 4:
+- **The animation system.** The engine cannot bend a model. We write the
+  part that reads bone positions for the current moment and bends the model
+  on the graphics card, then test it on one soldier walking.
+- **The model pipeline.** One agreed file format out of Blender, one loader
+  in the game, one script that bakes textures and writes both. Every later
+  model goes through it.
+
+#### Which AI model does what
+
+Fable is needed where the work is judged by eye or where one mistake is hard
+to see. Opus and Sonnet are cheaper and good enough for code that can be
+checked by building it and running the self-test.
+
+| Work | Model | Why |
+|---|---|---|
+| Design sheets, lore, art direction with the user | Fable | Taste and consistency across the whole game |
+| Blender modelling, texturing and rigging by script | Fable | Judged by reading renders; shape mistakes are subtle |
+| Posing motions from reference frames; judging motion strips | Fable | Weight and timing are judged by eye |
+| Shaders, lighting, weather, effects in `gfx.rs` | Fable | Small errors look almost right |
+| Screenshot rounds and the harsh art-director judging | Fable | The standing brief depends on it |
+| Animation system design (bone maths, blending between motions) | Fable | Wrong maths gives bent limbs that are hard to trace |
+| Animation system and model loader, written to a finished design | Opus | Clear target, checked by a test model |
+| Blender export script, file format reader and writer | Opus | Exact but checkable: export, load, compare |
+| Game rules, new mechanics, enemy behaviour, save slot | Opus | Logic that the self-test and unit tests can check |
+| Finding bugs in rules or drawing code | Opus, Fable if it stays unfound | Start cheaper |
+| Wiring a finished model or motion into the game (tables, names, which motion plays when) | Sonnet | Repeated, pattern-following work |
+| Menus and screens that only lay out text and boxes | Sonnet | Simple and easy to check by screenshot |
+| Debug flags, self-test cases, small refactors, renames | Sonnet | Mechanical |
+| Keeping `STATUS.md`, `CODE_MAP.md`, `NAMES.md` in step with the code | Sonnet, checked by Opus | Reading and comparing |
+| Batch jobs: baking many textures, exporting many models with one proven script | Sonnet | The script is already proven by Fable |
+
+Rule of thumb per phase: Fable makes the first of each kind (first tree,
+first creature, first motion) and judges all results; Opus builds the
+systems; Sonnet repeats a proven recipe across the rest of the list.
 
 Debug controls added along the way (typed after the program name, before
 `--demo`; full notes in `CODE_MAP.md`):
