@@ -99,13 +99,15 @@ user until the land campaign is much further along.
 ## Working notes
 
 - The repository is https://github.com/iannitram/defending-earth (public, created
-  2026-11-13). Only `app/` is in it; `target/` is left out. Older screenshots
+  2026-11-13). The project folder `dev/Defending Earth` is the repository; `target/` is
+  left out. Older screenshots
   and the first two rounds of phase 2 were deleted. The git history is now
   the only backup; the first commit is the state after phase 2.
 - The game needs `DISPLAY=:0` to open a window from a script. Every launch
   shows on the user's screen for a moment.
-- The investigation folders that sat next to `app/` (and `../.work/`) were
-  deleted on 2026-11-13 at the user's request. Only `app/` remains.
+- The old investigation folders and backups were deleted on 2026-11-13 at
+  the user's request, and the game was moved up out of its `app/` folder,
+  so the project folder holds only the game.
 - `src/main.rs` sets the draw buffer with
   `gl_set_drawcall_buffer_capacity(65_535, 400_000)`. The first number must
   stay at or below 65,535 (the most points one draw batch can address), or

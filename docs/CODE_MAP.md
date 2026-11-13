@@ -15,9 +15,9 @@ the user), `NAMES.md` (every name in the game).
   be done in it gets raised with the user before swapping anything.
 - The code lives in a public git repository, https://github.com/iannitram/defending-earth
   (created 2026-11-13 at the user's request, earlier than first planned).
-  Only `app/` is in it. Commit before a risky refactor so there is a
+  The project folder is the repository. Commit before a risky refactor so there is a
   state to go back to.
-- Original work only. The old investigation material next to `app/` was
+- Original work only. The old investigation material was
   deleted on 2026-11-13.
 - All questions to the user go through the question tool; times are written
   7am / 4:45pm. The user is building their first game: explain plainly.
@@ -78,7 +78,7 @@ world off, so every site in the game now gets different (correct) terrain.
 ## Layout
 
 ```
-app/
+Defending Earth/
   Cargo.toml            macroquad 0.4, serde, serde_json
   src/                  the game (below)
   examples/lightlab.rs  the lighting test scene; the reference for how to drive gfx.rs
