@@ -106,10 +106,11 @@ Defending Earth/
 
 | File | Lines | What it is |
 |---|---|---|
-| `main.rs` | 2474 | `Game` struct (all campaign state, plus the `dbg_*` debug settings), `Screen` enum, `Base`, `Site`, `Ufo`, `MissionSpec`; `Game::update` (1318) and `Game::draw` (1534, one big match on screen, situation map drawn here); daily/monthly ticks; argument parsing and main loop (2288–2456), which starts by setting the draw buffer size; `window_conf` (1920×1080, 4× MSAA, no vsync). |
-| `data.rs` | 1256 | Tables and rules: `Rng` (seeded), item tables (surface/water), `WeaponDef`, `GameData::load` (decodes `earth_data.png` into land/biome/coast maps), `world_index` (318, turns latitude and longitude into a place in those maps; used by `terrain_at`, `coast_at`, `is_water`), soldiers (`Look`, `Stats`, `Soldier`, name lists), armour, `Month`/`Date` (starts 2027-01-01; `minute` is minute of day, UTC), hit chance, damage tables, facilities, craft, research, workshop, nations, borders, promotions. |
-| `tactical.rs` | 4071 | The battle: simulation AND drawing in one file. See below. |
-| `base.rs` | 1981 | Base screens (soldiers, facilities, research, workshop, market, fleet, finances, launch) and the soldier editor. 2D, uses `ui.rs`. |
+| `main.rs` | 2508 | `Game` struct (all campaign state, plus the `dbg_*` debug settings), `Screen` enum, `Base`, `Site`, `Ufo`, `MissionSpec`; `Game::update` (1318) and `Game::draw` (1534, one big match on screen, situation map drawn here); daily/monthly ticks; argument parsing and main loop (2288–2456), which starts by setting the draw buffer size; `window_conf` (1920×1080, 4× MSAA, no vsync). |
+| `dice.rs` | 177 | Rule dice. `Dice` logs every draw (`Roll`: who, what, odds, number, passed). `check` is a percent check on 0..=99. `range` and `index` are logged picks. `generator` hands out a plain `Rng` for building things (map, weather, faces, names) and logs one draw for it. `for_battle(campaign_seed, battle_number)` gives each battle its own dice. Has unit tests. A battle replays only from the same campaign seed, battle number, mission spec and roster: the campaign dice are drawn on clock and click timing, so the roster itself can differ between runs with the same `--seed`. |
+| `data.rs` | 1257 | Tables and rules: `Rng` (seeded), item tables (surface/water), `WeaponDef`, `GameData::load` (decodes `earth_data.png` into land/biome/coast maps), `world_index` (318, turns latitude and longitude into a place in those maps; used by `terrain_at`, `coast_at`, `is_water`), soldiers (`Look`, `Stats`, `Soldier`, name lists), armour, `Month`/`Date` (starts 2027-01-01; `minute` is minute of day, UTC), hit chance, damage tables, facilities, craft, research, workshop, nations, borders, promotions. |
+| `tactical.rs` | 4169 | The battle: simulation AND drawing in one file. See below. |
+| `base.rs` | 1984 | Base screens (soldiers, facilities, research, workshop, market, fleet, finances, launch) and the soldier editor. 2D, uses `ui.rs`. |
 | `dogfight.rs` | 798 | Interception minigame. |
 | `globe.rs` | 463 | Situation-map globe: one full-screen GLSL 100 shader (ray-sphere), `Globe::project`, `screen_to_latlon`, zoom animation. Sun comes from `Globe.sun`, set every frame in `Game::draw` from the campaign clock (`sky::globe_sun_dir`); city lights from `assets/earth_lights.png`, brighter places switching on first as night deepens. A shader that fails to compile prints `globe shader failed` and falls back to a flat disc. |
 | `ui.rs` | 386 | Colours, fonts, panels, buttons, `glow`, `grad_v`, `vignette`, `scanlines`, soldier `portrait`. |
@@ -437,7 +438,7 @@ things without any error message.
 | Research `RESEARCH_SURFACE` | `data.rs` 843–864 | Exactly 20. Same rule. Ids are keys. |
 | Workshop `WORKSHOP_BLUEPRINTS` | `data.rs` 903–919 | Exactly 14 (8 land, 6 sea). Same rule. The three harnesses add three rows. |
 | Player files | none yet | The soldier pool lives in the player's data folder, outside the repository. Its names and slider values must never be committed. See package 10. |
-| Self-test dice | `tactical.rs` 1697–1752, 1832–1857 | It uses soldier 0, a snap shot and one Tender (kind 0). Any new dice roll on that path changes its result. Then the stored results in `checks/` and `assets/selftest.json` must be re-made on purpose and compared. |
+| Self-test dice | `tactical.rs` 1697–1752, 1832–1857 | It uses soldier 0, a snap shot and one Tender (kind 0). Any new dice roll on that path changes its result. The 2026-11-13 dice split changed the self-test's map and rolls once, on purpose. The self-test was run after the split and all three steps passed. Shot range and cover (same day) can change its shot odds if the Tender is far or behind cover; re-run it and compare. |
 
 Who does what follows the roadmap table: Fable does design, lore and art.
 Opus does rules and behaviour. Sonnet does table wiring, menus and keeping
@@ -446,17 +447,20 @@ the documents in step, checked by Opus.
 ### Package 0. The test bench (decided 2026-11-13)
 
 Not built. What follows was checked by searching `src/` on 2026-11-13.
-- **Random numbers.** The game's own generator is `Rng` (`data.rs` 8–35): a
-  seeded linear generator that holds one `u32`. One `Rng` lives in `Game`
-  (`main.rs` 359). It is created with a fixed seed (`main.rs` 462) and then
-  replaced by one made from the clock (`main.rs` 493), so ordinary play is
-  not repeatable. `--seed` (`main.rs` 445) only feeds map generation
-  (`tactical.rs` 528), where it is mixed with the current `g.rng` value. Battle rolls in `tactical.rs` and dogfight rolls in
-  `dogfight.rs` use `g.rng` or `game.rng`. The only other randomness found
-  is the particle effects in `dogfight.rs` 445–454, which use macroquad's
-  own `rand::gen_range`, and small fixed-seed generators for sounds
-  (`audio.rs`) and face details (`ui.rs` 376–381). I did not check whether
-  anything draws on the clock elsewhere.
+- **Random numbers.** Three kinds, since 2026-11-13. `Rng` (`data.rs`) is the
+  plain generator. Rule dice are `Dice` (`dice.rs`): `Game.dice` for the
+  campaign and `Battle.dice` for one battle; every draw is logged. Visual
+  dice are `Game.fx` and `Battle.fx`, plain `Rng`s seeded from the clock and
+  never logged. `Game.campaign_seed` is set in `new_campaign` (from the
+  clock, or `--seed N`). `Battle::new` adds one to `battles_started` and
+  builds `Dice::for_battle(campaign_seed, battles_started)`, so the same
+  seed and the same battle number give the same battle. Map, weather and
+  alien looks use child generators from `dice.generator(..)`. When a battle
+  ends, `finalize` moves its log into `Game.last_roll_log` (for a debrief
+  screen that is not built). The only other randomness is the particle
+  effects in `dogfight.rs`, which use macroquad's own `rand::gen_range`, and
+  small fixed-seed generators for sounds (`audio.rs`) and face details
+  (`ui.rs`). `roll_damage` (`data.rs`) now takes `&mut Dice`.
 - **Save and load.** No save or load of game state exists. The only files
   the code writes are the self-test result (`tactical.rs` 1746–1747) and
   screenshots and the world-map picture (`main.rs` 2413, 2450–2451).
@@ -468,12 +472,10 @@ Not built. What follows was checked by searching `src/` on 2026-11-13.
   the work.
 
 **What the review found.** Line numbers are as of 2026-11-13.
-- One clock-seeded dice stream at `src/main.rs` 493, with about 47 call
-  sites.
-- Visual dice sit on the rule stream at `src/tactical.rs` 1025-1028, 1269,
-  1286.
-- Shown odds differ from rolled odds: `src/data.rs` 581-590 against
-  `src/tactical.rs` 994-999 and the screens at 3204, 3516, 3626.
+- (Fixed 2026-11-13) The one dice stream and visual dice on the rule stream
+  were split; see Random numbers above.
+- (Fixed 2026-11-13) Shown odds differed from rolled odds. See "Shot odds"
+  below.
 - About 30 battle rules take the whole `Game` (`src/tactical.rs` 810-1750).
 - The alien turn runs on frame time (`src/tactical.rs` 1400-1467).
 - `Game` holds about 90 fields, of which roughly 25 are campaign state
@@ -482,6 +484,51 @@ Not built. What follows was checked by searching `src/` on 2026-11-13.
   functions.
 - The battle result passes as seven values (`src/tactical.rs` 1893-1920,
   `src/main.rs` 906).
+
+### Shot odds (built 2026-11-13; range and cover added 2026-11-13)
+
+One rule gives the number shown and the number rolled. It lives in
+`tactical.rs`:
+- `ShotOdds` holds `percent` (final, 0 to 100), `blocked`, and the parts:
+  `base`, `height`, `range`, `cover`.
+- `Battle::shot_odds(data, shooter, target, mode)` is the only place odds are
+  worked out. It uses no dice and changes nothing.
+- `Battle::aim_odds` is private. It is only the helper behind `base`.
+  Nothing on screen shows it. `hit_chance` (`data.rs`) sits behind it.
+- `combine_odds` adds `base + height + range + cover` and clamps to 0..=100.
+  Nothing else limits the number. Height is +10 higher, -10 lower.
+- Range: `comfortable_range(cat)`, `range_penalty(cat, squares)`. Starting
+  numbers (owner, 2026-11-13; the test bench tunes them): Pistol 8, Rifle 16,
+  Cannon and Heavy 14, Launcher 18 squares; minus 2 per square past it.
+  Distance is the straight-line distance between the two squares, rounded.
+  Grenade, Melee and Heal have no range effect (to settle with the owner).
+  Constants are named `RANGE_*` and `COVER_*` above `comfortable_range`.
+- Cover: `cover_penalty(light, heavy)`. Light is minus 10 each (a square with
+  any smoke; a crystal obstacle). Heavy is minus 25 each (rock, stone block,
+  a living unit of the shooter's own side on the line).
+- One walk of the line: `Battle::line_of_fire(x0, y0, x1, y1, shooter_side)`
+  gives `LineOfFire { blocked, light, heavy }`. It calls the free function
+  `walk_line`, which takes a closure for "what is in this square". `los` is
+  now `!line_of_fire(.., None).blocked`; sight gives the same answers as
+  before. Blocking is unchanged: trees, walls, hulls, power plant, ground two
+  levels up, and smoke adding to 18 or more.
+- The start square, the end square and the first square after the start give
+  no cover. The first square still blocks as before.
+- Enemy and neutral units on the line have no effect (to settle with the
+  owner).
+- The decided rule is now that a miss can hit things near its path (`LORE.md`,
+  eighth session, later part). The code does not do this yet: a miss just
+  misses, and a friend in the line cannot be hit.
+- `fire` refuses a blocked shot (log line NO LINE OF FIRE.) before it spends
+  time units, then rolls `dice.check_roll(.., "shot", percent)` each round.
+  Aliens and reaction fire check `los` before calling it.
+- Screen: the hover label and the target panel show `shot_odds`. The three
+  fire-mode buttons show only the TU cost until an alien is under the
+  pointer, then "N%" (Auto: "N% x3") and the cost.
+- Unit tests are in the `odds_tests` module at the end of `tactical.rs`. They
+  cover the range and cover arithmetic, the clamp, and `walk_line` with
+  closures. Not tested without a window: `line_of_fire` reading real tiles and
+  units, and `shot_odds` itself (`Battle::new` needs a `Game`).
 
 ### Package 1. Groundwork: honest records, and removing the Trestle
 
@@ -634,7 +681,7 @@ count is always 0.
 |---|---|---|
 | The dark | `Battle.ambient < 0.32`. This is the game's own night test (`tactical.rs` 2149). | Yes |
 | Fire | A tile with `Tile.fire > 0` within a few tiles of the soldier. | Yes |
-| Tight spaces | Count the blocked tiles around the soldier. Start from the list the sight test uses (`los`, `tactical.rs` 663: obstacles 2, 4, 10, 12, 13), plus tiles two levels up. | Yes |
+| Tight spaces | Count the blocked tiles around the soldier. Start from the list the sight test uses (`los` and `line_of_fire`, `tactical.rs`: obstacles 2, 4, 10, 12, 13), plus tiles two levels up. | Yes |
 | The Glow | A pool tile, or a unit hit by the fluid, in sight. | No. Waits for the Brooder (package 4). |
 
 - Water and sharks: rows in the table, no rule written. They do nothing on
@@ -653,7 +700,7 @@ count is always 0.
     soldier afraid of the dark is afraid for a whole night mission.
 
 **3c. Where the trait rules hook in**
-- STEADY: `hit_chance` (`data.rs` 581–590), where wounds cut accuracy.
+- STEADY: `hit_chance` (`data.rs` 581–590), where wounds cut accuracy. It is the helper behind `ShotOdds.base`.
 - BRAVE, COLD, EMPATH, LONER, SUPERSTITIOUS: the team morale loss in
   `on_unit_death` (`tactical.rs` 848–854) and `check_unit_panic`.
 - PROTECTIVE and RECKLESS: `opportunity_fire` (`tactical.rs` 1502–1531) and

@@ -724,15 +724,26 @@ found in the code review".
 (2026-11-13). The rules for each step are in `LORE.md`, "Fifth session
 (2026-11-13): dice, shot odds, battle rules and saves". The order inside
 package 0:
-1. Dice and shot odds, together.
+1. Dice and shot odds, together. **Built 2026-11-13, not yet committed.**
+   Three kinds of dice with a roll log, and one shot-odds rule for the shown
+   and rolled number, with height, range and cover (decided in the eighth
+   session, see `LORE.md`). Not built: the ROLL LOG screen, the seed on the
+   new-campaign page, saves, IRON MAN MODE and FIXED DICE.
 2. Battle rules, built in slices. Each slice leaves the game running:
-   - Slice 1: shooting and damage.
+   - Slice 1: shooting and damage. Stray shots and friendly fire are built
+     in this slice (decided in the later part of the eighth session, see
+     `LORE.md`). Today's code still has "a miss just misses", and a friend
+     in the line cannot be hit.
    - Slice 2: movement and overwatch.
    - Slice 3: morale.
    - Slice 4: alien moves.
    - Slice 5: Reach and explosives.
 3. Campaign state, then campaign actions (hire, build, research, make, buy,
    sell).
+   Decision G (eighth session): the same seed gives the same campaign
+   events whatever the timing of the player's clicks. Step 3 does this by
+   giving the world, the recruits and the alien crews their own dice. Not
+   built now.
 
 A finished battle hands the campaign one outcome record. Battle replays are
 planned for but not built now.
@@ -1015,6 +1026,12 @@ more items. Which package each belongs to is to settle. Nothing is built.
   small nod for returning veterans (for example a mark on the dress
   uniform). No effect on stats. Leans on the service record and on package
   10a. The mark's design is to settle.
+- **Shielding** (eighth session, later part, 2026-11-13). A soldier in the
+  line of fire makes an enemy shot at the friend behind them miss, when the
+  shot would have hit without them. The game notices and records it on both
+  soldiers. It counts toward the GUARDIAN citation and toward the two
+  soldiers' bond, and can be picked as the moment of the battle. Built with
+  ribbons, not before. It leans on the stray-shot rule in package 0, slice 1.
 
 **3g. Footprints.** Medium. Opus. Added in the sixth session
 (2026-11-13). Pairs with the weather work and with the older idea under
@@ -1535,8 +1552,11 @@ saves; see `LORE.md`):*
 32. The animation list itself: what to trim or add (see "Animation list" in
     the design and animation catalogue).
 33. How many save slots there are.
-34. Which things in the way lower the odds (low wall, smoke, a tree,
-    another unit) and by how much (package 0).
+34. ~~Which things in the way lower the odds (low wall, smoke, a tree,
+    another unit) and by how much (package 0).~~ Settled in the eighth
+    session (see `LORE.md`): smoke and crystal minus 10, rock, stone block
+    and a friendly unit minus 25. Enemy and neutral units on the line are
+    number 47.
 
 *Added 2026-11-13 with the sixth session (the character designer and ribbons;
 see `LORE.md`):*
@@ -1564,6 +1584,25 @@ see `LORE.md`):*
     past campaigns.
 45. Which package each of bonds, moment of the battle, memorial wall and
     deployments belongs to.
+
+*Added 2026-11-13 with the eighth session (shot range, cover and the campaign
+seed; see `LORE.md`):*
+46. Range for the Grenade, Melee and Heal kinds. For now they have no range
+    effect.
+47. Enemy or neutral units standing on the line of a shot. For now they have
+    no effect.
+(The starting numbers for range and cover are tuned with the test bench.)
+
+*Added 2026-11-13 with the later part of the eighth session (shielding and
+friendly fire; see `LORE.md`):*
+48. How a stray shot's path is worked out, and what it can hit.
+49. The odds of a stray shot hitting something.
+50. Which bad traits a shooter may gain after friendly fire.
+51. The size of the squad's morale hit after friendly fire.
+52. Whether a friend in the line still lowers the odds by 25 once stray
+    shots exist. Today's code does, and the friend cannot be hit; this stays
+    until the stray-shot rule is built.
+53. Whether friendly fire is also written on service records.
 
 ## Ideas (unsorted; we sort these into versions together)
 

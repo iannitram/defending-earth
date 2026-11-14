@@ -25,6 +25,10 @@ See `ROADMAP.md`.
 
 **2026-11-13:** a seventh lore session decided six ways for players to find their own stories: ribbon history, bonds, losing a bonded partner, a moment of the battle in each debrief, a memorial wall, and deployments for pool soldiers (`LORE.md`, "Seventh session"). Nothing is built; no code has changed.
 
+**2026-11-13:** package 0 step 1 was built: three kinds of dice with a roll log (`src/dice.rs`), and one shot-odds rule for the shown and rolled number with height, range and cover. Builds; 22 unit tests pass; the self-test passes (re-run after range and cover were added). Not committed yet. The ROLL LOG screen, the seed on the new-campaign page, saves, IRON MAN MODE and FIXED DICE are not built.
+
+**2026-11-13 (after the eighth session):** friendly fire and shielding were decided and are not built. A miss can now hit anyone or anything near its path, with no warning on screen; the shooter may gain a bad trait, the victim may lose trust, and the squad takes a morale hit. Shielding counts toward GUARDIAN and bonds. This changes two earlier decisions (`LORE.md`, "Eighth session, later part"). No code has changed.
+
 ## Third lore session (2026-11-13)
 
 - **Held and written down.** The decisions are in `LORE.md` under "Third

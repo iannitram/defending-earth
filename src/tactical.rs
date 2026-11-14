@@ -3,6 +3,7 @@ use crate::ui::{self, *};
 use crate::{data::Month, Game, MissionSpec, Screen};
 use crate::data::*;
 use crate::{gfx, sky};
+use crate::dice::Dice;
 
 pub const TW: i32 = 26;
 pub const TH: i32 = 26;
@@ -116,6 +117,10 @@ impl ShotMode {
 }
 
 pub struct Battle {
+    /// This battle's rule dice (every draw logged). Built from the campaign seed and the battle's number.
+    pub dice: Dice,
+    /// Visual dice: tracer scatter, debris, animation phase. Never logged, never a rule.
+    pub fx: Rng,
     pub tiles: Vec<Tile>,
     pub units: Vec<Unit>,
     pub selected: usize,
@@ -374,6 +379,124 @@ fn compute_environment(spec: &MissionSpec, rng: &mut Rng) -> (u8, String, Vec3, 
     (weather, weather_desc, sun, sun_col, ambient, fog)
 }
 
+/// The odds of one round hitting, and why. `percent` is the one number shown and rolled.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ShotOdds {
+    /// Final odds, 0..=100. 100 always hits, 0 always misses.
+    pub percent: i32,
+    /// No line of fire: the shot may not be taken.
+    pub blocked: bool,
+    /// Shooter skill x weapon accuracy for this aim, with stance, health and wounds.
+    pub base: i32,
+    /// +10 shooting down, -10 shooting up, 0 level.
+    pub height: i32,
+    /// 0 or less: points lost past the weapon's comfortable range.
+    pub range: i32,
+    /// 0 or less: points lost to cover on the line.
+    pub cover: i32,
+}
+
+/// The shot number as shown on screen. Auto fire shows the per-round odds: "N% x3".
+fn odds_text(percent: i32, mode: ShotMode) -> String {
+    if mode == ShotMode::Auto { format!("{}% x3", percent) } else { format!("{}%", percent) }
+}
+
+/// Adds the parts of a shot's odds together and clamps to 0..=100. No other limits.
+fn combine_odds(base: i32, height: i32, range: i32, cover: i32) -> i32 {
+    (base + height + range + cover).clamp(0, 100)
+}
+
+// Starting numbers set by the owner on 2026-11-13. The test bench tunes them later.
+/// Comfortable range in squares. Inside it, no penalty.
+const RANGE_PISTOL: i32 = 8;
+const RANGE_RIFLE: i32 = 16;
+/// Cannon (heavy rifle, machine gun and their dive versions).
+const RANGE_CANNON: i32 = 14;
+const RANGE_HEAVY: i32 = 14;
+const RANGE_LAUNCHER: i32 = 18;
+/// Points lost for every square past the comfortable range.
+const RANGE_PENALTY_PER_SQUARE: i32 = 2;
+/// Points lost for each light cover on the line (thin smoke, crystal).
+const COVER_LIGHT: i32 = 10;
+/// Points lost for each heavy cover on the line (rock, stone block, a friend).
+const COVER_HEAVY: i32 = 25;
+
+/// Comfortable range in squares for a weapon kind. None for kinds with no range effect (to settle with the owner).
+fn comfortable_range(cat: Cat) -> Option<i32> {
+    match cat {
+        Cat::Pistol => Some(RANGE_PISTOL),
+        Cat::Rifle => Some(RANGE_RIFLE),
+        Cat::Cannon => Some(RANGE_CANNON),
+        Cat::Heavy => Some(RANGE_HEAVY),
+        Cat::Launcher => Some(RANGE_LAUNCHER),
+        Cat::Grenade | Cat::Melee | Cat::Heal => None, // to settle with the owner
+    }
+}
+
+/// 0 or negative. `squares` is the straight-line distance rounded to the nearest whole square.
+fn range_penalty(cat: Cat, squares: i32) -> i32 {
+    match comfortable_range(cat) {
+        Some(r) => -RANGE_PENALTY_PER_SQUARE * (squares - r).max(0),
+        None => 0,
+    }
+}
+
+/// 0 or negative. Light and heavy cover add up.
+fn cover_penalty(light: i32, heavy: i32) -> i32 {
+    -(COVER_LIGHT * light + COVER_HEAVY * heavy)
+}
+
+/// What one square on a line of fire holds.
+#[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
+struct LineCell {
+    /// The square stops the shot by itself.
+    blocks: bool,
+    /// Smoke in the square. It adds up along the line; 18 or more blocks.
+    smoke: i32,
+    /// Number of light covers in the square.
+    light: i32,
+    /// Number of heavy covers in the square.
+    heavy: i32,
+}
+
+/// The result of walking a line of fire.
+#[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
+struct LineOfFire {
+    blocked: bool,
+    light: i32,
+    heavy: i32,
+}
+
+/// Walks the line from (x0,y0) to (x1,y1) square by square. The first and last squares are never
+/// looked at for blocking. The first square after the start still blocks but gives no cover (a
+/// soldier can fight from behind a rock). `cell` describes one square.
+fn walk_line(x0: i32, y0: i32, x1: i32, y1: i32, cell: impl Fn(i32, i32) -> LineCell) -> LineOfFire {
+    let mut out = LineOfFire::default();
+    let mut x = x0; let mut y = y0;
+    let dx = (x1 - x0).abs(); let dy = (y1 - y0).abs();
+    let sx = if x0 < x1 { 1 } else { -1 };
+    let sy = if y0 < y1 { 1 } else { -1 };
+    let mut err = dx - dy;
+    let mut guard = 0;
+    let mut accumulated_smoke = 0i32;
+    let mut first_after_start = true;
+    loop {
+        guard += 1; if guard > 80 { return out; }
+        if x == x1 && y == y1 { return out; }
+        if !(x == x0 && y == y0) {
+            let c = cell(x, y);
+            if c.blocks { out.blocked = true; return out; }
+            accumulated_smoke += c.smoke;
+            if accumulated_smoke >= 18 { out.blocked = true; return out; }
+            if !first_after_start { out.light += c.light; out.heavy += c.heavy; }
+            first_after_start = false;
+        }
+        let e2 = 2 * err;
+        if e2 > -dy { err -= dy; x += sx; }
+        if e2 < dx { err += dx; y += sy; }
+    }
+}
+
 impl Battle {
     fn log(&mut self, text: impl Into<String>, color: Color) {
         self.log.push((text.into(), color, 0.0));
@@ -514,7 +637,7 @@ impl Battle {
         (tiles, player_spawns, alien_spawns)
     }
 
-    fn new(g: &Game, mut spec: MissionSpec) -> Self {
+    fn new(g: &mut Game, mut spec: MissionSpec) -> Self {
         // debug overrides (`--biome`, `--clock`); never set in normal play
         if let Some((la, lo)) = g.dbg_site {
             spec.lat = la; spec.lon = lo;
@@ -525,9 +648,15 @@ impl Battle {
             spec.month = [Month::Jan, Month::Feb, Month::Mar, Month::Apr, Month::May, Month::Jun, Month::Jul, Month::Aug, Month::Sep, Month::Oct, Month::Nov, Month::Dec][(c.month - 1).clamp(0, 11) as usize];
             spec.minute_of_day = (c.minute - spec.lon * 4.0).rem_euclid(1440.0) as i32;
         }
-        let mut rng = Rng::new(g.dbg_seed.unwrap_or(0).wrapping_mul(0x9E37_79B9_7F4A_7C15) ^ (g.rng.0 as u64) ^ ((spec.lat.to_bits() as u64) << 17) ^ (spec.lon.to_bits() as u64));
-        let (tiles, ps, aspa) = Self::gen_map(&spec, &mut rng);
-        let (mut weather, mut weather_desc, sun_dir, sun_col, ambient, fog_col) = compute_environment(&spec, &mut rng);
+        // This battle's own dice, from the campaign seed and the battle's number.
+        g.battles_started += 1;
+        let mut dice = Dice::for_battle(g.campaign_seed, g.battles_started);
+        let mut map_rng = dice.generator("map");
+        let mut weather_rng = dice.generator("weather");
+        let mut look_rng = dice.generator("alien looks");
+        let fx = Rng::new(crate::clock_seed() ^ 0xF00D_5EED);
+        let (tiles, ps, aspa) = Self::gen_map(&spec, &mut map_rng);
+        let (mut weather, mut weather_desc, sun_dir, sun_col, ambient, fog_col) = compute_environment(&spec, &mut weather_rng);
         if let (Some(wo), false) = (g.dbg_weather, spec.underwater) {
             weather = wo & 15;
             let name = match wo { 1 => "OVERCAST RAIN", 2 => "LIGHT SNOW", 3 => "BLOWING DUST", 17 => "RAIN STORM", 18 => "BLIZZARD", 19 => "DUST STORM", _ => "CLEAR SKIES" };
@@ -535,6 +664,7 @@ impl Battle {
             weather_desc = format!("{} // {}", head, name);
         }
         let mut b = Self {
+            dice, fx,
             tiles, units: Vec::new(), selected: 0, mode: ShotMode::Snap, phase: Phase::Player,
             turn: 1, hover: (0, 0), cam_yaw: 0.72, cam_zoom: 0.80, cam_pan: Vec2::ZERO,
             effects: Vec::new(), log: Vec::new(), mission: spec.clone(), underwater: spec.underwater,
@@ -581,7 +711,7 @@ impl Battle {
                 psi_skill: s.stats.psi_skill,
                 stun: 0,
                 weapon, ammo: if s.ammo <= 0 { g.data.clip_size(&g.data.weapons[weapon]) } else { s.ammo },
-                spare: s.spare, kneeling: false, alive: true, path: Vec::new(), anim_phase: rng.unit() * 6.28,
+                spare: s.spare, kneeling: false, alive: true, path: Vec::new(), anim_phase: b.fx.unit() * 6.28,
                 muzzle: 0.0, hit_flash: 0.0, death_t: 0.0, name: s.name.clone(), rank: s.rank, look: s.look,
                 alien_kind: 0, grenades: s.grenades, smoke_grenades: s.smoke_grenades, medkits: s.medkits, wounds: s.wounds,
                 soldier_idx: ci, kills: 0, shot_flash: 0.0, moved_this_turn: 0.0, reaction_used: false,
@@ -608,8 +738,8 @@ impl Battle {
                 stun: 0,
                 weapon: ak.weapon,
                 ammo: 99, spare: 0, kneeling: false, alive: true, path: Vec::new(),
-                anim_phase: rng.unit() * 6.28, muzzle: 0.0, hit_flash: 0.0, death_t: 0.0,
-                name: ak.name.to_string(), rank: 0, look: Look::random(&mut rng), alien_kind: *kind as usize,
+                anim_phase: b.fx.unit() * 6.28, muzzle: 0.0, hit_flash: 0.0, death_t: 0.0,
+                name: ak.name.to_string(), rank: 0, look: Look::random(&mut look_rng), alien_kind: *kind as usize,
                 grenades: 0, smoke_grenades: 0, medkits: 0, wounds: 0, soldier_idx: 0, kills: 0, shot_flash: 0.0, moved_this_turn: 0.0, reaction_used: false,
                 mind_controlled: false,
             };
@@ -647,28 +777,66 @@ impl Battle {
         }
     }
 
+    /// Sight test. True when nothing stops the line. Same answer as `line_of_fire(..).blocked == false`.
     fn los(&self, x0: i32, y0: i32, x1: i32, y1: i32) -> bool {
-        let mut x = x0; let mut y = y0;
-        let dx = (x1 - x0).abs(); let dy = (y1 - y0).abs();
-        let sx = if x0 < x1 { 1 } else { -1 };
-        let sy = if y0 < y1 { 1 } else { -1 };
-        let mut err = dx - dy;
-        let mut guard = 0;
-        let mut accumulated_smoke = 0i32;
-        loop {
-            guard += 1; if guard > 80 { return true; }
-            if x == x1 && y == y1 { return true; }
-            if !(x == x0 && y == y0) {
-                let t = tile_at(self, x, y);
-                if t.obstacle == 4 || t.obstacle == 2 || t.obstacle == 10 || t.obstacle == 12 || t.obstacle == 13 { return false; }
-                if t.h >= 2 { return false; }
-                accumulated_smoke += t.smoke as i32;
-                if accumulated_smoke >= 18 { return false; }
+        !self.line_of_fire(x0, y0, x1, y1, None).blocked
+    }
+
+    /// One walk of the line: does it block, and how much cover is on it. With a shooter side, living
+    /// units of that side on the line count as heavy cover. Pure.
+    fn line_of_fire(&self, x0: i32, y0: i32, x1: i32, y1: i32, shooter_side: Option<Side>) -> LineOfFire {
+        walk_line(x0, y0, x1, y1, |x, y| {
+            let t = tile_at(self, x, y);
+            let mut c = LineCell::default();
+            if t.obstacle == 4 || t.obstacle == 2 || t.obstacle == 10 || t.obstacle == 12 || t.obstacle == 13 { c.blocks = true; }
+            if t.h >= 2 { c.blocks = true; }
+            c.smoke = t.smoke as i32;
+            if t.smoke > 0 { c.light += 1; }
+            match t.obstacle {
+                0 | 2 | 4 | 10 | 12 | 13 => {}
+                1 | 3 => c.heavy += 1,
+                _ => c.light += 1, // crystal
             }
-            let e2 = 2 * err;
-            if e2 > -dy { err -= dy; x += sx; }
-            if e2 < dx { err += dx; y += sy; }
+            if let Some(side) = shooter_side {
+                if let Some(u) = self.unit_at(x, y) { if self.units[u].side == side { c.heavy += 1; } }
+            }
+            c
+        })
+    }
+
+    /// Odds for this shooter firing at this target in this mode. The ONLY place shot odds are worked out.
+    /// Pure: no dice, no sound, no change to the battle.
+    pub fn shot_odds(&self, data: &GameData, shooter: usize, target: usize, mode: ShotMode) -> ShotOdds {
+        let (s, t) = (&self.units[shooter], &self.units[target]);
+        let (sx, sy) = (s.x.round() as i32, s.y.round() as i32);
+        let (tx, ty) = (t.x.round() as i32, t.y.round() as i32);
+        let line = self.line_of_fire(sx, sy, tx, ty, Some(s.side));
+        let blocked = line.blocked;
+        let base = self.aim_odds(data, shooter, mode);
+        if self.mode_accuracy(data, shooter, mode) <= 0 {
+            // No such mode on this weapon. A weak shooter (base 0) still gets the other parts.
+            return ShotOdds { percent: 0, blocked, base: 0, height: 0, range: 0, cover: 0 };
         }
+        let (sh, th) = (tile_at(self, sx, sy).h, tile_at(self, tx, ty).h);
+        let height = if sh > th { 10 } else if sh < th { -10 } else { 0 };
+        let squares = (((tx - sx).pow(2) + (ty - sy).pow(2)) as f32).sqrt().round() as i32;
+        let range = range_penalty(data.weapons[s.weapon].cat, squares);
+        let cover = cover_penalty(line.light, line.heavy);
+        ShotOdds { percent: combine_odds(base, height, range, cover), blocked, base, height, range, cover }
+    }
+
+    /// The weapon's accuracy for this fire mode. 0 or less means the weapon has no such mode.
+    fn mode_accuracy(&self, data: &GameData, shooter: usize, mode: ShotMode) -> i32 {
+        let wd = &data.weapons[self.units[shooter].weapon];
+        data.item(wd.game, wd.item).acc[mode.idx()] as i32
+    }
+
+    /// Base odds (shooter, weapon and aim only). The helper behind `base`; never shown on its own.
+    fn aim_odds(&self, data: &GameData, shooter: usize, mode: ShotMode) -> i32 {
+        let u = &self.units[shooter];
+        let wa = self.mode_accuracy(data, shooter, mode);
+        if wa <= 0 { return 0; }
+        hit_chance(u.acc, wa, u.kneeling, u.hp, u.max_hp, u.wounds, false)
     }
 
     fn unit_at(&self, x: i32, y: i32) -> Option<usize> {
@@ -807,11 +975,11 @@ impl Battle {
         best
     }
 
-    fn check_unit_panic(&mut self, g: &mut Game, idx: usize) {
+    fn check_unit_panic(&mut self, _g: &mut Game, idx: usize) {
         let (morale, name) = (self.units[idx].morale, self.units[idx].name.clone());
         if morale >= 50 { return; }
-        if g.rng.rand(100) > 100 - morale * 2 { return; }
-        match g.rng.rand(3) {
+        if self.dice.range(&name, "morale", 0, 100) > 100 - morale * 2 { return; }
+        match self.dice.range(&name, "panic kind", 0, 3) {
             0 => { self.units[idx].tu = 0.0; self.log(format!("{} FREEZES.", name), ui::RED); }
             1 | 2 => { self.units[idx].tu = 0.0; self.log(format!("{} PANICS AND LOSES THE TURN.", name), ui::RED); }
             _ => {
@@ -980,6 +1148,7 @@ impl Battle {
         let mi = mode.idx();
         let wa = it.acc[mi] as i32;
         if wa <= 0 { self.log(format!("{} HAS NO {} MODE.", wd.name, mode.label()), DIM); return false; }
+        if self.shot_odds(&g.data, shooter_idx, target_idx, mode).blocked { self.log("NO LINE OF FIRE.", DIM); return false; }
         let cost = tu_cost(self.units[shooter_idx].max_tu as i32, it.tu[mi]);
         let (tu, ammo) = (self.units[shooter_idx].tu, self.units[shooter_idx].ammo);
         if tu < cost as f32 { self.log("NOT ENOUGH TIME UNITS.", DIM); return false; }
@@ -990,12 +1159,7 @@ impl Battle {
         for _r in 0..rounds {
             if !self.units[target_idx].alive { break; }
             if !wd.infinite && self.units[shooter_idx].ammo <= 0 { break; }
-            let u = &self.units[shooter_idx];
-            let base_chance = hit_chance(u.acc, wa, u.kneeling, u.hp, u.max_hp, u.wounds, false);
-            let sh_h = tile_at(self, u.x.round() as i32, u.y.round() as i32).h;
-            let tg_h = tile_at(self, self.units[target_idx].x.round() as i32, self.units[target_idx].y.round() as i32).h;
-            let elev_bonus = if sh_h > tg_h { 10 } else if sh_h < tg_h { -10 } else { 0 };
-            let chance = (base_chance + elev_bonus).clamp(5, 95);
+            let chance = self.shot_odds(&g.data, shooter_idx, target_idx, mode).percent;
             if !wd.infinite { self.units[shooter_idx].ammo -= 1; }
             self.shots_fired += 1;
             let dtype = g.data.weapon_damage_type(&wd);
@@ -1016,16 +1180,16 @@ impl Battle {
             let b = self.chest_pos(target_idx);
 
             // Shot scatter: a miss deviates in three dimensions
-            let roll = g.rng.rand(100);
-            let is_hit = roll < chance;
+            let shooter_name = self.units[shooter_idx].name.clone();
+            let (is_hit, roll) = self.dice.check_roll(&shooter_name, "shot", chance);
             let tracer_end = if is_hit {
                 b
             } else {
                 let dist = ((b.x - a.x).powi(2) + (b.z - a.z).powi(2)).sqrt().max(1.0);
                 let dev = (roll - chance) + 50;
                 let scatter = ((dev as f32 * (dist * 0.5)) / 200.0).clamp(0.45, 2.8);
-                let scatter_ang = g.rng.unit() * std::f32::consts::TAU;
-                b + vec3(scatter_ang.cos() * scatter, g.rng.unit() - 0.35, scatter_ang.sin() * scatter)
+                let scatter_ang = self.fx.unit() * std::f32::consts::TAU;
+                b + vec3(scatter_ang.cos() * scatter, self.fx.unit() - 0.35, scatter_ang.sin() * scatter)
             };
 
             self.effects.push(Effect::Tracer { a, b: tracer_end, color: Color::new(wd.tracer[0], wd.tracer[1], wd.tracer[2], 1.0), t: 0.0, life: 0.11 });
@@ -1050,7 +1214,8 @@ impl Battle {
     fn damage_unit(&mut self, g: &mut Game, target_idx: usize, shooter_idx: usize, w: &WeaponDef, _mode: ShotMode) {
         let base = g.data.weapon_damage(w);
         let dtype = g.data.weapon_damage_type(w);
-        let roll = roll_damage(&mut g.rng, base, dtype == 2);
+        let shooter_name = self.units[shooter_idx].name.clone();
+        let roll = roll_damage(&mut self.dice, &shooter_name, "damage", base, dtype == 2);
         let class = self.units[target_idx].armor_class;
         let modified = (roll * damage_modifier(w.game, dtype, class)) / 100;
         // work out which armour facing took the hit
@@ -1073,8 +1238,8 @@ impl Battle {
         let bm = self.units[target_idx].bravery_mod;
         let loss = ((bm * dmg) / 10) * 100 / lead.max(1);
         self.units[target_idx].morale = (self.units[target_idx].morale - loss).clamp(0, 100);
-        if dmg > 0 && self.units[target_idx].hp > 0 && g.rng.rand(10) < dmg {
-            self.units[target_idx].wounds = (self.units[target_idx].wounds + g.rng.rand(2) + 1).min(6);
+        if dmg > 0 && self.units[target_idx].hp > 0 && self.dice.range(&shooter_name, "wound", 0, 10) < dmg {
+            self.units[target_idx].wounds = (self.units[target_idx].wounds + self.dice.range(&shooter_name, "wound size", 0, 2) + 1).min(6);
         }
         let hpdmg = if dtype == 5 { dmg } else { dmg };
         if hpdmg > 0 {
@@ -1152,7 +1317,7 @@ impl Battle {
         let t = &self.units[target_idx];
         let dist = ((u.x - t.x).powi(2) + (u.y - t.y).powi(2)).sqrt();
         // Psi attack roll
-        let attack_roll = g.rng.rand(55) + (u.psi_strength * u.psi_skill) / 50 - (dist.round() as i32 / 2);
+        let attack_roll = self.dice.range(&u.name, "reach attack", 0, 55) + (u.psi_strength * u.psi_skill) / 50 - (dist.round() as i32 / 2);
         let lead_bonus = match t.rank { 2 => 10, 3 | 4 => 15, 5 => 25, 6 => 40, _ => 0 };
         let defense_thresh = t.psi_strength + 10 + lead_bonus;
         let p = self.chest_pos(target_idx);
@@ -1180,7 +1345,7 @@ impl Battle {
         let u = &self.units[user_idx];
         let t = &self.units[target_idx];
         let dist = ((u.x - t.x).powi(2) + (u.y - t.y).powi(2)).sqrt();
-        let attack_roll = g.rng.rand(55) + (u.psi_strength * u.psi_skill) / 50 - (dist.round() as i32 / 2);
+        let attack_roll = self.dice.range(&u.name, "reach attack", 0, 55) + (u.psi_strength * u.psi_skill) / 50 - (dist.round() as i32 / 2);
         let lead_bonus = match t.rank { 2 => 10, 3 | 4 => 15, 5 => 25, 6 => 40, _ => 0 };
         let defense_thresh = t.psi_strength + 25 + lead_bonus; // A take needs a wider margin
         let p = self.chest_pos(target_idx);
@@ -1266,7 +1431,7 @@ impl Battle {
                             g.audio.play_demolish();
                             destroyed_any = true;
                             for _ in 0..6 {
-                                let v = vec3(g.rng.unit() * 6.0 - 3.0, g.rng.unit() * 5.0 + 2.0, g.rng.unit() * 6.0 - 3.0);
+                                let v = vec3(self.fx.unit() * 6.0 - 3.0, self.fx.unit() * 5.0 + 2.0, self.fx.unit() * 6.0 - 3.0);
                                 self.effects.push(Effect::Debris {
                                     p: world_pos(x as f32, y as f32, self.tiles[idx].h) + vec3(0.0, 0.8, 0.0),
                                     v, color: Color::new(0.48, 0.45, 0.42, 1.0), t: 0.0, life: 0.85,
@@ -1283,7 +1448,7 @@ impl Battle {
                                 self.log("COVER DEMOLISHED BY BLAST.", TEXT);
                             }
                             for _ in 0..8 {
-                                let v = vec3(g.rng.unit() * 8.0 - 4.0, g.rng.unit() * 6.0 + 2.5, g.rng.unit() * 8.0 - 4.0);
+                                let v = vec3(self.fx.unit() * 8.0 - 4.0, self.fx.unit() * 6.0 + 2.5, self.fx.unit() * 8.0 - 4.0);
                                 self.effects.push(Effect::Debris {
                                     p: world_pos(x as f32, y as f32, self.tiles[idx].h) + vec3(0.0, 0.5, 0.0),
                                     v, color: if was == 2 { Color::new(0.25, 0.18, 0.12, 1.0) } else { Color::new(0.5, 0.48, 0.45, 1.0) },
@@ -1316,6 +1481,7 @@ impl Battle {
         }
 
         // Damage units caught in blast
+        let blast_who = attacker.and_then(|a| self.units.get(a)).map(|u| u.name.clone()).unwrap_or_else(|| "blast".to_string());
         for i in 0..self.units.len() {
             if !self.units[i].alive { continue; }
             let d = ((self.units[i].x - tx as f32).powi(2) + (self.units[i].y - ty as f32).powi(2)).sqrt();
@@ -1325,7 +1491,7 @@ impl Battle {
             if unit_pow <= 0 { continue; }
 
             if dtype == 5 {
-                let stun_roll = roll_damage(&mut g.rng, unit_pow / 2, false);
+                let stun_roll = roll_damage(&mut self.dice, &blast_who, "blast stun", unit_pow / 2, false);
                 self.units[i].stun += stun_roll;
                 self.effects.push(Effect::Text {
                     p: vec3(self.units[i].x * TILE, tile_at(self, self.units[i].x.round() as i32, self.units[i].y.round() as i32).h as f32 * 0.62 + 1.2, self.units[i].y * TILE),
@@ -1333,7 +1499,7 @@ impl Battle {
                     color: CYAN, t: 0.0, life: 0.7,
                 });
             } else {
-                let roll = roll_damage(&mut g.rng, unit_pow, dtype == 2);
+                let roll = roll_damage(&mut self.dice, &blast_who, "blast damage", unit_pow, dtype == 2);
                 let class = self.units[i].armor_class;
                 let dmg = (roll * damage_modifier(0, dtype, class) / 100 - self.units[i].armor_cur[4] / 2).max(1);
                 self.units[i].hp -= dmg;
@@ -1423,7 +1589,8 @@ impl Battle {
         if let Some((ti, dist)) = best {
             // Psi rout: 25 TU, morale damage on success.
             if self.units[i].psi_strength > 0 && self.units[i].psi_skill > 0 && self.units[i].tu >= 25.0 {
-                let attack = g.rng.rand(55) + (self.units[i].psi_strength * self.units[i].psi_skill) / 50 - dist.round() as i32 / 2;
+                let alien_name = self.units[i].name.clone();
+                let attack = self.dice.range(&alien_name, "reach attack", 0, 55) + (self.units[i].psi_strength * self.units[i].psi_skill) / 50 - dist.round() as i32 / 2;
                 let ts = self.units[ti].psi_strength;
                 let tsk = self.units[ti].psi_skill;
                 let defence = ts + 10 + if tsk > 4 { tsk / 5 } else { 0 };
@@ -1441,7 +1608,7 @@ impl Battle {
                 self.damage_unit(g, ti, i, &dummy, ShotMode::Aimed);
                 return;
             }
-            if dist > 1.6 && self.units[i].tu >= 12.0 && g.rng.chance(40) {
+            if dist > 1.6 && self.units[i].tu >= 12.0 && { let n = self.units[i].name.clone(); self.dice.check(&n, "alien moves closer", 40) } {
                 let from = (self.units[i].x.round() as i32, self.units[i].y.round() as i32);
                 let path = self.path_to(from, (self.units[ti].x.round() as i32, self.units[ti].y.round() as i32), self.units[i].tu * 0.6);
                 if path.len() > 1 {
@@ -1449,7 +1616,8 @@ impl Battle {
                     return;
                 }
             }
-            if g.rng.chance(78) { self.alien_fire(g, i, ti); }
+            let n = self.units[i].name.clone();
+            if self.dice.check(&n, "alien fires", 78) { self.alien_fire(g, i, ti); }
         } else {
             // no visible target: sweep toward the nearest soldier
             let target = self.units.iter().filter(|u| u.side == Side::Player && u.alive)
@@ -1890,7 +2058,7 @@ pub fn update(g: &mut Game, dt: f32) {
     g.battle = Some(b);
 }
 
-fn finalize(g: &mut Game, b: Battle) {
+fn finalize(g: &mut Game, mut b: Battle) {
     let victory = b.phase == Phase::Victory;
     let kills = b.units.iter().filter(|u| u.side == Side::Alien && !u.alive && (u.hp <= 0 || u.stun < u.hp)).count() as u32;
     let lost = b.units.iter().filter(|u| u.side == Side::Player && !u.alive).count() as u32;
@@ -1915,6 +2083,7 @@ fn finalize(g: &mut Game, b: Battle) {
     let site = b.mission.site;
     let reward = b.mission.reward;
     let final_mission = b.mission.final_mission;
+    g.last_roll_log = b.dice.take_log();
     g.battle = None;
     g.finish_battle(victory, kills, lost, site, reward, final_mission, live_captured);
 }
@@ -3197,14 +3366,12 @@ fn draw_unit_overlays(g: &mut Game, b: &Battle, cam: &Camera3D) {
             draw_rectangle_lines(sp.x - w * 0.5, sp.y - 8.0, w, 4.0, 1.0, Color { a: 0.4, ..col });
             let d = vec2(sp.x, sp.y).distance(vec2(mx, my));
             if d < 30.0 && u.side == Side::Alien {
-                let sel = b.units.get(b.selected);
-                let chance = if let Some(s) = sel {
-                    let wdef = &g.data.weapons[s.weapon];
-                    let mode = b.mode.idx();
-                    let wa = g.data.item(wdef.game, wdef.item).acc[mode] as i32;
-                    hit_chance(s.acc, wa, s.kneeling, s.hp, s.max_hp, s.wounds, false)
-                } else { 0 };
-                let label = format!("{}  {}%  HP {}", u.name, chance, u.hp);
+                let chance = if b.selected < b.units.len() {
+                    let o = b.shot_odds(&g.data, b.selected, i, b.mode);
+                    // A blocked line is never rolled, so no number is shown.
+                    if o.blocked { "NO LINE".to_string() } else { odds_text(o.percent, b.mode) }
+                } else { "0%".to_string() };
+                let label = format!("{}  {}  HP {}", u.name, chance, u.hp);
                 let tw = ui.width(11.0, &label) + 14.0;
                 draw_rectangle(sp.x - tw * 0.5, sp.y - 28.0, tw, 17.0, Color { a: 0.85, ..BG });
                 ui.center(sp.x, sp.y - 16.0, 11.0, AMBER, &label);
@@ -3506,17 +3673,20 @@ pub fn draw(g: &mut Game) {
     draw_hud(g, &mut b);
     // -------- target readout: the shot the current mode would take
     if b.phase == Phase::Player {
-        if let Some(ti) = b.unit_at(b.hover.0, b.hover.1) {
+        // Unseen aliens (in fog) must not be revealed by the readout.
+        let hovered = b.unit_at(b.hover.0, b.hover.1)
+            .filter(|&t| tile_at(&b, b.units[t].x.round() as i32, b.units[t].y.round() as i32).visible);
+        if let Some(ti) = hovered {
             if b.units[ti].side == Side::Alien {
                 let (mx, my) = mouse_position();
                 let u = b.units[b.selected].clone();
                 let wd = g.data.weapons[u.weapon].clone();
                 let it = g.data.item(wd.game, wd.item);
                 let mi = b.mode.idx();
-                let wa = it.acc[mi] as i32;
                 let cost = it.tu[mi];
-                let chance = if wa > 0 { hit_chance(u.acc, wa, u.kneeling, u.hp, u.max_hp, u.wounds, false) } else { 0 };
-                let los = b.los(u.x.round() as i32, u.y.round() as i32, b.units[ti].x.round() as i32, b.units[ti].y.round() as i32);
+                let odds = b.shot_odds(&g.data, b.selected, ti, b.mode);
+                let chance = odds_text(odds.percent, b.mode);
+                let los = !odds.blocked;
                 let dist = ((b.units[ti].x - u.x).powi(2) + (b.units[ti].y - u.y).powi(2)).sqrt();
                 if let (Some(a), Some(c)) = (project(&cam, b.muzzle_pos(b.selected)), project(&cam, b.chest_pos(ti))) {
                     let line = if !los { Color { a: 0.55, ..ui::RED } } else if u.tu >= cost as f32 && u.ammo > 0 { Color { a: 0.7, ..AMBER } } else { Color { a: 0.35, ..DIM } };
@@ -3535,7 +3705,7 @@ pub fn draw(g: &mut Game) {
                     g.ui.text(r.x + 10.0, r.y + 65.0, 7.5, DIM, "MOVE TO A CLEAR LANE");
                 } else {
                     let ready = u.tu >= cost as f32 && (u.ammo > 0 || wd.infinite);
-                    g.ui.bold(r.x + 10.0, r.y + 53.0, 12.0, if ready { CYAN } else { DIM }, &format!("{}  {}%", b.mode.label(), chance));
+                    g.ui.bold(r.x + 10.0, r.y + 53.0, 12.0, if ready { CYAN } else { DIM }, &format!("{}  {}", b.mode.label(), chance));
                     g.ui.text(r.x + 92.0, r.y + 53.0, 8.0, if ready { TEXT } else { DIM }, &format!("{} TU", cost));
                     g.ui.text(r.x + 140.0, r.y + 53.0, 8.0, DIM, &format!("{:.0} TILES", dist));
                     g.ui.text(r.x + 10.0, r.y + 68.0, 7.5, DIM, if ready { "RIGHT CLICK TO FIRE" } else { "NOT ENOUGH TU OR AMMO" });
@@ -3625,14 +3795,26 @@ fn draw_hud(g: &mut Game, b: &mut Battle) {
             let mi = m.idx();
             let wa = g.data.item(wdef.game, wdef.item).acc[mi] as i32;
             let cost = g.data.item(wdef.game, wdef.item).tu[mi];
-            let chance = if wa > 0 { hit_chance(u.acc, wa, u.kneeling, u.hp, u.max_hp, u.wounds, false) } else { 0 };
+            let target = b.unit_at(b.hover.0, b.hover.1)
+                .filter(|&t| b.units[t].side == Side::Alien
+                    && tile_at(b, b.units[t].x.round() as i32, b.units[t].y.round() as i32).visible);
+            // No target, no number: only the real shot_odds figure is ever shown.
+            let chance = match target {
+                Some(t) if wa > 0 => {
+                    let o = b.shot_odds(&g.data, b.selected, t, m);
+                    // Blocked line: the shot is refused, so show no number.
+                    if o.blocked { String::new() } else { odds_text(o.percent, m) }
+                }
+                Some(_) => "0%".to_string(),
+                None => String::new(),
+            };
             let r = Rect::new(bx, y0 + 58.0, 72.0, 30.0);
             let enabled = wa > 0 && u.tu >= cost as f32 && (u.ammo > 0 || wdef.infinite);
             let hover = r.contains(vec2(mouse_position().0, mouse_position().1));
             draw_rectangle(r.x, r.y, r.w, r.h, if b.mode == m { Color { r: 0.08, g: 0.22, b: 0.24, a: 1.0 } } else if hover { Color { a: 0.15, ..PANEL_2 } } else { Color { a: 0.3, ..PANEL } });
             draw_rectangle_lines(r.x, r.y, r.w, r.h, 1.0, if b.mode == m { CYAN } else { Color { a: 0.35, ..CYAN_DIM } });
             g.ui.center(r.x + r.w * 0.5, r.y + 12.0, 8.5, if enabled { if b.mode == m { CYAN } else { TEXT } } else { DIM }, m.label());
-            g.ui.center(r.x + r.w * 0.5, r.y + 23.0, 7.5, if enabled { AMBER } else { DIM }, &format!("{}% {}TU", chance, cost));
+            g.ui.center(r.x + r.w * 0.5, r.y + 23.0, 7.5, if enabled { AMBER } else { DIM }, &if chance.is_empty() { format!("{}TU", cost) } else { format!("{} {}TU", chance, cost) });
             if hover && is_mouse_button_released(MouseButton::Left) && wa > 0 { b.mode = m; }
             bx += 75.0;
         }
@@ -4067,5 +4249,76 @@ fn draw_tactical_psi(g: &mut Game, b: &mut Battle) {
     if button(&g.ui, Rect::new(px + pw - 130.0, py + ph - 42.0, 116.0, 30.0), "CLOSE [ESC]", Btn::Normal, true) || is_key_pressed(KeyCode::Escape) || is_key_pressed(KeyCode::P) {
         b.psi_open = false;
         g.audio.play_click();
+    }
+}
+
+#[cfg(test)]
+mod odds_tests {
+    use super::*;
+    #[test]
+    fn combine_clamps_only_to_0_and_100() {
+        assert_eq!(combine_odds(50, 10, 0, 0), 60);
+        assert_eq!(combine_odds(50, -10, 0, 0), 40);
+        assert_eq!(combine_odds(98, 10, 0, 0), 100);
+        assert_eq!(combine_odds(3, -10, 0, 0), 0);
+        assert_eq!(combine_odds(100, 0, 0, 0), 100);
+        assert_eq!(combine_odds(0, 0, 0, 0), 0);
+    }
+    #[test]
+    fn range_and_cover_slots_add_in() {
+        assert_eq!(combine_odds(60, 0, -15, -10), 35);
+    }
+    #[test]
+    fn range_penalty_each_kind() {
+        for (cat, r) in [(Cat::Pistol, 8), (Cat::Rifle, 16), (Cat::Cannon, 14), (Cat::Heavy, 14), (Cat::Launcher, 18)] {
+            assert_eq!(comfortable_range(cat), Some(r));
+            assert_eq!(range_penalty(cat, 0), 0);
+            assert_eq!(range_penalty(cat, r), 0);
+            assert_eq!(range_penalty(cat, r + 1), -2);
+            assert_eq!(range_penalty(cat, r + 10), -20);
+        }
+        for cat in [Cat::Grenade, Cat::Melee, Cat::Heal] {
+            assert_eq!(comfortable_range(cat), None);
+            assert_eq!(range_penalty(cat, 30), 0);
+        }
+    }
+    #[test]
+    fn cover_adds_up() {
+        assert_eq!(cover_penalty(0, 0), 0);
+        assert_eq!(cover_penalty(1, 0), -10);
+        assert_eq!(cover_penalty(0, 1), -25);
+        assert_eq!(cover_penalty(2, 1), -45);
+        assert_eq!(combine_odds(60, 0, -4, cover_penalty(2, 1)), 11);
+        assert_eq!(combine_odds(40, 0, -10, cover_penalty(0, 2)), 0);
+    }
+    fn open_cell(_x: i32, _y: i32) -> LineCell { LineCell::default() }
+    #[test]
+    fn walk_open_line_is_clear() {
+        assert_eq!(walk_line(0, 0, 10, 0, open_cell), LineOfFire::default());
+        assert_eq!(walk_line(3, 3, 3, 3, open_cell), LineOfFire::default());
+    }
+    #[test]
+    fn walk_counts_cover_and_skips_first_square() {
+        let rock = |x: i32, y: i32| if y == 0 && (x == 1 || x == 4) { LineCell { heavy: 1, ..Default::default() } }
+            else if y == 0 && x == 6 { LineCell { light: 1, smoke: 3, ..Default::default() } } else { LineCell::default() };
+        let r = walk_line(0, 0, 10, 0, rock);
+        assert_eq!((r.blocked, r.light, r.heavy), (false, 1, 1)); // rock at x=1 ignored
+        // End squares never count.
+        let ends = |x: i32, _y: i32| if x == 0 || x == 10 { LineCell { heavy: 1, ..Default::default() } } else { LineCell::default() };
+        assert_eq!(walk_line(0, 0, 10, 0, ends), LineOfFire::default());
+    }
+    #[test]
+    fn walk_blocks_and_smoke_adds_up() {
+        let wall = |x: i32, _y: i32| LineCell { blocks: x == 1, ..Default::default() };
+        assert!(walk_line(0, 0, 5, 0, wall).blocked); // first square still blocks
+        let smoke = |_x: i32, _y: i32| LineCell { smoke: 6, ..Default::default() };
+        assert!(!walk_line(0, 0, 3, 0, smoke).blocked); // 12 < 18
+        assert!(walk_line(0, 0, 5, 0, smoke).blocked); // 24 >= 18
+    }
+    #[test]
+    fn auto_shows_per_round_odds() {
+        assert_eq!(odds_text(42, ShotMode::Auto), "42% x3");
+        assert_eq!(odds_text(42, ShotMode::Snap), "42%");
+        assert_eq!(odds_text(42, ShotMode::Aimed), "42%");
     }
 }

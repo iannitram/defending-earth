@@ -1779,10 +1779,11 @@ pub fn update_editor(g: &mut Game, _dt: f32) {
         g.screen = g.editor_return;
     }
     if is_key_pressed(KeyCode::R) {
-        let look = Look::random(&mut g.rng);
+        let mut gen = g.dice.generator("recruit");
+        let look = Look::random(&mut gen);
         let idx = g.selected_soldier;
         g.soldiers[idx].look = look;
-        let name = g.soldiers[idx].look.name(&mut g.rng);
+        let name = g.soldiers[idx].look.name(&mut gen);
         g.soldiers[idx].name = name;
     }
 }
@@ -1845,7 +1846,8 @@ pub fn draw_editor(g: &mut Game) {
     draw_rectangle_lines(nr.x, nr.y, nr.w, nr.h, 1.0, Color { a: 0.45, ..CYAN_DIM });
     g.ui.text(nr.x + 9.0, nr.y + 20.0, 12.0, TEXT, &g.ui.fit(12.0, &g.soldiers[g.selected_soldier].name, nr.w - 18.0, false));
     if button(&g.ui, Rect::new(x + cw * 0.50, y, cw * 0.50, 30.0), "RANDOMIZE NAME", Btn::Normal, true) {
-        let nm = g.soldiers[g.selected_soldier].look.name(&mut g.rng);
+        let mut gen = g.dice.generator("name");
+        let nm = g.soldiers[g.selected_soldier].look.name(&mut gen);
         g.soldiers[g.selected_soldier].name = nm;
     }
     y += 44.0;
@@ -1944,9 +1946,10 @@ pub fn draw_editor(g: &mut Game) {
     // actions, anchored to the bottom of the window
     let by = h - 52.0;
     if button(&g.ui, Rect::new(x, by, 160.0, 34.0), "RANDOMIZE", Btn::Normal, true) {
-        let look = Look::random(&mut g.rng);
+        let mut gen = g.dice.generator("recruit");
+        let look = Look::random(&mut gen);
         g.soldiers[idx].look = look;
-        let nm = g.soldiers[idx].look.name(&mut g.rng);
+        let nm = g.soldiers[idx].look.name(&mut gen);
         g.soldiers[idx].name = nm;
     }
     if button(&g.ui, Rect::new(x + 170.0, by, 130.0, 34.0), "CANCEL", Btn::Ghost, true) {

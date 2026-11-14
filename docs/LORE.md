@@ -673,6 +673,8 @@ then checked by playing.
 - Things in the way (low wall, smoke, a tree, another unit) each lower the
   odds. A fully blocked line cannot be shot at. A missed shot just misses;
   it does not fly on and hit something else.
+  *Changed later in the eighth session (friendly fire, part 2): a miss can
+  now hit anyone or anything near its path. See "Eighth session, later part".*
 - The aiming screen shows one final number, with no breakdown. Auto fire
   shows the per-round odds times three, for example "38% x3".
 
@@ -868,6 +870,107 @@ Nothing is built. Anything not written here is to settle.
 - Returning veterans also get a small visible nod for their deployments,
   for example a mark on the dress uniform. It has no effect on stats.
 - To settle: the design of the mark.
+
+### Eighth session (2026-11-13): shot range, cover and the campaign seed
+
+The owner decided how range and cover change a shot, and how the campaign
+seed should work. All numbers are starting numbers; the test bench tunes
+them later. Anything not written here keeps today's behaviour and is to
+settle.
+
+**A. Range**
+- Each weapon kind has a comfortable range in squares: Pistol 8, Rifle 16,
+  Cannon 14 (heavy rifle, machine gun and their dive versions), Heavy 14,
+  Launcher 18.
+- Surface, dive and alien-tech versions of a kind share the same number.
+- Inside the comfortable range: no change.
+- Beyond it: minus 2 points of hit chance for every square past it.
+- Distance is the straight-line distance between the two units' squares,
+  rounded to the nearest whole square.
+- To settle: Grenade, Melee and Heal kinds have no range effect for now.
+
+**B. Cover**
+- Things on the line between shooter and target lower the odds, and they
+  add up.
+- Light cover is minus 10 each: a square with thin smoke, and a crystal
+  obstacle.
+- Heavy cover is minus 25 each: a rock (obstacle 1), a stone block
+  (obstacle 3), and a living unit of the shooter's own side standing on the
+  line. A friend can never be hit by the shot; a miss just misses.
+  *Changed later in the eighth session: friendly fire is now a thing, so a
+  friend can be hit by a stray shot. See "Eighth session, later part".*
+- What blocks a shot fully today still blocks it fully: trees, walls,
+  hulls, the power plant, ground two levels up, thick smoke. Unchanged.
+
+**C. Own cover**
+- The first square on the line next to the shooter is ignored for the cover
+  penalty, so a soldier can fight from behind a rock.
+- That square still counts for full blocking, exactly as today.
+
+**D. Squares that never count**
+- The shooter's own square and the target's own square never count as
+  cover.
+- To settle: enemy or neutral units on the line have no effect for now.
+
+**E. No target, no number**
+- The three fire-mode buttons show only the time-unit cost until a target
+  is pointed at. Then they show the real number from the shot-odds rule.
+- The screen must never show a hit number that is not the real one.
+
+**F. One rule for both sides**
+- Soldiers and aliens use the same range and cover rule.
+
+**G. The campaign seed**
+- The same seed should give the same campaign events, whatever the timing
+  of the player's clicks.
+- This is fixed in step 3 of package 0 (campaign state), by giving the
+  world, the recruits and the alien crews each their own dice.
+- Not built now. This is design on paper.
+
+#### Eighth session, later part (decided 2026-11-13, right after the eighth session): shielding and friendly fire
+
+Decided by the owner after parts A to G above. Nothing is built. Anything
+not written here is to settle.
+
+**1. Shielding**
+- A soldier stands in the line of fire. An enemy shot at the friend behind
+  them misses, and it would have hit without the soldier in the way. The
+  game notices.
+- It is recorded on both soldiers.
+- It counts toward the GUARDIAN citation and toward the two soldiers' bond.
+- It can be picked as the moment of the battle.
+- It is built later, with ribbons (package 3f). Not now.
+
+**2. Friendly fire is a thing**
+- This CHANGES two earlier decisions: "a miss just misses" (fifth session)
+  and "a friend in the line can never be hit" (decision B above).
+- New rule: any miss can hit anyone or anything near its path. That means a
+  friend, a refugee, an alien or scenery.
+
+**3. No warning**
+- The screen does not warn the player that a shot could hit a friend. The
+  player reads the lanes themselves.
+
+**4. After friendly fire**
+- The shooter may gain a bad trait.
+- The victim may lose trust in the shooter. The bond is damaged, or it
+  becomes a grudge.
+- The squad takes a morale hit at once.
+- Whether it is also written on service records was not chosen: to settle.
+
+**To settle**
+- How a stray shot's path is worked out, and what it can hit.
+- The odds.
+- Which bad traits.
+- The size of the morale hit.
+- Whether a friend in the line still also lowers the odds by 25 once stray
+  shots exist. Today's code does that and the friend cannot be hit. This
+  stays until the stray-shot rule is built.
+- Whether friendly fire is written on service records (see part 4).
+
+*Emergent stories: shielding and friendly fire give players tales of their
+own (the soldier who took the shot for a friend; the grudge after a bad
+miss). Both are the owner's choices; nothing was added unasked.*
 
 ## Sea campaign: deferred (2026-11-13)
 

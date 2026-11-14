@@ -1,6 +1,7 @@
 //! Game data tables: items, weapons, armour, facilities, craft, research, nations.
 //! Every name and number here is this project's own. See docs/NAMES.md.
 use macroquad::prelude::*;
+use crate::dice::Dice;
 
 // ---------------------------------------------------------------- random
 /// Seeded pseudo-random generator. One seed gives one repeatable sequence, so a mission can be replayed exactly.
@@ -595,9 +596,9 @@ pub fn tu_cost(base_tu: i32, percent: u8) -> i32 { (base_tu * percent as i32) / 
 /// Damage roll: 0 to 200 percent of the weapon's power.
 /// Blast (damage type 2) rolls 50 to 150 percent instead. Callers apply the
 /// modifier table and subtract location armour.
-pub fn roll_damage(rng: &mut Rng, base: i32, explosive: bool) -> i32 {
+pub fn roll_damage(dice: &mut Dice, who: &str, what: &'static str, base: i32, explosive: bool) -> i32 {
     if base <= 0 { return 0; }
-    if explosive { rng.rand(base) + base / 2 } else { rng.rand(base * 2) }
+    if explosive { dice.range(who, what, 0, base) + base / 2 } else { dice.range(who, what, 0, base * 2) }
 }
 
 /// Damage modifier in percent on land: rows are damage types 0..7, columns are armour classes 0..13.

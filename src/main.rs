@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 use std::env;
 
 mod data;
+mod dice;
 mod globe;
 mod ui;
 mod base;
@@ -13,6 +14,7 @@ mod sky;
 mod gfx;
 
 use data::*;
+use dice::{Dice, Roll};
 use globe::{Globe, ZoomDir};
 use ui::{Ui, BG, PANEL, PANEL_2, CYAN, CYAN_DIM, AMBER, TEXT, DIM, Btn, button, panel, glow, wrap, bar, vignette, scanlines};
 use dogfight::DogfightState;
@@ -356,7 +358,16 @@ pub struct MissionSpec {
 
 pub struct Game {
     pub data: GameData,
-    pub rng: Rng,
+    /// The campaign seed. Every battle's dice come from it and the battle's number.
+    pub campaign_seed: u64,
+    /// Rule dice for the campaign (UFO spawns, funding, interceptions, dogfights). Every draw is logged.
+    pub dice: Dice,
+    /// Visual dice. Never logged, never a rule.
+    pub fx: Rng,
+    /// How many battles have started this campaign (the next battle's number is this plus one).
+    pub battles_started: u32,
+    /// The roll log of the last finished battle, kept for a debrief screen (not built yet).
+    pub last_roll_log: Vec<Roll>,
     pub ui: Ui,
     pub audio: audio::SoundEffects,
     pub globe: Globe,
@@ -441,12 +452,17 @@ pub struct Game {
     pub dbg_biome: Option<u8>,
     /// Debug: put the battle at this latitude and longitude (`--site`).
     pub dbg_site: Option<(f32, f32)>,
-    /// Debug: extra seed mixed into map generation (`--seed`).
+    /// Debug: the campaign seed to use instead of the clock (`--seed`).
     pub dbg_seed: Option<u64>,
     /// Debug: battle camera preset, 0 default, 1 wide, 2 tele, 3 low (`--view`).
     pub dbg_view: u8,
     /// Debug: seconds to run before `--screenshot` saves (`--t`).
     pub dbg_t: f32,
+}
+
+/// A seed from the system clock (nanoseconds since 1970).
+fn clock_seed() -> u64 {
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos() as u64).unwrap_or(0x5EED_1234)
 }
 
 const SPEEDS: [i32; 5] = [1, 4, 12, 60, 240];
@@ -459,7 +475,7 @@ impl Game {
         globe.pitch = 0.18;
         globe.zoom = 1.0;
         let mut g = Self {
-            data, rng: Rng::new(0x5EED_1234), ui, audio, globe,
+            data, campaign_seed: 0, dice: Dice::from_seed(0), fx: Rng::new(0), battles_started: 0, last_roll_log: Vec::new(), ui, audio, globe,
             screen: Screen::Title,
             date: Date::new(),
             speed: 1, paused: true,
@@ -490,7 +506,10 @@ impl Game {
             last_kills: 0, last_lost: 0, last_shots: 0, last_hits: 0, last_mission: String::new(), last_reward: 0,
             gfx: None, dbg_clock: None, dbg_weather: None, dbg_frametime: false, dbg_biome: None, dbg_site: None, dbg_seed: None, dbg_view: 0, dbg_t: 0.0,
         };
-        g.rng = Rng::new((macroquad::time::get_time() * 1000.0) as u64 ^ 0xA5A5_5A5A);
+        // Title and demo paths run without a new campaign, so seed from the clock here too.
+        g.campaign_seed = clock_seed();
+        g.dice = Dice::from_seed(g.campaign_seed);
+        g.fx = Rng::new(clock_seed() ^ 0xA5A5_5A5A);
         g
     }
 
@@ -522,6 +541,11 @@ impl Game {
         self.game_over = false;
         self.won = false;
         self.campaign_started = true;
+        // A new campaign gets a new seed (from the clock, or `--seed N`) and fresh dice.
+        self.campaign_seed = self.dbg_seed.unwrap_or_else(clock_seed);
+        self.dice = Dice::from_seed(self.campaign_seed);
+        self.battles_started = 0;
+        self.last_roll_log.clear();
         self.pending_final = false;
         self.first_campaign_done = false;
         self.last_month = Month::Jan;
@@ -672,9 +696,10 @@ impl Game {
         self.data.weapons.iter().position(|w| w.name == name).unwrap_or(0)
     }
     pub fn make_soldier(&mut self) -> Soldier {
-        let look = Look::random(&mut self.rng);
-        let name = look.name(&mut self.rng);
-        let stats = Stats::recruit(&mut self.rng);
+        let mut gen = self.dice.generator("recruit");
+        let look = Look::random(&mut gen);
+        let name = look.name(&mut gen);
+        let stats = Stats::recruit(&mut gen);
         let hp = stats.health;
         let id = self.next_id();
         Soldier {
@@ -765,25 +790,30 @@ impl Game {
 
     pub fn spawn_ufo(&mut self) {
         let underwater = self.campaign_type == 1;
-        let lat = self.rng.range(-55, 60) as f32;
-        let lon = self.rng.range(0, 359) as f32;
+        let lat = self.dice.range("campaign", "ufo latitude", -55, 60) as f32;
+        let lon = self.dice.range("campaign", "ufo longitude", 0, 359) as f32;
         let (lat, lon) = if underwater { self.find_water(lat, lon) } else {
             let (la, lo) = self.find_land(lat, lon);
-            if self.rng.chance(15) { (lat, lon) } else { (la, lo) }
+            if self.dice.check("campaign", "ufo lands off land", 15) { (lat, lon) } else { (la, lo) }
         };
         let kind = if underwater {
-            match self.rng.range(0, 3) { 0 => UfoKind::Rhizome, 1 => UfoKind::Rhizome, 2 => UfoKind::Taproot, _ => UfoKind::Rhizome }
+            match self.dice.range("campaign", "ufo kind", 0, 3) { 0 => UfoKind::Rhizome, 1 => UfoKind::Rhizome, 2 => UfoKind::Taproot, _ => UfoKind::Rhizome }
         } else {
-            match self.rng.range(0, 9) {
+            match self.dice.range("campaign", "ufo kind", 0, 9) {
                 0..=4 => UfoKind::Spore, 5..=7 => UfoKind::Burr, _ => UfoKind::Thorn,
             }
         };
         let raid = kind == UfoKind::Thorn;
         let (tlat, tlon) = if raid {
-            let b = &self.bases[self.rng.range(0, self.bases.len() as i32 - 1) as usize];
+            let bi = self.dice.range("campaign", "raid target base", 0, self.bases.len() as i32 - 1) as usize;
+            let b = &self.bases[bi];
             (b.lat, b.lon)
         } else {
-            (lat + self.rng.range(-12, 12) as f32, lon + self.rng.range(-20, 20) as f32)
+            {
+                let dla = self.dice.range("campaign", "ufo target latitude", -12, 12) as f32;
+                let dlo = self.dice.range("campaign", "ufo target longitude", -20, 20) as f32;
+                (lat + dla, lon + dlo)
+            }
         };
         let hp = match kind { UfoKind::Spore => 60, UfoKind::Burr => 110, UfoKind::Thorn => 150, UfoKind::Rhizome => 120, UfoKind::Taproot => 220 };
         let u = Ufo { id: self.next_id(), lat, lon, target_lat: tlat, target_lon: tlon, kind, underwater, hp, timer: 720, detected: true, raid, speed: 0.4 };
@@ -850,10 +880,10 @@ impl Game {
         if i >= self.ufos.len() { return; }
         let u = self.ufos[i].clone();
         let chance = match u.kind { UfoKind::Spore => 82, UfoKind::Burr => 68, UfoKind::Thorn => 58, UfoKind::Rhizome => 64, UfoKind::Taproot => 44 };
-        if self.rng.chance(chance) {
+        if self.dice.check("campaign", "interception", chance) {
             let (lat, lon) = if u.underwater { self.find_water(u.lat, u.lon) } else { self.find_land(u.lat, u.lon) };
             let tier = self.missions_won / 3 + 1;
-            let n = self.rng.range(4, 6) as usize;
+            let n = self.dice.range("campaign", "crash site aliens", 4, 6) as usize;
             let mut aliens = Vec::new();
             for _ in 0..n {
                 aliens.push(self.roll_alien(u.underwater, tier));
@@ -879,10 +909,10 @@ impl Game {
     pub fn roll_alien(&mut self, underwater: bool, tier: u32) -> u8 {
         if underwater {
             let pool: &[u8] = match tier { 0..=1 => &[0, 0, 1, 1, 5], 2..=3 => &[1, 2, 2, 5, 6], _ => &[2, 2, 3, 4, 7, 8] };
-            *self.rng.pick(pool)
+            pool[self.dice.index("campaign", "alien kind", pool.len())]
         } else {
             let pool: &[u8] = match tier { 0..=1 => &[0, 0, 1, 5], 2..=3 => &[1, 2, 2, 6], 4..=5 => &[2, 3, 3, 7], _ => &[3, 4, 4, 8, 9] };
-            *self.rng.pick(pool)
+            pool[self.dice.index("campaign", "alien kind", pool.len())]
         }
     }
 
@@ -1046,7 +1076,7 @@ impl Game {
                 }
                 let net_act = n.defence_activity - n.alien_activity;
                 // Funding change per state: a random 0–14 percent plus 5 percent
-                let pct = (5 + self.rng.range(0, 16)) as f64 / 100.0;
+                let pct = (5 + self.dice.range(&n.name, "funding change", 0, 16)) as f64 / 100.0;
                 let delta = if net_act > 30 || n.satisfaction >= 80 {
                     n.satisfaction = (n.satisfaction + 8).min(100);
                     n.panic = (n.panic - 15).max(0);
@@ -1339,7 +1369,7 @@ impl Game {
                 self.spawn_timer -= mins;
                 if self.spawn_timer <= 0 {
                     self.spawn_ufo();
-                    self.spawn_timer = self.rng.range(600, 1600);
+                    self.spawn_timer = self.dice.range("campaign", "next UFO timer", 600, 1600);
                 }
                 for s in self.sites.iter_mut() { s.expires -= mins; }
                 let expired: Vec<usize> = self.sites.iter().enumerate().filter(|(_, s)| s.expires <= 0 && s.kind != SiteKind::Final).map(|(i, _)| i).collect();
@@ -1389,7 +1419,7 @@ impl Game {
                 let (lat, lon) = self.find_land(u.lat, u.lon);
                 let tier = self.missions_won / 3 + 1;
                 let mut aliens = Vec::new();
-                for _ in 0..self.rng.range(5, 7) { aliens.push(self.roll_alien(u.underwater, tier)); }
+                for _ in 0..self.dice.range("campaign", "raid aliens", 5, 7) { aliens.push(self.roll_alien(u.underwater, tier)); }
                 let sid = self.next_id();
                 self.sites.push(Site {
                     id: sid, name: "CITY RAID".into(), lat, lon,
@@ -1402,7 +1432,7 @@ impl Game {
                 let (lat, lon) = if u.underwater { self.find_water(u.lat, u.lon) } else { self.find_land(u.lat, u.lon) };
                 let tier = self.missions_won / 3 + 1;
                 let mut aliens = Vec::new();
-                for _ in 0..self.rng.range(4, 6) { aliens.push(self.roll_alien(u.underwater, tier)); }
+                for _ in 0..self.dice.range("campaign", "landing aliens", 4, 6) { aliens.push(self.roll_alien(u.underwater, tier)); }
                 let sid = self.next_id();
                 self.sites.push(Site {
                     id: sid, name: if u.underwater { "ALIEN ACTIVITY // DEEP".into() } else { "LANDING SITE".into() },
@@ -2306,7 +2336,11 @@ async fn main() {
             // latitude,longitude in degrees, e.g. --site 64,-150; the biome follows the Earth map
             "--site" => { let mut it = val.split(',').map(|v| v.trim().parse::<f32>()); if let (Some(Ok(la)), Some(Ok(lo))) = (it.next(), it.next()) { game.dbg_site = Some((la.clamp(-89.0, 89.0), lo)); } else { eprintln!("--site: cannot read '{}'", val); } }
             "--biome" => { game.dbg_biome = val.parse().ok(); }
-            "--seed" => { game.dbg_seed = val.parse().ok(); }
+            "--seed" => {
+                game.dbg_seed = val.parse().ok();
+                // A given seed also seeds the dice of any battle started without a new campaign (demo paths).
+                if let Some(n) = game.dbg_seed { game.campaign_seed = n; game.dice = Dice::from_seed(n); }
+            }
             "--view" => { game.dbg_view = match val.as_str() { "wide" => 1, "tele" => 2, "low" => 3, _ => 0 }; }
             "--t" => { game.dbg_t = val.parse().unwrap_or(0.0); }
             "--frametime" => { game.dbg_frametime = true; }

@@ -39,6 +39,8 @@ may be renamed but not reordered, inserted or removed. Those are marked
 | HEARTH ALPHA, BRAVO, CHARLIE … | Land base names, in founding order |
 | HEARTH DEEP 1, 2, 3 … | Sea-floor station names, in founding order |
 | the Registrar | The enemy: a cataloguing machine. First met as a broken fragment of the word. Lore only, not yet in the UI (see `LORE.md`) |
+| NO LINE OF FIRE | Battle text. On the target panel, and now also the battle log line (with a full stop) when a shot at a blocked target is refused |
+| NO LINE | Battle text. On the hover label over an alien when the shot has no line of fire (replaces the hit number) |
 
 ### Ranks (fixed order)
 

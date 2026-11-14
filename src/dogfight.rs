@@ -390,10 +390,10 @@ impl DogfightState {
                 let stance_div = (5 - stance_idx).max(1);
                 let effective_acc = (acc_half + (acc_half / stance_div) * 3).clamp(5, 100);
 
-                let hit = game.rng.rand(100) < effective_acc;
+                let hit = game.dice.range(&self.craft_name, "craft shot", 0, 100) < effective_acc;
                 if hit {
                     game.audio.play_explosion();
-                    let dmg_roll = game.rng.rand(dmg);
+                    let dmg_roll = game.dice.range(&self.craft_name, "craft damage", 0, dmg);
                     let actual_dmg = ((dmg_roll + dmg) / 2).max(1);
                     self.ufo_hp = (self.ufo_hp - actual_dmg).max(0);
                     self.spawn_sparks(vec2(760.0, 360.0), col, 22);
@@ -417,10 +417,10 @@ impl DogfightState {
                     self.add_log("SHOT MISSED TARGET.", DIM);
                 }
             } else {
-                let hit = game.rng.rand(100) > 40;
+                let hit = game.dice.range(&self.ufo_name, "contact shot", 0, 100) > 40;
                 if hit {
                     game.audio.play_explosion();
-                    let dmg_roll = game.rng.rand(self.ufo_weapon_damage).max(10);
+                    let dmg_roll = game.dice.range(&self.ufo_name, "contact damage", 0, self.ufo_weapon_damage).max(10);
                     self.craft_hp = (self.craft_hp - dmg_roll).max(0);
                     self.spawn_sparks(vec2(280.0, 360.0), ui::RED, 25);
                     self.screen_shake = 0.6;
@@ -483,7 +483,7 @@ impl DogfightState {
                         game.find_land(u.lat, u.lon)
                     };
                     let tier = game.missions_won / 3 + 1;
-                    let n = game.rng.range(4, 6) as usize;
+                    let n = game.dice.range("campaign", "crash site aliens", 4, 6) as usize;
                     let mut aliens = Vec::new();
                     for _ in 0..n {
                         aliens.push(game.roll_alien(u.underwater, tier));
