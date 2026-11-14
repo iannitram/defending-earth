@@ -8,8 +8,127 @@ story in `LORE.md`, names in `NAMES.md`.
 **Right now:** graphics phases 1 and 2 are finished. Next is phase 3
 (flashlights, flares, fire). Lore: land roster settled and creature names
 final; sea campaign deferred by the user until the land campaign is much
-further along. A second lore session was held on 2026-11-13 (see the note
-below).
+further along. A second and a third lore session were held on 2026-11-13
+(see the two notes below). The third closed most of the open questions and
+added the soldier pool. None of the third session is built.
+
+**2026-11-13:** the test bench (a no-window way to run battles and print
+reports) is now package 0, the first systems package, and the scale sheet
+(one sheet of real-world sizes) opens graphics phase 4. Neither is built.
+See `ROADMAP.md`.
+
+## Third lore session (2026-11-13)
+
+- **Held and written down.** The decisions are in `LORE.md` under "Third
+  session (2026-11-13): the open questions".
+- **Nothing from it is in the game.** No code, rule, number or picture
+  changed. It is all design on paper.
+- **Questions it closed:**
+  - *Soldier traits.* All eight starter traits are strengths, each with a
+    built-in catch. Flaws are fears. A recruit gets one strength and one
+    fear.
+  - *Which fears.* The dark, fire, tight spaces, the Glow, water and
+    sharks. Water and sharks do nothing on land, so they sleep until the
+    sea campaign exists.
+  - *Portraits.* Six stages, from new recruit to the thousand-yard stare.
+    On top come marks from events: scars from wounds, and changes that come
+    with earned traits.
+  - *The ending.* There is no pass mark. Every living freed Tender the
+    player brings to the Moon weakens the Seed's defences. Very few makes
+    the last mission nearly impossible; many makes it fair.
+  - *How the Maul is controlled.* A control spike, a piece of Registrar
+    hardware driven into its molten core. Destroy the spike and the Maul
+    goes wild and attacks whoever is nearest, the enemy included.
+  - *Maul and Cinder.* Cinders are wild: nothing controls them, and they
+    eat the enemy's dead as readily as ours. A Cinder grows as it eats, but
+    it only becomes a full Maul between battles, never during one.
+  - *How the Cinder looks.* A glowing, cube-shaped rock that rolls around,
+    almost cute. Its cube and the Registrar's cube sign must never be
+    confused (the rule is in `ART_BIBLE.md`).
+  - *Spotting a buried Gorger.* Shifting ground and dust that a careful
+    soldier can see from a few tiles away. The handheld radar finds one
+    reliably.
+  - *The human worker.* It first appears after the Registrar has read one
+    of the player's soldiers. Early batches carry no weapon: they run at
+    the squad, cling, and call out in broken recorded lines. Late batches
+    hide among civilians and use human weapons.
+  - *Refugees as soldiers.* A Regent uses Reach and cannot use human
+    weapons. A Tender is small and frail, a scout that senses Reach and
+    enemy machines. A Lash is the best marksman the player can have, but
+    its first shot at any target costs extra time (it asks pardon). None
+    can wear human armour; the workshop makes each kind its own harness.
+  - *Mess hall.* Dead Gorgers stock it for refugees. Unfed soldiers lose
+    morale and recover more slowly. Unfed refugees weaken, then leave.
+    Nobody starves to death on screen.
+  - *Infection inside the base.* Low risk brings sabotage: a module goes
+    dark, research is lost, a craft is grounded. High risk brings a battle
+    that starts inside the base with no warning. The Scrub Room pushes the
+    risk back down.
+  - *Signpost missions.* Four more, so five with "The same face": FIRST
+    WORDS (first live capture), THE SPLIT VOTE (first Regent studied),
+    ROLL CALL (a late batch of human workers appears) and THE OPEN DOOR
+    (infection risk first runs high).
+- **New: the soldier pool** (the user's idea).
+  - A page reached from the game's starting screen. The player creates
+    soldiers there once, with pictures.
+  - Pool soldiers are mixed at random into the recruits of every campaign
+    started afterwards. A "start with me" tick guarantees a place in the
+    starting squad.
+  - The player makes the name, look and picture. The strength and the fear
+    are dealt fresh in every campaign and hidden like anyone else's.
+  - One picture per soldier. The game lays the six portrait stages over it.
+  - Pool pictures and names stay on the player's machine. They are never
+    put in the public repository.
+  - It is not covered by packages 1 to 9 of the game systems track, so it
+    needs a package of its own in `ROADMAP.md`.
+  - Not built. Today the game has no save file (it only writes screenshots
+    and test results), has no box to type a name into, and does not read
+    picture files from the player's disk (its own pictures are packed
+    inside the program).
+  - A risk to handle when it is built: screenshots go to `shots/`, which
+    is in the public repository, so a private face could end up there.
+    Suggested, not yet agreed with the user: keep the pool switched off
+    whenever the game is started with `--demo`, `--screenshot`,
+    `--self-test` or `--ai-test`.
+- **Still open after the third session** (each is the user's call):
+  - *Numbers, left for play.* `LORE.md` says these are set by playing once
+    the systems exist: Slag from a full or an empty Maul, how fast it eats,
+    and the hunger and infection figures.
+  - *Not yet given a number or a list:* what each strength is worth; how
+    many missions each portrait stage takes; how many batches of human
+    worker there are; how many Gorgers a refugee needs; what scrubbing
+    costs; from how many tiles a soldier spots a buried Gorger.
+  - Which earned traits exist beyond shell shock and competence.
+  - Multiplayer: what a joined player controls and gains; how players tell
+    real chat from the Registrar's; soldiers crossing between games.
+  - The order of the reveal that nobody is home, and of the name.
+  - Whether the many-legged marksman picture was meant for the Lash.
+  - How the Bloat looks (no picture yet). The Cinder now has a description
+    but no picture.
+  - Enemy craft, and the look of the Seed and the Root.
+  - Waiting with the sea campaign: the sea roster and the sea Regent
+    details.
+- **New questions the third session raises.** These came out of checking
+  the answers against the code. They are not in `LORE.md` and the user has
+  not been asked yet. None is decided:
+  1. How does the player aim at the Maul's spike: by shooting it from
+     behind, or with a special aimed shot?
+  2. Do living wild units (a wild Maul, Cinders) stop a battle from ending?
+  3. What does a Cinder that survives a battle do between battles?
+  4. A copy wears the face of the soldier it was read from. May a copy wear
+     a pool soldier's real photo? And may a pool picture ever be shown in
+     another player's game? (`ART_BIBLE.md` says a soldier's record can
+     later be shown in another player's game. `LORE.md` says pool pictures
+     stay on the player's machine.)
+  5. Does the fear of the Glow react to a soldier's own cored weapon (its
+     core is filled with Glow)?
+  6. Pool pictures: the game can read PNG files today but not JPG, which
+     is what phone photos are. Add JPG, or accept PNG only?
+  7. Does a freed Tender count for the ending if it is alive at base, or
+     only if it is aboard the transport to the Moon?
+- **Documents not yet in step.** `LORE.md` keeps its older "Still to
+  decide" list, which still shows questions this session closed. Where the
+  two disagree, the "Third session" section wins.
 
 ## Second lore session (2026-11-13)
 
@@ -40,8 +159,8 @@ below).
   - New rules for the Maul, Brooder (the taker), Lathe (the builder), Kite,
     Bloat, Cinder and Gorger.
   - Soldier traits: one strength and one flaw, hidden until triggered,
-    eight starters, earned traits, and fears (afraid of water, afraid of
-    sharks and the like). Portraits that change with service.
+    eight starters, earned traits, and fears. Portraits that change with
+    service. (The third session settled the details: see above.)
   - Freed aliens ("refugees") as soldiers.
   - Infection tax and scrubbing.
   - The human worker and its improving voice lines ("duck calls").
@@ -50,7 +169,9 @@ below).
     lighting, the freed Tenders' vote and merge, and the last word that
     there are many.
   - Multiplayer: join or be wiped out.
-- **Still open** (from `LORE.md`; each is the user's call):
+- **Still open after the second session.** This is the list as it stood
+  then. The third session closed most of it; the current list is in the
+  third session note above.
   - Which of the eight starter traits are strengths and which are flaws,
     and their numbers. Which fears exist beyond water and sharks. Which
     earned traits exist beyond shell shock and competence.
@@ -138,7 +259,8 @@ below).
    things to design and animate and which AI model does which part.
 4. The game systems track in `ROADMAP.md`, alongside the graphics phases.
    Package 1 (groundwork) needs no art and can go with phase 3.
-5. Lore: the open questions listed under "Second lore session" above.
+5. Lore: the open and new questions listed under "Third lore session"
+   above.
 
 ## Known flaws
 

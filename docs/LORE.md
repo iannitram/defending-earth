@@ -493,6 +493,112 @@ changing portraits.
 - **Lash confirmation.** Whether the many-legged marksman image was meant
   for the Lash.
 
+## Third session (2026-11-13): the open questions
+
+### Soldiers
+
+- **Two pools.** The eight starter traits are all strengths, each with its
+  built-in catch. Flaws are fears. A recruit gets one of each.
+- **The first fears.** The dark, fire, tight spaces, the Glow, water and
+  sharks.
+- **Water and sharks are sea-only.** They do nothing on land, so they stay
+  asleep until the sea campaign exists. The four land fears are the dark,
+  fire, tight spaces and the Glow.
+- **Portraits have six stages**, from new recruit to the thousand-yard
+  stare, plus marks from events: scars from wounds, and changes that come
+  with earned traits.
+
+### The ending
+
+- **No pass mark.** Every living freed Tender the player brings to the
+  Moon weakens the Seed's defences. With very few the last mission is
+  nearly impossible; with many it is fair. There is no fixed number.
+
+### Creatures
+
+- **The Maul has a control spike.** A piece of Registrar hardware is
+  driven into its molten core. Destroy the spike and the Maul turns wild
+  and attacks whoever is nearest, the enemy included.
+- **Cinders** are glowing cube-shaped rocks that roll around, almost cute.
+  A Cinder grows bigger and stronger as it eats, but it only becomes a
+  full Maul between battles, never during one.
+- **Buried Gorgers show signs.** Shifting ground and dust that a careful
+  soldier can spot from a few tiles away. The handheld radar finds one
+  reliably.
+
+- **Two cubes, no link.** The Cinder's cube shape and the Registrar's cube
+  sign are a coincidence and must never be confused. Cinders are rough,
+  rounded, orange and tumbling. Registrar cubes are black, exact and
+  still.
+- **Cinders are wild.** Nothing controls them. They eat and set fires, and
+  go for the enemy's dead as readily as ours.
+- **The human worker** first appears after the Registrar has read one of
+  the player's soldiers. Early batches carry no weapon: they run at the
+  squad, cling and call out in broken recorded lines. Late batches hide
+  among civilians and use human weapons.
+
+### Refugees as soldiers
+
+- **Regent.** Uses Reach. Cannot use human weapons.
+- **Tender.** Small and frail. A scout that senses Reach and enemy
+  machines.
+- **Lash.** The best marksman the player can have, but it must ask each
+  target's pardon: its first shot at any target costs extra time.
+- **Kit.** None can wear human armour. The workshop makes each kind its
+  own harness.
+
+### The soldier pool (the user's idea)
+
+A page reached from the game's starting screen where the player creates
+soldiers once, with pictures. Soldiers from the pool are pulled at random
+into every campaign started afterwards, so the player and their friends
+can turn up in any game without being made again.
+
+- **Traits are dealt fresh.** The player makes the name, look and picture.
+  The strength and the fear are random in every campaign and hidden like
+  anyone else's.
+- **Arrival.** Pool soldiers are mixed at random into the recruits offered
+  during a campaign. A "start with me" tick on the pool page guarantees a
+  soldier a place in the starting squad.
+- **Portraits.** One picture per soldier. The game lays the six stages
+  over it: lighting, grime, darker eyes, scars from wounds.
+- **Privacy.** Pool pictures and names stay on the player's machine. They
+  are never put in the public repository.
+
+### More signpost missions
+
+- **First words.** Set off by the first live capture. In the holding block
+  the captive starts speaking the Registrar's first gibberish, built from
+  words the player's own staff have said.
+- **The split vote.** Set off by first studying a Regent. In the next
+  battle a Regent hesitates, lets a soldier live, and is recycled in front
+  of the squad.
+- **Roll call.** Set off when a late batch of human workers appears. A
+  rescue mission where the "civilians" call the soldiers by name, in the
+  voices of people the player lost.
+- **The open door.** Set off the first time infection risk runs high. The
+  first battle that starts inside the player's own base; it teaches
+  scrubbing.
+
+### Left for later
+
+Exact numbers (Slag from a full or empty Maul, how fast it eats, hunger
+and infection figures) are set by playing once the systems exist. What a
+joined multiplayer player controls is still open.
+
+### Infection inside the base
+
+Low risk brings sabotage: a module goes dark, research is lost, a craft is
+grounded. High risk brings a battle that starts inside the base with no
+warning, enemies stepping out of the workshop and stores. The Scrub Room
+pushes the risk back down.
+
+### The mess hall
+
+- **Dead Gorgers are fine.** Gorger corpses stock the mess for refugees.
+- **Hunger.** Unfed soldiers lose morale and recover more slowly. Unfed
+  refugees weaken, then leave. Nobody starves to death on screen.
+
 ## Sea campaign: deferred (2026-11-13)
 
 The user's decision: the second (sea) campaign is not designed further
@@ -501,23 +607,17 @@ until the first is much farther along. What is already written about it
 
 ## Still to decide
 
-- Lash confirmation and the open Maul and sea Regent details (above).
-  New names for all creatures: the 0.9
-  names in `NAMES.md` are placeholders.
-- Every land animal and machine now has an entry above (2026-11-13). Still
-  missing: how the Bloat and the Cinder look (no picture for either yet).
+- Lash confirmation (still unanswered, see "Proposed, not yet answered")
+  and the open sea Regent details.
+- How the Bloat looks (no picture for it yet).
 - The sea roster (Fathom, Wader, Mantle, Deacon, Bell, Silt, Lamp, Wreath,
   Hulk): how the Root's reading of sea life changes each.
-- The human worker: look, when it first appears, its signpost mission.
-- More signpost missions and their triggers; the order of the reveal that
-  nobody is home, and of the name.
-- What exactly each freed species can and cannot do as a soldier.
-- Infection tax: the numbers, what scrubbing costs, what an inside attack
-  looks like.
+- The order of the reveal that nobody is home, and of the name.
+- Infection tax: the numbers, and what scrubbing costs.
 - Enemy craft and the look of the Seed and the Root.
-- Multiplayer: what a turned player gains; how players tell real chat from
-  the Registrar's; soldiers crossing between games (Husks, "DO IT.").
-- How it ends: can the Registrar be beaten for good if it is in everything?
+- Multiplayer: what a turned player gains and what a joined player
+  controls; how players tell real chat from the Registrar's; soldiers
+  crossing between games (Husks, "DO IT.").
 
 ## How we work on lore
 

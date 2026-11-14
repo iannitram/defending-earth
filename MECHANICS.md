@@ -783,7 +783,9 @@ the game yet. The build order is the game systems track in `docs/ROADMAP.md`.
 * **Creatures.**
   * The Trestle is removed as a unit. Its job is folded into the Brooder.
   * Maul: an animal with no weapon. It blasts magma, eats bodies and dropped
-    kit, and its corpse gives more SLAG the fuller it was.
+    kit, and its corpse gives more SLAG the fuller it was. A Registrar
+    control spike sits in its core. Destroy the spike and the Maul turns
+    wild and attacks whoever is nearest, the enemy included.
   * Brooder (the taker): a hovering machine that spits glowing fluid. One
     hit melts a civilian; a soldier's armour takes several. It leaves pools
     that hurt.
@@ -793,23 +795,58 @@ the game yet. The build order is the game systems track in `docs/ROADMAP.md`.
   * Kite: marks a soldier for the Lash, and its shot dazes (half TU and no
     reaction fire for one turn).
   * Bloat: bursts into a cloud that blocks sight and chokes.
-  * Cinder: the Maul's young. Sets fires, eats and grows.
-  * Gorger: a buried ambusher. Its meat feeds refugees.
-* **Soldiers.** Each recruit has one strength and one flaw, hidden until
-  something in battle shows it. The first eight traits are BRAVE, COLD,
-  EMPATH, PROTECTIVE, RECKLESS, STEADY, SUPERSTITIOUS and LONER. More traits
-  are earned in service. A flaw can be a fear (afraid of water, afraid of
-  sharks and the like) that only bites where the thing is present. Portraits
-  change with the number of missions served.
+  * Cinder: the Maul's young. Wild: nothing controls it, and it eats the
+    enemy's dead as readily as ours. Sets fires, eats and grows bigger and
+    stronger. It becomes a full Maul only between battles, never during one.
+  * Gorger: a buried ambusher. Its meat feeds refugees. A buried one shows
+    shifting ground and dust that a careful soldier can spot from a few
+    tiles away. The HANDHELD RADAR finds one reliably.
+* **Soldiers.** Each recruit has one strength and one fear, hidden until
+  something in battle shows it.
+  * The eight strengths are BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS,
+    STEADY, SUPERSTITIOUS and LONER. Each has a built-in catch.
+  * The fears are the dark, fire, tight spaces, the Glow, water and sharks.
+    A fear only bites where the thing is present. Water and sharks do
+    nothing on land.
+  * More traits are earned in service.
+  * Portraits have six stages, from new recruit to the thousand-yard stare,
+    plus marks from events: scars from wounds, and changes that come with
+    earned traits.
+* **The soldier pool.** A page reached from the starting screen where the
+  player makes soldiers once (name, look and one picture). They are mixed at
+  random into the recruits of every later campaign. A "start with me" tick
+  guarantees a place in the starting squad. Strength and fear are dealt
+  fresh each campaign and hidden like anyone else's. Pool names and pictures
+  stay on the player's machine and are never put in the public repository.
 * **Refugees.** Freed Regents, Tenders and Lashes can serve as soldiers.
+  Once freed they are clean: no relapse, and no added infection risk.
+  * Regent: uses Reach. Cannot use human weapons.
+  * Tender: small and frail. A scout that senses Reach and enemy machines.
+  * Lash: the best marksman the player can have. Its first shot at any
+    target costs extra time.
+  * None can wear human armour. The workshop makes each kind its own
+    harness.
+* **Mess hall and hunger.** Soldiers must be fed. Gorger corpses stock the
+  mess for refugees. Unfed soldiers lose morale and recover more slowly.
+  Unfed refugees weaken, then leave. Nobody starves to death on screen.
 * **Infection tax and scrubbing.** Alien-derived equipment raises a risk
   inside the base; scrubbing lowers it and never brings it to zero.
-* **The human worker** and its voice lines ("duck calls") that get closer to
-  speech with each batch.
-* **Signpost missions.** Fixed story missions set off by what the player has
-  done.
+  * Low risk brings sabotage: a module goes dark, research is lost, or a
+    craft is grounded.
+  * High risk brings a battle that starts inside the base with no warning.
+  * The SCRUB ROOM pushes the risk back down.
+* **The human worker.** It first appears after the Registrar has read one of
+  the player's soldiers. Early batches carry no weapon: they run at the
+  squad, cling and call out in broken recorded lines ("duck calls"). Late
+  batches hide among civilians, speak clearly and use human weapons.
+* **Signpost missions.** Fixed story moments set off by what the player has
+  done. Five so far: THE SAME FACE, FIRST WORDS, THE SPLIT VOTE, ROLL CALL
+  and THE OPEN DOOR.
 * **The Moon finale.** Low gravity, ground made from real lunar surface maps,
   a fight on the dark side lit by the enemy's own lights, and an ending
-  decided by the freed Tenders' vote.
+  decided by the freed Tenders' vote. There is no pass mark: every living
+  freed Tender brought to the Moon weakens the Seed's defences.
+* **Numbers.** None of the figures for the above are set. They are set by
+  playing once the systems exist.
 * **Multiplayer.** A player who loses may join the Registrar's side or be
   wiped out.

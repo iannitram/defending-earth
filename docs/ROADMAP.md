@@ -1,6 +1,6 @@
 # DEFENDING EARTH — ROADMAP
 
-Working draft 3, 2026-11-13. Companions: `ART_BIBLE.md` (look), `LORE.md`
+Working draft 4, 2026-11-13. Companions: `ART_BIBLE.md` (look), `LORE.md`
 (story), `NAMES.md` (every name in the game), `STATUS.md` (where the work
 stands right now).
 
@@ -20,9 +20,11 @@ flashlights, flares, fire.
 
 There are now two lists of work, side by side:
 - **The graphics pass** (phases 1 to 9): how the game looks.
-- **The game systems track** (packages 1 to 9, added 2026-11-13): the rules
-  and records behind the lore decisions in `LORE.md`. It has its own section
-  further down, after the versions.
+- **The game systems track** (package 0 and packages 1 to 10, added
+  2026-11-13): the rules and records behind the lore decisions in `LORE.md`.
+  It has its own section further down, after the versions. It was revised the
+  same day for the third lore session, which added package 10, the soldier
+  pool. Package 0, the test bench, was added after that and comes first.
 
 Words changed on screen today: the structure material is SPINE, the power
 material is GLOW, "Psi" is REACH, the Derived Battery is the BREACHER
@@ -71,14 +73,24 @@ frame-time check):
    the people it has hit, so it is built here with the other lights. Cinder
    fires and the Maul's magma use the same fire work.
 4. Soldiers: appearance generator, visible kit and history, wounds, burning.
-   Added 2026-11-13: close-up portraits that change with service.
+   Added 2026-11-13: close-up portraits that change with service, in six
+   stages, with marks from events (scars, earned traits). The same six
+   stages are laid over a player's own picture from the soldier pool
+   (package 10). The soldier pool screen is designed here too. **Before
+   any character or vehicle is modelled, the scale sheet is made** (see
+   "The scale sheet" under the design and animation catalogue). Nothing in
+   phases 4 to 9 is modelled until it exists and its one open number is
+   settled.
 5. Enemy creatures. The decided roster is ten kinds: three peoples, five
    animals and two machines (the taker and the builder). The Trestle is
    dropped from the design; it is still in the code until package 1b.
+   The Cinder is a glowing cube-shaped rock that rolls. The Maul carries
+   the Registrar's control spike. Refugee harnesses are designed here.
 6. Weapon, armour and item designs across the three design steps. Now
    includes the shotgun, the knife and the material Slag.
 7. Base modules. Now includes the Mess Hall, Scrub Room and Refugee
-   Quarters.
+   Quarters. The inside of the base must also work as a battlefield
+   (package 5b).
 8. Environment objects: trees, plants, rocks, buildings, walls, fences,
    crates and field clutter for all seven biomes, with broken versions.
    Civilians and the human worker are here too.
@@ -97,9 +109,11 @@ it owns is designed, built, animated and judged in screenshots.
 
 Every thing goes through the same five steps:
 1. **Design sheet.** What it is, what it is for, how it looks, written and
-   agreed with the user (creatures: lore first, in `LORE.md`).
+   agreed with the user (creatures: lore first, in `LORE.md`). Its size is
+   declared in real units in the scale sheet (see below).
 2. **Model.** Built in Blender by script, with baked textures, checked in a
-   test render.
+   test render. The script reads its size from the scale sheet, and the
+   automatic size checks must pass.
 3. **Rig.** A skeleton inside it, for anything that bends or has moving parts.
 4. **Motions.** Each motion in its list, posed from reference frames, checked
    as a strip of pictures.
@@ -120,17 +134,18 @@ start from there.
 | Group | What must be designed | How many today | Phase |
 |---|---|---|---|
 | Soldiers | Body builds, faces, skin, hair; the appearance generator | 1 generator, many results | 4 |
-| Soldier portraits | The close-up face at each stage of service: new and jittery at no missions, the thousand-yard stare at fifty, steps in between. Also the file entry for a trait not yet seen ("UNKNOWN") | about 5 stages on every face (number to settle) | 4 |
-| Soldier armour | Every armour, in its design step, worn and damaged. The first step looks present-day | 6 | 4 and 6 |
-| Freed aliens as soldiers ("refugees") | Regent, Tender and Lash with the control hardware removed, in our squad: markings, kit they can carry, portrait | 3 species | 4 and 5 |
-| Land creatures | Every kind, plus its corpse or wreck and its captive form. People: Regent, Tender, Lash. Animals: Gorger, Kite, Bloat, Maul, Cinder. Machines: see the next row. The Trestle gets no design: it is to be removed (package 1b) and its table slot will stay empty | 11 in the code today, then 10 | 5 |
+| Soldier portraits | The close-up face at six stages of service, from new and jittery to the thousand-yard stare. On top of the stage come event marks: one scar for each time wounded, and a change for each earned trait. Two versions of every stage and mark: drawn into the game's own faces, and as overlays (see-through layers: light, grime, darker eyes, scars) laid over a player's picture from the soldier pool. Also the file entry for a strength or fear not yet seen ("UNKNOWN") | 6 stages, plus scars and about one mark per earned trait | 4 |
+| Soldier pool screen | The page reached from the start screen: the list of pool soldiers, the look form, a box to type a name, the picture import and crop step with a guide oval for the face, and the "start with me" tick | 1 screen with a crop step | 4 |
+| Soldier armour | Every armour, in its design step, worn and damaged. The first step looks present-day. New: three refugee harnesses (next row) | 6 today, then 9 | 4 and 6 |
+| Freed aliens as soldiers ("refugees") | Regent, Tender and Lash with the control hardware removed, in our squad: markings and portrait. None can wear human armour, so each kind gets its own workshop-made harness, shaped to its body. The Regent uses Reach and cannot use human weapons. The Tender is small and frail. The Lash is a marksman; which weapons a freed Lash or Tender carries is to settle | 3 species, 3 harnesses | 4 and 5 |
+| Land creatures | Every kind, plus its corpse or wreck and its captive form. People: Regent, Tender, Lash. Animals: Gorger, Kite, Bloat, Maul, Cinder. Machines: see the next row. The Maul has the Registrar's control spike driven into its molten core, and a wild look once the spike is gone. The Cinder is a glowing cube-shaped rock, rough, rounded, orange and tumbling, almost cute, in several sizes as it grows. It must never be confused with the Registrar's cubes, which are black, exact and still. The Gorger needs its buried signs: shifting ground and dust. The Trestle gets no design: it is to be removed (package 1b) and its table slot will stay empty | 11 in the code today, then 10 | 5 |
 | The two machines | The taker (Brooder): hovering plates around a cube core; forms for travelling, scouting, spitting and melting. The builder (Lathe): blade legs around a sphere core; forms for travelling, repair, making cover and building a taker. Closed and armoured when moving, core exposed when working | 2 kinds, about 4 forms each (counted in the 10 above) | 5 |
-| The human worker | Copies of real people, improving batch by batch: first plainly unfinished, last able to pass among civilians. They wear the faces of lost soldiers and taken civilians | about 3 batches (number to settle) | 8, faces from 4 |
+| The human worker | Copies of real people, improving batch by batch: first plainly unfinished, last able to pass among civilians. They wear the faces of lost soldiers and taken civilians. Early batches are unarmed: no weapon in the hands at all. Late batches carry human weapons and dress as civilians | about 3 batches (number to settle) | 8, faces from 4 |
 | Sea creatures | Every kind in the sea table (deferred) | 9 kinds | 5, later |
 | Soldier weapons | Every weapon and its ammunition, held, slung, dropped. New: SHOTGUN with shells, and KNIFE | 32 in the weapon list today (14 land, 16 sea, 2 used only by creatures), then 34 | 6 |
 | Other items | Grenades, smoke, trip mine, radar, sonar, trauma kit, flares, lights, pack. New: neutralising spray (mid-game) | about 10 today, then about 11 | 3 and 6 |
 | Materials and recovered parts | Each material and fuel as an object in stores and in wrecks. SPINE (cut from wrecks and bodies), GLOW (the taker's fluid, in a pool and in a container). New: SLAG (Maul remains), the taker's cube core, the builder's sphere core, Gorger meat as food | 6 today, then 10 | 6 |
-| Base modules | Every module, outside and inside, with broken versions. New: MESS HALL, SCRUB ROOM, REFUGEE QUARTERS. Renamed today: BREACHER BATTERY, REACH DAMPER, REACH WING | 17 today, then 20 | 7 |
+| Base modules | Every module, outside and inside, with broken versions and a "gone dark" version for sabotage. The insides join up into rooms and corridors that a battle can be fought in (package 5b). New: MESS HALL, SCRUB ROOM, REFUGEE QUARTERS. Renamed today: BREACHER BATTERY, REACH DAMPER, REACH WING | 17 today, then 20 | 7 |
 | Base people | Small figures of soldiers, scientists and engineers at work (the user's base-view idea). New: refugees, who eat in the mess and live in their quarters | 3 roles today, then 4 | 7 |
 | Trees and plants | Per biome: 2 to 4 trees, bushes, ground plants, crops; each in four seasons | 7 biomes | 8 |
 | Rocks and ground forms | Boulders, cliffs, dunes, ice ridges, river banks | per biome | 8 |
@@ -142,37 +157,62 @@ start from there.
 | Craft weapons | Each weapon as fitted to a craft | 12 | 9 |
 | Ground vehicles | Cars, trucks, tractors, wrecks as cover | about 8 | 9 |
 | The two final sites | Land: the Seed on the far side of the Moon. Ground built from real lunar surface maps; a sky showing the line between the lit and dark halves; the fight is on the dark side, lit by the Registrar's own lights; the cube core. Sea: Verity Deep (deferred, kept as it is) | 2 (1 now, 1 later) | 9, after lore; lights from 3 |
-| The ending | The freed Tenders' vote and merge into a maker, a form nobody has seen before; the end screen with the last word | 1 scene | 9, after lore |
-| Effects | Muzzle flash, tracers, smoke, fire, blasts, dust kicks, arcs, blood, debris. New: glowing taker fluid (spit, pools, on bodies), Bloat cloud, magma blast, shotgun spread, slow Moon dust | about 15 today, then about 20 | 3, then each phase |
+| The ending | The freed Tenders' vote and merge into a maker, a form nobody has seen before; the end screen with the last word. There is no pass mark, so the scene must work with one Tender or with many | 1 scene | 9, after lore |
+| Effects | Muzzle flash, tracers, smoke, fire, blasts, dust kicks, arcs, blood, debris. New: glowing taker fluid (spit, pools, on bodies), Bloat cloud, magma blast, shotgun spread, slow Moon dust, the ground shifting and dusting over a buried Gorger, the Maul's spike breaking, sparks from a rolling Cinder | about 15 today, then about 23 | 3, then each phase |
 
 Motions each group needs:
 
 | Group | Motions |
 |---|---|
-| Soldiers | Stand, walk, run, crouch walk, kneel, go prone, turn; aim, fire (single, burst, auto), reload, throw, use item, heal another; climb, drop, open door; hit reactions by body part, stagger, panic, burning; fall dead in several ways, lie wounded, be carried; idle fidgets. Each weapon class changes the carry, aim and reload. New: pump and fire the shotgun, draw the knife and strike; fear reactions (flinch, freeze, back away); low-gravity versions of walk, jump, throw and fall for the Moon |
-| Soldier portraits | Small face motions per service stage: quick eyes and fidgets when new, stillness and a fixed stare when worn |
-| Land creatures | For every kind: idle, move in its own way (walk, slither with a real body wave, glide, hover, drift, crawl), turn, attack (each kind of attack), take a hit, die, lie dead; the electrical flicker that stops at death. Special acts by kind: Regent reaches a soldier; Kite circles, marks, fires its daze shot; Bloat drifts and bursts; Gorger lies buried, erupts, drags down; Maul blasts magma, eats bodies and kit; Cinder breaks off a Maul, sets fires, eats, grows |
+| Soldiers | Stand, walk, run, crouch walk, kneel, go prone, turn; aim, fire (single, burst, auto), reload, throw, use item, heal another; climb, drop, open door; hit reactions by body part, stagger, panic, burning; fall dead in several ways, lie wounded, be carried; idle fidgets. Each weapon class changes the carry, aim and reload. New: pump and fire the shotgun, draw the knife and strike; fear reactions (flinch, freeze, back away), one set for each land fear: the dark, fire, tight spaces and the Glow; lie unconscious, be dragged clear, withdraw to the craft; struggle when an early human worker clings on; use the handheld radar; low-gravity versions of walk, jump, throw and fall for the Moon |
+| Soldier portraits | Small face motions for each of the six service stages: quick eyes and fidgets when new, stillness and a fixed stare when worn. A player's picture does not move; only its overlays change |
+| Land creatures | For every kind: idle, move in its own way (walk, slither with a real body wave, glide, hover, drift, crawl), turn, attack (each kind of attack), take a hit, die, lie dead; the electrical flicker that stops at death. Special acts by kind: Regent reaches a soldier; Kite circles, marks, fires its daze shot; Bloat drifts and bursts; Regent hesitates and is recycled ("The split vote"); Gorger lies buried with the ground shifting above it, erupts, drags down; Maul blasts magma, eats bodies and kit, loses its spike and goes wild; Cinder breaks off a Maul, rolls and tumbles as a cube, sets fires, eats, swells a size at a time |
 | The two machines | Shape-changing between forms: plates slide, turn and fold through each other, exact and silent, never like a living thing. Taker: travel, scout, open, spit, melt a body or wreck into a pool. Builder: travel, open, repair, raise cover, build a taker over several turns. Both: core exposed while working; shut down and fall apart |
-| Freed aliens as soldiers | Their creature motions, changed for our side: carrying our kit, following orders. The Lash asks pardon before it shoots. Tenders gather, vote and merge in the ending |
+| Freed aliens as soldiers | Their creature motions, changed for our side: wearing a harness, following orders. The Regent reaches, with no human weapon in hand. The Tender stops and senses Reach and machines. The Lash asks pardon before its first shot at each target. Tenders gather, vote and merge in the ending |
 | Husks | A taken soldier's motions, made wrong: delayed, off balance |
-| The human worker | Per batch: early ones move wrongly and stiffly, late ones move like people. Calling out (the "duck calls"), begging, approaching the squad |
+| The human worker | Per batch: early ones move wrongly and stiffly, late ones move like people. Early: run at the squad, cling to a soldier, call out (the "duck calls"). Late: stand among civilians, beg, call soldiers by name, then draw a weapon |
 | Civilians and animals | Stand, walk, run, cower, fall. New: run toward soldiers, hide behind them, go to the craft when ordered; melt, panic and run at soldiers when hit by the fluid |
 | Player craft | Fly, hover, land, take off; rotors (two on the Heron), ramps and doors; gear; damage and smoke |
 | Enemy craft | Fly, hover, land, crash; doors; power glow; breaking up |
 | Ground vehicles | Parked; burning; wrecked (they do not drive in battles) |
-| Base modules and people | Doors, lifts, machines running, lights; people walking, working, sleeping, eating in the mess; the Scrub Room running |
+| Base modules and people | Doors, lifts, machines running, lights; a module going dark; people walking, working, sleeping, eating in the mess; the Scrub Room running |
 | Trees, plants, cloth | Wind sway by strength of wind; fall when destroyed; burn |
 | Buildings and clutter | Doors and windows; break in stages; burn; collapse |
 | Weapons and items | Moving parts when fired and reloaded; shells; magazines; pin and lever on grenades |
 
-Two things must be built before any of the motions can be shown, at the
-start of phase 4:
+Three things must be built before any model or motion can be shown, at the
+start of phase 4. The first one comes before every character or vehicle
+model:
+- **The scale sheet.** See the next section.
 - **The animation system.** The engine cannot bend a model. We write the
   part that reads bone positions for the current moment and bends the model
   on the graphics card, then test it on one soldier walking.
 - **The model pipeline.** One agreed file format out of Blender, one loader
   in the game, one script that bakes textures and writes both. Every later
   model goes through it.
+
+#### The scale sheet (decided 2026-11-13 by the user and the lead)
+
+Made at the start of graphics phase 4, before any character or vehicle is
+modelled. It is also a step in the catalogue above (steps 1 and 2).
+
+- **One small sheet of sizes.** Both the game and the Blender model scripts
+  read it. There is only one copy.
+- **One anchor.** A battlefield square is a set number of metres across.
+  That number is **to settle with the user, and it must be settled before
+  modelling starts.** A soldier is 1.8 m tall.
+- **Everything else is worked out from the anchor:** door widths, low cover
+  (waist high) and full cover (head high), ceiling heights, weapon ranges
+  in metres, throw distance, and jump height on the Moon.
+- **Each object is declared in real units.** For example: the Heron's cabin
+  seats 12, and each seat is so wide. A script works out the object's size
+  and how many squares it covers.
+- **Automatic checks.** Every model fits its squares. Soldiers fit through
+  every door. A size chart is printed with a soldier standing beside each
+  creature and vehicle.
+- **Honest cheats are written down once, in the sheet.** For example:
+  rotors overhang but do not block squares, and cabins are a little tighter
+  than real ones. True-size vehicles are very large next to a playable map.
 
 #### Which AI model does what
 
@@ -210,6 +250,35 @@ Added 2026-11-13 for the game systems track. Same convention, new rows:
 | Splitting the simulation from the drawing (for 3.0) | Opus | Large but checkable: results must not change |
 | Table rows (weapons, items, modules), the Slag column, the soldier file screen, new self-test cases, removing the Trestle | Sonnet, checked by Opus | Pattern-following work |
 | Keeping `MECHANICS.md`, `mechanics.json` and `NAMES.md` in step after each package | Sonnet, checked by Opus | Reading and comparing |
+
+Added later on 2026-11-13, after the third lore session:
+
+| Work | Model | Why |
+|---|---|---|
+| The six portrait looks, scars and earned-trait marks | Fable | Judged by eye |
+| Drawing the overlays on a player's picture; picture import and crop | Opus | Exact work with files and pixels, checkable with a test picture |
+| Soldier pool storage on disk and how pool soldiers arrive in a campaign | Opus | The game's first player file; a mistake here loses or leaks someone's soldiers |
+| The soldier pool screen and its name box | Sonnet, checked by Opus | A screen that lays out boxes and text |
+| Sides (wild, civilian), ways to lose a soldier alive, mission goals | Opus | Rules that touch how every battle ends |
+| The base-interior map builder | Opus for the map and rules, Fable for the look | Checkable layout first, then judged by eye |
+| How much each Tender weakens the Seed (the curve) | Fable for the curve, Opus for the rule | Feel first, then a plain number rule |
+| The human worker's text lines and generated calls | Fable | Judged by feel |
+
+Added later on 2026-11-13, for package 0, the test bench:
+
+| Work | Model | Why |
+|---|---|---|
+| The split of the bench's parts, and the format of its reports (event report, dice log, win-rate and money tables) | Fable | Design: a bad format hides the numbers the sub-agents must read |
+| Separating the rules from the drawing, so the same rule code runs with no window | Opus | Large but checkable: results must not change |
+| The proper save system (the file, its version, what is stored) | Opus | A mistake here loses or corrupts a campaign |
+| The three scripted players (careless, average, careful), the report writers, the command-line options | Sonnet, checked by Opus | Pattern-following work with a clear target |
+| The IRON MAN and FIXED DICE menu options | Sonnet, checked by Opus | Menu wiring on top of the save system |
+| The scale sheet, its size checks and the size chart | Fable for the design, Sonnet for the check scripts | Sizes and cheats are judged by eye; the checks are mechanical |
+
+**Working rule (decided 2026-11-13).** Design decisions are made by Fable.
+Actions go to a sub-agent on the smallest model that can reasonably do
+them. Actions means writing code, editing documents, commits, pushes and
+batch jobs.
 
 Rule of thumb per phase: Fable makes the first of each kind (first tree,
 first creature, first motion) and judges all results; Opus builds the
@@ -341,12 +410,22 @@ More gaps found on 2026-11-13. The game systems track below fixes them:
 - Every win pays the same fixed Spine and Glow and one generic corpse.
   Nothing is read from the battlefield (package 2).
 - Every enemy kind behaves the same way (packages 1 and 4).
-- There are only two sides. Civilians do not exist yet (package 4).
+- There are only two sides. Civilians and wild animals do not exist yet
+  (packages 1c and 4).
 - Soldiers have no working close-quarters attack. A stun baton is in the
   weapon list, but no rule makes it need a target on the next tile
   (package 2).
 - The final land mission is still placed on Earth's globe and is won by
   killing everything (package 8).
+
+Three more, found while planning the third-session decisions:
+- The game writes nothing to disk that belongs to the player. The soldier
+  pool will be its first player file (package 10).
+- A soldier cannot be lost alive. A knocked-out soldier counts as dead,
+  nobody can withdraw, and the enemy never takes anyone. So the Registrar
+  can never "read" a soldier (package 1a-2).
+- There is no map of the inside of a base, so no battle can start there
+  (package 5b).
 
 ### 2.0 — Our version
 - One merged campaign: land and sea in the same war, balanced by playtest.
@@ -367,6 +446,10 @@ More gaps found on 2026-11-13. The game systems track below fixes them:
   offered a choice, to join the Registrar's side and keep playing or to be
   wiped out. What a joined player controls is still open. See package 9 of
   the game systems track.
+- Still open for 3.0: what happens to a soldier-pool picture when that
+  soldier crosses into another player's game. Pool pictures are private
+  (package 10), so the safe starting answer is that the picture never
+  leaves the player's machine.
 
 Groundwork that should start early so 3.0 is not a rewrite:
 - Soldier, wound and history records stay small, self-contained and easy
@@ -399,18 +482,42 @@ for the same thing can be made close together.
 
 The plan comes from a read of the code. Nothing has been built yet.
 
+Added after that on 2026-11-13, decided by the user and the lead: **package
+0, the test bench.** It is the first package of the track, before every
+other one. It is numbered 0 so that the numbers of packages 1 to 10 and every
+cross-reference to them stay as they were.
+
+Revised later on 2026-11-13 for the third lore session ("Third session:
+the open questions" in `LORE.md`). What changed:
+- New **package 10, the soldier pool** (the user's idea).
+- New part **1a-2**: ways to lose a soldier alive.
+- New part **5b**: a map of the inside of the base.
+- Package 1c now also adds the wild side and the civilian side.
+- Packages 3, 4, 5, 6, 7 and 8 are rewritten where the answers changed
+  them.
+
 ### Words used here
 
 - **Record:** a small set of numbers the game keeps about something, such
   as how many missions a soldier has fought.
 - **Self-test:** a fixed battle the game plays by itself and compares with
   a stored result. If the result changes by accident, a rule was broken.
+- **Test bench:** a way to run battles and whole campaigns from the command
+  line, with no window, and print reports. A test tool, not a second game.
+- **Seed:** the one number that decides every roll. The same seed replays the
+  same battle exactly.
 - **Dice:** the game's random numbers. They are "seeded": the same starting
   number always gives the same rolls, so a battle can be replayed exactly.
 - **Slot:** a numbered place in a fixed table. Slots are never renumbered,
   because other parts of the game point at them by number.
 - **Hook:** a marked place in the code where a rule for one thing can be
   added without touching the rules for everything else.
+- **Side:** which team a unit is on. Today there are two: ours and the
+  enemy's.
+- **Goal:** what ends a mission in a win. Today the only goal is "no enemy
+  left alive".
+- **Overlay:** a see-through layer drawn on top of a picture, such as grime
+  or a scar.
 - **Size:** small is about one work session. Medium is a few. Large is
   many, split into parts.
 
@@ -418,34 +525,115 @@ The plan comes from a read of the code. Nothing has been built yet.
 
 - There is no save game yet. So nothing here can break a save. Every new
   record is kept small and plain, so the save slot (1.0) and multiplayer
-  (3.0) can store it later.
+  (3.0) can store it later. Package 0 builds the proper save system, so
+  from then on the records it writes are a file format that must be
+  versioned.
 - A soldier's mission count never goes up today. Traits, portraits and
   earned traits all need that fixed first. That is why package 1 comes
-  first.
+  first among the packages that change the rules (package 0 comes before it).
 - Any new dice roll in the self-test's path changes its result. Each
   package says whether the self-test is safe. Where it is not, the stored
   result is re-made on purpose and compared.
 - New rows go at the end of tables. Nothing is renumbered.
 - Names inside the code stay as they are (for example the fields are still
   called `lattice` and `electrolyte`). Only what the player reads changed.
+- The game writes no player file today. The soldier pool (package 10) is
+  the first. It lives in the player's own data folder, never in the
+  project folder, because the project is published.
+- Exact numbers are set with the test bench, then checked by playing, once
+  each system exists. Until then every such number is a named value kept in
+  one place, so it is easy to find and change. The bench runs thousands of
+  battles with the same seeds, so a change to one number can be compared
+  fairly.
 
 ### The packages at a glance
 
 | # | Package | Needs first | Pairs with graphics phase | Size | Model |
 |---|---|---|---|---|---|
-| 1 | Groundwork: honest records, Trestle removal, a behaviour hook per creature | nothing | 3 (no art needed) | 2 medium, 1 small | Opus; Sonnet for the Trestle, checked by Opus |
+| 0 | The test bench: battles and campaigns with no window, repeatable dice, scripted players, event report, dice log, agent play, proper save system, IRON MAN and FIXED DICE | nothing | none; phase 3 may come first or run alongside | medium to large (an estimate: the tangle of rules and drawing is not measured yet) | Fable for the split and report format, Opus for separating rules from drawing, Sonnet for scripted players, reports and menu options |
+| 1 | Groundwork: honest records, ways to lose a soldier alive, Trestle removal, a behaviour hook per creature, the wild and civilian sides | 0 | 3 (no art needed) | 3 medium, 1 small | Opus; Sonnet for the Trestle, checked by Opus |
 | 2 | SHOTGUN, KNIFE, SLAG, real loot | 1 | 6; Glow pools with 3 | 2 medium, 1 small to medium, 1 small | Opus for rules, Sonnet for table rows |
-| 3 | Soldier traits, fears, earned traits, changing portraits | 1 | 4 | large | Fable for the sheets, Opus for rules, Sonnet for the file screen |
-| 4 | Creature rules, one kind at a time | 1; Slag from 2 | 5; taker fluid and Cinder fires with 3 | large (7 medium parts) | Fable for sheets, Opus for rules, Sonnet for self-test cases |
-| 5 | MESS HALL, SCRUB ROOM, REFUGEE QUARTERS, infection tax | real loot from 2 | 7 | medium | Opus for rules, Sonnet for rows and screens, Fable for icons |
-| 6 | Freed aliens ("refugees") as soldiers | 1, 3 and 5 | 4 and 5 | large | Opus, with Fable for species sheets |
-| 7 | Signpost missions and the human worker | 1; civilians from 4 help | 8 | medium, then small per signpost | Opus for the framework, Fable for scripts and sound |
-| 8 | The Moon finale | 6, 7, and graphics phase 3 | 9 | large | Fable for ending and maps, Opus for rules |
+| 3 | Soldier strengths, fears, earned traits, six-stage portraits | 1 | 4 | large | Fable for the sheets and the six looks, Opus for rules and overlays, Sonnet for the file screen |
+| 4 | Creature rules, one kind at a time, with wild Mauls and Cinders | 1; Slag from 2 | 5; taker fluid and Cinder fires with 3 | large (7 medium parts, the Maul part larger) | Fable for sheets, Opus for rules, Sonnet for self-test cases |
+| 5 | MESS HALL and hunger, SCRUB ROOM, REFUGEE QUARTERS, infection and sabotage; 5b the base-interior map | real loot from 2; 1a | 7 | medium, plus 5b large | Opus for rules and the map, Sonnet for rows and screens, Fable for icons and the interior look |
+| 6 | Freed aliens ("refugees") as soldiers, with harnesses | 1, 3 and 5 | 4 and 5 | large | Opus, with Fable for species sheets |
+| 7 | Five signposts and the human worker | 1 (all parts); civilians from 4; 5b for "The open door" | 8 | medium to large for the framework, medium for the worker, small per signpost | Opus for the framework and rules, Fable for scripts, lines and sound |
+| 8 | The Moon finale, with no pass mark | 6, 7, and graphics phase 3 | 9 | large | Fable for ending, maps and the curve, Opus for rules |
 | 9 | Multiplayer: join or be wiped out | records from 1, 3 and 6 | none (version 3.0) | large | Opus for the split, Fable for the design |
+| 10 | The soldier pool: 10a storage, screen, typing and arrival; 10b picture import and crop | 10a nothing; 10b needs 1a and 3e | 4 | 2 medium | Opus for storage, arrival and pictures, Sonnet for the screen |
 
-**Order:** 1, 2, 3, 4, 5, 6, 7, 8, 9. Packages 2 and 3 can be worked on at
-the same time once 1 is in. Package 5 can start as soon as real loot (part
-of package 2) is in.
+**Order:** 0, then 1 and 10a, then 2, 3, 10b, 4, 5, 6, 7, 8, 9.
+- Package 0 comes before every other systems package. Graphics phase 3 may
+  come first or run alongside it.
+- Package 10a needs nothing, so it can be built beside package 1, once
+  package 0 is in.
+  The player can then make their soldiers, without pictures, straight away.
+- Packages 2 and 3 can be worked on at the same time once 1 is in.
+- Package 10b (pictures) follows 3e, because the six stages are what get
+  laid over a picture.
+- Package 5 can start as soon as real loot (part of package 2) is in. Part
+  5b can wait until just before package 7.
+
+### Package 0. The test bench (decided 2026-11-13 by the user and the lead)
+
+No art needed. First package of the track. Graphics phase 3 may come first
+or run alongside.
+
+**What it is.** A way to run battles and whole campaigns from the command
+line with no window, and print reports. It is a test tool, not a second game
+to maintain.
+
+**The real work.** The rules and the drawing are tangled together today,
+mostly in `src/tactical.rs` and `src/main.rs`. The rules must be pulled apart
+from the drawing so they can run with no window. The size is an estimate
+(medium to large) because the tangle has not been measured. **The bench must
+use the exact same rule code as the real game, never a copy.** This is the
+same split that versions 3.0 and 4.0 and package 9 need.
+
+**The parts.**
+- **Repeatable dice.** One seed number decides every roll, so the same seed
+  replays the same battle exactly.
+- **Scripted players, built in, at three skill levels:** careless, average,
+  careful. They play thousands of battles or campaigns in minutes, with no AI
+  cost. This is where the statistics come from: win rates, losses, money over
+  time, and how many freed Tenders are alive at the end.
+- **Event report.** Every signpost, trait trigger, fear and other event is
+  listed with how often it fired. Anything at zero is broken or unreachable.
+- **Dice log.** Every roll is logged with its odds and its result. The bench
+  compares the chance shown to the player with what actually happened over
+  thousands of tries, and flags any gap. If the screen says 100 percent, it
+  must mean 100 percent.
+- **Agent play.** A text mode where the game describes the situation, an AI
+  agent types an order, and the game reports the result. A few campaigns
+  played this way find exploits a scripted player never tries. A person can
+  type into it too.
+- **A proper save system.** It needs the same save and seed work, so it is
+  built here.
+- **IRON MAN MODE.** A menu option. One save per campaign, written
+  automatically, no going back.
+- **FIXED DICE.** A menu option. The seed is stored in the save, so reloading
+  and repeating an action gives the same result. This stops reloading to fish
+  for a better roll.
+
+**How it is used.** Sub-agents read the reports, change one number, re-run
+with the same seeds, and compare. Several can test different changes at once.
+
+**What it does not do.** It measures whether the maths is balanced. It does
+not measure whether the game is fun or readable. That is still judged by
+playing.
+
+**Every later systems package** says its numbers are tuned with the test
+bench ("set with the test bench, then checked by playing").
+
+**Models.** Fable designs the split and the report format. Opus does the
+separation of rules from drawing. Sonnet writes the scripted players, the
+reports and the menu options. The save system is Opus work, as the save slot
+already is in the model table.
+
+**To settle.** The report file format and the exact command-line options.
+Which numbers the bench changes first. Nothing else here is open.
+
+**Self-test:** the separation must leave the stored result exactly the same.
 
 ### Package 1. Groundwork
 
@@ -454,14 +642,34 @@ No art needed. Can be done alongside graphics phase 3.
 **1a. Mission records.** Opus. Medium. Needs nothing.
 - Adds: each soldier gets a small history: missions fought, times wounded,
   times panicked, friends lost, kills by creature kind.
-- Adds: each mission gets a kind (normal, signpost, Moon) and a gravity
-  value.
+- Adds: each mission gets a kind (normal, signpost, Moon), a gravity
+  value and a goal. Every mission's goal starts as "no enemy left alive",
+  as today. Packages 7 and 8 add other goals.
 - Adds: the campaign keeps a list of story events that have happened, and
-  a list of lost soldiers (abducted, mind-taken, left on the field).
+  a list of lost soldiers (abducted, mind-taken, left on the field). Each
+  entry keeps the soldier's name, look, numbers and rank, so a copy can be
+  built from it later.
 - Fixes: the mission count goes up after each battle. Wounded soldiers now
   really rest for some days.
 - Self-test: safe, as long as no new dice are rolled.
 - Everything else in this track depends on this part.
+
+**1a-2. Ways to lose a soldier alive.** Opus. Medium. Needs 1a. New.
+- Why: the human worker first appears "after the Registrar has read one of
+  the player's soldiers". Today that can never happen. A knocked-out
+  soldier is counted as dead, the squad cannot withdraw, and the enemy
+  never takes anyone.
+- Adds: a soldier can be unconscious without being dead. They can be woken
+  or carried.
+- Adds: a withdraw action. The squad leaves, and anyone not aboard is left
+  on the field.
+- Adds: the enemy can take a soldier, by Reach or by carrying them off.
+  Today its Reach can only frighten.
+- Adds: after the battle, every soldier taken or left behind is written
+  into the lost-soldiers list from 1a.
+- The Maul's rule "eats unconscious soldiers" (package 4) also needs this.
+- Self-test: at risk if anyone is knocked out in the fixed battle. Check,
+  and re-make the stored result on purpose if it moves.
 
 **1b. Remove the Trestle.** Sonnet, checked by Opus. Small. Needs nothing.
 - Takes the Trestle out of the list of enemies that can appear.
@@ -472,16 +680,36 @@ No art needed. Can be done alongside graphics phase 3.
   `ART_BIBLE.md`.
 - Self-test: safe.
 
-**1c. A behaviour hook per creature.** Opus. Medium. Needs nothing.
+**1c. A behaviour hook per creature, and more sides.** Opus. Medium. Needs
+nothing.
 - Today every enemy runs the same behaviour. This splits it so each kind
   has its own place to put rules. At first every kind behaves as it does
   today.
-- Each unit gets a small status block: dazed, marked, melting, buried, how
-  full it is, how many turns it has been working.
+- Each unit gets a small status block: dazed, marked, melting, buried,
+  held, how full it is, how much it has grown, how many turns it has been
+  working.
 - Enemies that bite or claw all share one stand-in weapon row today
   ("NATURAL WEAPON"). Each kind gets its own.
+- **Two new sides, added together: wild and civilian.** Wild units obey
+  nobody and attack whoever is nearest. Civilians are bystanders. Doing
+  both at once means the rules below are re-read once, not twice.
+- **A home side.** Each unit remembers which side it started on. Today a
+  unit released from Reach always goes to the enemy, whoever it belonged
+  to. It will go home instead.
+- **Enemy units stop pointing at a soldier.** Today every enemy quietly
+  points at soldier number 0 in the squad list. A taken alien that died
+  while on our side would mark that soldier dead. The pointer becomes
+  "none" for anything that is not one of our soldiers.
+- With more than two sides, every rule that asks "is that the enemy?" is
+  read again: who the enemy hunts, how a battle ends, what the player may
+  target, who counts as a kill or a captive afterwards, and which drawing
+  a unit gets. Reaction fire already asks "not my side", so it is fine.
+- Wild units take their turn at the end of the enemy's turn. That is the
+  simplest way, with no new turn.
+- No wild unit or civilian appears in any battle yet. Package 4 puts them
+  there.
 - Done when: the self-test result is exactly the same as before.
-- Package 4 needs this.
+- Packages 4 and 7 need this.
 
 ### Package 2. Shotgun, knife, Slag and real loot
 
@@ -500,7 +728,8 @@ from pools pairs with phase 3, where the glowing fluid is drawn.
 - Rule: soldiers cannot attack at close quarters today. This adds it: the
   target must be on the next tile, no ammunition is used, and the knife is
   carried as a second weapon.
-- The Gorger and melting civilians are what make it matter.
+- The Gorger, melting civilians and clinging human workers are what make
+  it matter.
 - Self-test: safe.
 
 **2c. SLAG.** Sonnet. Small.
@@ -516,72 +745,108 @@ from pools pairs with phase 3, where the glowing fluid is drawn.
 - Glow comes from the pools still standing at the end. Spine comes from
   wrecks and bodies. Corpses are counted by creature kind. A Maul's corpse
   gives Slag by how full it was.
+- Gorger corpses are counted as Gorger meat. Dead ones are fine. The mess
+  (package 5) feeds refugees with it.
+- How much Slag a full or an empty Maul gives is a named value, set with
+  the test bench, then checked by playing.
 - Until pools exist (package 4), a base amount stays so the player does
   not run dry.
 - Self-test: safe. The economy changes, so the rules sheet
   (`MECHANICS.md`) is updated.
 
-### Package 3. Soldier traits, fears, earned traits, changing portraits
+### Package 3. Soldier strengths, fears, earned traits, changing portraits
 
 Pairs with graphics phase 4 (soldiers). Large. Needs 1a: without it the
 mission count is always zero.
 
-**3a. Traits.** Fable for the sheet, Opus for the rule.
-- Each recruit is rolled one strength and one flaw.
-- Each trait in the table has four parts: a name, whether it is a strength
-  or a flaw, a **trigger** (what makes it show itself) and an **effect**.
-- The eight starters are BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY,
-  SUPERSTITIOUS and LONER. What each does is in `LORE.md`.
-- **Hidden until triggered.** The first time a trait's trigger fires in
-  battle, the battle log says so and the trait is written on the soldier's
-  file. Until then the file shows "UNKNOWN".
+**3a. Two pools: strengths and fears.** Fable for the sheet, Opus for the
+rule.
+- There are two separate lists. Every recruit is dealt **one strength and
+  one fear**.
+- **Strengths (8).** BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY,
+  SUPERSTITIOUS and LONER. All eight are strengths. Each has its catch
+  built in (for example EMPATH can tell a copy from a person, but is hurt
+  by civilian deaths). What each does is in `LORE.md`.
+- **Fears (6).** The dark, fire, tight spaces, the Glow, water and sharks.
+  Fears are the flaws.
+- **Water and sharks are sea-only.** They do nothing on land and stay
+  asleep until the sea campaign exists.
+  - Proposed, to confirm with the user: they are not dealt at all in a
+    land campaign. Otherwise a recruit could get a flaw that can never
+    show. `LORE.md` only says they "stay asleep".
+- Each entry has a name, a **trigger** (what makes it show itself) and an
+  **effect**.
+- **Hidden until triggered.** The first time a strength or a fear shows
+  itself in battle, the battle log says so and it is written on the
+  soldier's file. Until then the file shows "UNKNOWN". The soldier keeps
+  two small "seen" marks, one for each.
+- The numbers behind each strength are set with the test bench, then
+  checked by playing.
 
-**3b. Fears.** A fear is a kind of flaw. It only bites where the feared
+**3b. The four land fears.** Opus. A fear only bites where the feared
 thing is present, so a soldier may serve for years before it shows.
-- Every fear is built from two parts: **a thing**, and **how the game can
-  tell the thing is here**. There are only two ways to tell:
-  1. *Place:* the soldier is in or next to it.
-  2. *Creature in sight:* the soldier can see a given kind of creature.
-- **AFRAID OF WATER** (place). Suggested triggers, for the user to
-  confirm: an underwater mission; standing next to a water tile; heavy
-  rain. Two small jobs come with it. Land maps have no water tiles today
-  (no rivers or ponds), so that trigger waits until they exist. And heavy
-  rain needs a proper yes-or-no flag (today it is found by reading the
-  weather's name).
-- **AFRAID OF SHARKS** (creature in sight). It triggers when one given sea
-  creature kind is in view. The sea campaign is deferred, so this fear
-  sleeps on land. It needs no new sea design, only the "creature in sight"
-  trigger.
-- **"And so on."** The same two triggers cover any later fear. Examples to
-  choose from, none decided: fire, the dark, heights, one land creature
-  kind, being alone.
-- **What a fear does:** while the thing is present, the soldier takes a
-  morale hit at the start of each of their turns. Low morale leads to
-  panic, as it already does.
 
-**3c. Where the trait rules act.**
+| Fear | How the game can tell | Ready today? |
+|---|---|---|
+| The dark | The battle is at night. The game already has a night test | Yes |
+| Fire | A burning tile within a few tiles of the soldier | Yes |
+| Tight spaces | Count the blocked tiles around the soldier: walls and high ground | Yes |
+| The Glow | A pool, or someone hit by the fluid, in the soldier's sight | No. Waits for the Brooder (package 4) |
+
+- **What a fear does** (proposed; `LORE.md` only says a fear "bites" where
+  the thing is present, so this goes to the user first): while the thing
+  is present, the soldier takes a morale hit at the start of each of their
+  turns. Low morale leads to panic, as it already does.
+- **The hit must be big enough.** Morale climbs back by 15 every turn
+  today, and panic is only checked below 50. A fear that costs less than
+  it gets back would never bite.
+- **The dark is the whole battle for now.** The game knows night from day,
+  not which tiles are lit. So a soldier afraid of the dark is afraid for
+  all of a night battle. Flashlights and flares (graphics phase 3) may
+  let us do better later.
+- **Dropped work.** The earlier plan had rain triggers and a heavy-rain
+  flag for the fear of water. Water does nothing on land, so both are
+  gone.
+
+**3c. Where the strength rules act.**
 - STEADY: the accuracy rule, where wounds lower aim.
 - BRAVE, COLD, EMPATH, LONER, SUPERSTITIOUS: the morale loss when a
   squadmate dies, and the panic check.
 - PROTECTIVE and RECKLESS: reaction fire and the start of the soldier's
   turn.
+- EMPATH also tells a late human worker from a real civilian (package 7).
 
 **3d. Earned traits.** Opus.
 - A list of rules. Each rule is a test on the soldier's history from 1a and
   the trait it grants (shell shock after too much, competence after
   surviving alone, others to be designed).
 - Checked once per soldier after every mission, next to promotions.
+- Each earned trait also leaves a mark on the portrait (3e).
 
-**3e. Portraits that change with service.** Fable for the stages, Sonnet
-for the wiring.
-- The portrait drawing gets one more input: a service stage worked out
-  from the mission count. No missions is new and jittery. Fifty is the
-  thousand-yard stare.
-- The stage is a plain number. Nothing about drawing goes into the rules.
+**3e. Portraits in six stages, with event marks.** Medium. Fable for the
+six looks, Opus for drawing the overlays, Sonnet for the five places the
+portrait is shown.
+- **Six stages**, from new recruit to the thousand-yard stare. The stage
+  comes from the mission count. How many missions each stage takes is set
+  with the test bench, then checked by playing.
+- **Event marks** on top of the stage: a scar for each time wounded, and a
+  change for each earned trait.
+- The game works the portrait's state out from the soldier's history each
+  time. It is never stored, so it can never go out of step.
+- **Two ways to draw it.**
+  1. *The game's own drawn face* changes its shapes: eyes, lines, posture.
+  2. *A player's picture* (from the soldier pool) cannot be redrawn. The
+     game lays overlays on it: lighting, grime, darker eyes, scars.
+- Darker eyes only work if the game knows where the eyes are. The crop
+  step in package 10b fixes that, by lining the face up with a guide.
+- The first way is built here. The second is built here too and tested on
+  a sample picture, then switched on for real pictures by 10b.
+- The state is plain numbers. Nothing about drawing goes into the rules.
 
-**Self-test: at risk.** Rolling traits for a recruit adds dice rolls, and
-every later roll would shift. The fix is a separate set of dice for traits,
-seeded from the soldier's own number, so the main sequence does not move.
+**Self-test: at risk.** Dealing a strength and a fear to a recruit adds
+dice rolls, and every later roll would shift. The fix is a separate set of
+dice for these, seeded from the soldier's own number, so the main sequence
+does not move.
 
 ### Package 4. Creature rules
 
@@ -595,109 +860,254 @@ self-test case per creature. Build them one at a time, in this order:
 1. **Bloat.** When it is shot, or when it reaches a target, it bursts
    into a cloud that blocks sight (the Kite's too) and chokes. The player
    can burst it over the enemy. It reuses the smoke already in the game.
-   Choking is new: it stuns a little each turn. Ordinary smoke grenades do
-   not choke.
+   Choking is new. `LORE.md` does not say what it does. Proposed, to
+   settle: it stuns a little each turn, and ordinary smoke grenades do not
+   choke.
 2. **Kite.** It marks a soldier. Its daze shot does no damage but halves
    the soldier's time units and stops reaction fire for one turn. A Lash
    in range may shoot a marked soldier it cannot see, for as long as the
    Kite can see them. Killing the Kite, cover overhead, or smoke above
    ends the mark.
 3. **Gorger.** It lies buried and unseen, feels footsteps, then erupts,
-   seizes a soldier and drags the remains below. How close a soldier must
-   be to spot it first is to settle. Its corpse becomes refugee food in
-   package 5.
+   seizes a soldier and drags the remains below.
+   - **Signs.** A buried Gorger shows shifting ground and dust. As a
+     soldier moves, the game checks whether they spot one within a few
+     tiles. How many tiles is set with the test bench,
+     then checked by playing.
+   - **The handheld radar finds one reliably.** The radar is already an
+     item and is sold in the market, but it does nothing in a battle
+     today. It gets its first battle use: an action that shows buried
+     units nearby.
+   - Any dice rolled for spotting must stay off the self-test's path.
+   - Its corpse becomes refugee food (2d, then package 5).
 4. **Maul.** An animal with no weapon. It blasts magma (heat damage). It
    walks to corpses and dropped kit and eats them, and eats unconscious
-   soldiers. Each meal makes it fuller. Its corpse gives Slag by fullness.
-   It can never be captured for freeing. Its study topic stays.
-5. **Cinder.** The Maul's young. It is in the creature table but never
-   appears in a battle today. Cinders break off a full Maul or come out of
-   its remains. They set fires, eat and, if left, grow. Whether one can
-   become a full Maul within one battle is to settle. Needs the Maul
-   first.
+   soldiers (needs 1a-2). Each meal makes it fuller. Its corpse gives Slag
+   by fullness. It can never be captured for freeing. Its study topic
+   stays. This part is larger than the others, because of the spike.
+   - **The control spike.** A piece of Registrar hardware is driven into
+     its molten core. The spike has its own small health.
+   - **Going wild.** Destroy the spike and the Maul moves to the wild side
+     (1c). It attacks whoever is nearest, the enemy included.
+   - **How to hit the spike** is to settle with the user. The cheap rule:
+     the game already knows which face of a unit a shot struck, so shots
+     from behind damage the spike. The other way is a called shot (the
+     player picks the spike as the target), which needs new controls.
+5. **Cinder.** The Maul's young: a glowing cube-shaped rock that rolls.
+   It is in the creature table but never appears in a battle today.
+   - Cinders break off a full Maul or come out of its remains, in the
+     middle of a battle.
+   - **They are wild from the start.** Nothing controls them. They set
+     fires and eat, and go for the enemy's dead as readily as ours.
+   - **Growth.** Each meal makes a Cinder bigger and stronger, through a
+     growth number. It stays a Cinder for the whole battle. It only
+     becomes a full Maul between battles.
+   - **Its table row is rewritten.** Today the row describes a slow,
+     heavily armoured thing. It becomes small and fast, as the lore says.
+   - What a Cinder that survives a battle does afterwards is to settle.
+   - Art rule for `ART_BIBLE.md` when the Cinder is designed: its cube
+     shape has no link to the Registrar's cube sign.
+   - Needs the Maul first.
 6. **Brooder, the taker.** A hovering machine that spits glowing fluid.
    - Adds pools: a tile can hold fluid, and the fluid hurts whoever stands
      in it.
-   - Adds a third side: civilians. A civilian melts after one spit and
-     then runs at soldiers. A soldier takes several spits, because armour
-     soaks it up.
+   - Puts civilians on the battlefield, using the civilian side from 1c.
+     A civilian melts after one spit and then runs at soldiers. A soldier
+     takes several spits, because armour soaks it up.
    - Adds a neutralising spray (a mid-game item with its own research
      topic) and the cube core as loot.
-   - With a third side, every rule that asks "is that the enemy?" must be
-     read again: how a battle ends, reaction fire, and what the player can
-     target.
+   - Switches on the fear of the Glow (3b).
 7. **Lathe, the builder.** It repairs machines, makes cover and, after
    several undisturbed turns beside a pool, builds one new taker. Heavily
    armoured while travelling, exposed while working. The sphere core is
    loot. Needs the Brooder first.
 
+Whether a battle can end while wild units are still alive is to settle
+with the user before the Maul part starts.
+
 Self-test: safe as long as the Tender's path is not touched. The surface
 research table has a fixed length, so adding the spray topic means making
 it one row longer.
 
-### Package 5. Mess Hall, Scrub Room, Refugee Quarters, infection tax
+### Package 5. Mess Hall, Scrub Room, Refugee Quarters, infection
 
-Pairs with graphics phase 7 (base modules and base people). Medium. Needs
-real loot (2d) for Gorger meat. Refugee Quarters is only useful once
-package 6 is in.
+Pairs with graphics phase 7 (base modules and base people). Medium, plus
+one large new part (5b). Needs real loot (2d) for Gorger meat, and 1a so
+that resting really happens. Refugee Quarters is only useful once package
+6 is in.
 
+**5a. The three modules, hunger and sabotage.** Medium. Opus for the
+rules, Sonnet for the rows and screens, Fable for the icons.
 - Adds three modules. The module list grows from 17 to 20.
 - Each module type gets a capacity: meals for the Mess Hall, scrubbing for
   the Scrub Room, beds for the Refugee Quarters.
 - Food is used and scrubbing is done every day. The mess costs money to
   run. Scrubbing costs power and resources. The monthly report shows a
   line for each.
-- **Infection tax.** The base keeps one infection number. Building and
-  using alien-derived equipment raises it. Refugees do not: once freed
-  they are clean. The Scrub Room lowers it, never to zero. A high number
-  means sabotage, turned staff and attacks that begin inside the base.
+- **Hunger.** The base keeps a stock of meals and a stock of Gorger meat.
+  Each day everyone eats: soldiers from the meals, refugees from the
+  Gorger meat. How much each eats is one of the figures set with the test
+  bench, then checked by playing.
+- **Alien food topic.** `LORE.md` says an "alien food" research topic
+  opens after the research that lets us free captives. It is what lets
+  the mess feed refugees. The surface research table has a fixed length,
+  so it becomes one row longer.
+  - Unfed soldiers start their next battle with lower morale, and recover
+    from wounds more slowly.
+  - Unfed refugees weaken (their strength and skill numbers drop), then
+    leave. The log says so.
+  - Nobody starves to death on screen.
+  - Soldiers are not tied to one base today. So "which mess feeds whom"
+    needs a simple rule, to settle. The simplest: all meals count as one
+    stock.
+- **Infection.** The base keeps one infection number. Building and using
+  alien-derived equipment raises it. Refugees do not: once freed they are
+  clean. The Scrub Room pushes it back down, never to zero.
+- **Low risk brings sabotage.** One of three things happens:
+  - a module goes dark for some days;
+  - some research progress is lost;
+  - a craft is grounded for some days.
+- **High risk brings a battle inside the base**, with no warning. That is
+  part 5b.
 - The Barracks text says it includes a mess today. It gets reworded.
 - The program cannot be compiled (turned from code into a runnable game)
   until all three modules have a colour and an icon. That is a useful
   safety net, not a problem.
+- All hunger and infection figures are named values, set with the test bench, then checked by
+  playing.
 - Self-test: safe.
-- Model: Opus for the rules, Sonnet for the rows and screens, Fable for
-  the icons.
+
+**5b. The base-interior map.** Large. Opus for the map and rules, Fable
+for the look. New. Needs 5a's infection number.
+- A second map builder. It turns the base's grid of modules (6 by 6) into
+  rooms and corridors that a battle can be fought in. Today's map builder
+  only makes outdoor maps.
+- Enemies start inside: they step out of the workshop and the stores.
+  In the game those modules are called MACHINE SHOP and SUPPLY BAY.
+- The battle starts with no mission site on the globe and no transport.
+  Today a battle can only be started from a site, and the landing craft
+  is always drawn. Both must become optional.
+- The game already has an unused "base defence" site kind. This is what
+  finally uses it.
+- "The open door" (package 7) is the first battle fought on this map.
+  Ordinary base defence, still on the ideas list, can use it later.
+- Self-test: safe. The fixed battle is outdoors.
 
 ### Package 6. Freed aliens ("refugees") as soldiers
 
 Pairs with graphics phases 4 and 5. Large. Needs packages 1, 3 and 5.
 
-- Adds a species to each soldier: human, Regent, Tender or Lash. Each
-  species has its own starting numbers.
-- Adds a "free" action on the holding screen. It moves a captive into the
-  squad list if the Refugee Quarters has room.
+- Adds a species to each soldier: human, Regent, Tender or Lash. A species
+  table gives each its starting numbers, the weapons it may use and the
+  armour it may wear.
+- Adds a research topic that removes the control hardware from a
+  captive. `LORE.md` says freeing needs it. Only Regents, Tenders and
+  Lashes can be freed.
+- Adds a "free" action on the holding screen, once that topic is done. It
+  moves a captive into the squad list if the Refugee Quarters has room.
 - A battle must be able to build one of our units from a creature, and
-  draw it as that creature even though it is on our side.
-- Refugees may not be able to wear human armour. To settle.
+  draw it as that creature even though it is on our side. Today the side
+  alone decides the drawing.
+- **Regent.** Uses Reach. Cannot use human weapons. The Reach controls
+  already work for any of our units. But every soldier must hold a weapon
+  today, so "no weapon" needs to become a proper value.
+- **Tender.** Small and frail. A scout that senses Reach and enemy
+  machines. The sense is a new rule beside line of sight: it marks Reach
+  users and machines (the taker and the builder). How far it reaches, and
+  whether it works through walls, is to settle.
+- **Weapons for the Tender and the Lash.** `LORE.md` rules human weapons
+  out for the Regent only. What a freed Tender or Lash may carry is to
+  settle.
+- **Lash.** The best marksman the player can have. It must ask each
+  target's pardon: its first shot at any new target costs extra time. The
+  unit keeps a list of targets it has already asked.
+- **Harnesses.** None of the three can wear human armour. The workshop
+  makes each kind its own harness: three new suits (the armour list grows
+  from 6 to 9) and three new workshop blueprints (14 to 17). The checks
+  that decide what a soldier may wear need to know the species.
+- **Promotions and the growth of a soldier's numbers** after a battle
+  assume humans today. Each
+  species needs its own rule, or none.
+- **Study or free.** Studying a live captive uses the captive up today. So
+  a captive can be studied or freed, not both. Whether that stays is to
+  settle.
 - The Maul can never be freed.
 - Self-test: safe. Its soldiers are human.
 - Model: Opus, with Fable for the species sheets.
 
-### Package 7. Signpost missions and the human worker
+### Package 7. Signposts and the human worker
 
-Pairs with graphics phase 8 (environment, civilians). Medium for the
-framework, small for each further signpost. Needs 1a. The civilian side
-from package 4 helps.
+Pairs with graphics phase 8 (environment, civilians). Needs all of package
+1: records (1a), ways to lose a soldier (1a-2) and the sides (1c). Needs
+civilians from package 4. "The open door" needs 5b.
 
-- Adds a table of signposts. Each has a trigger and a mission script.
-- Triggers are checked every day and after every battle: first live
-  capture, first soldier taken, first Regent studied, share of
-  alien-derived kit past a set level.
-- **"The same face"** builds its enemies from the highest-ranked soldier
-  in the lost-soldiers list from 1a.
-- **The human worker** is a new unit. Whether it fights is to settle. It
-  has a voice stage number. Its "duck calls" are sounds the game makes itself. They
-  start digital and senseless and come closer to speech as the stage
-  rises, batch by batch.
-- A new site kind, Signpost, is added for these missions.
+**7a. The signpost framework.** Medium to large. Opus.
+- A table of signposts. There are five. Each has a trigger and a
+  **shape**. The triggers and the stories are from `LORE.md`. The shapes
+  are this plan's reading of them, to confirm with the user: `LORE.md`
+  calls all five "missions", but two of them read more like a story
+  screen and a moment inside another battle.
+
+| Signpost | Shape (proposed) | Set off by | Needs |
+|---|---|---|---|
+| First words | A story screen. No battle | The first live capture | The game's event screen, which exists but is never used today |
+| The split vote | A scripted moment inside the next ordinary battle | First studying a Regent | The hook from 1c; a Regent in that battle |
+| The same face | Its own mission | The first soldier the Registrar has read | 1a-2 |
+| Roll call | Its own mission, with a rescue goal | A late batch of human workers appears | Civilians, the worker (7b), a goal |
+| The open door | A battle inside the player's base | Infection risk first runs high | Package 5a and 5b |
+
+- Triggers are checked every day and after every battle.
+- **First words.** In the holding block the captive starts speaking the
+  Registrar's first gibberish, built from words the player's own staff
+  have said. The staff say nothing in the game today. Proposed, to
+  settle: the words are lifted from what the game already has, the
+  soldiers' names and the log.
+- **The split vote.** A Regent hesitates, lets a soldier live, and is
+  recycled in front of the squad. The campaign keeps a short list of
+  moments waiting for the next battle.
+- **The same face** builds its enemies from the highest-ranked soldier in
+  the lost-soldiers list.
+- **Roll call.** A rescue mission where the "civilians" call the soldiers
+  by name, in the voices of people the player lost.
+- **The open door** teaches scrubbing.
+- **Goals.** "Roll call" cannot be won by "no enemy left alive". Nor can
+  the finale. The goal from 1a gets its first other values here: rescue,
+  and scripted. Package 8 reuses them.
+- A new site kind, Signpost, is added for the two that are their own
+  missions.
+- Each further signpost is then a small job. Fable writes the scripts.
+
+**7b. The human worker.** Medium. Opus for the rules, Fable for the lines
+and sound. Needs 1a-2.
+- **First appearance:** after the Registrar has read one of the player's
+  soldiers.
+- A new unit, added at the end of the creature table. It is built from a
+  lost soldier's numbers and wears their face. It needs a human-shaped
+  drawing while on the enemy's side.
+- The campaign keeps a batch number. It rises over time. How many batches
+  there are is set with the test bench, then checked by playing.
+- **Early batches carry no weapon.** They run at the squad, cling to a
+  soldier and call out in broken recorded lines. Clinging is a new "held"
+  effect in the status block from 1c. This closes the old question of
+  whether the worker fights.
+- **Late batches hide among civilians.** They stand on the civilian side
+  until they show themselves, then use human weapons. An EMPATH can tell
+  them apart.
+- **Voices.** The game has made-up sound effects and no speech. So for now
+  the "voice" is lines of text plus calls the game generates. They start
+  digital and senseless and come closer to speech with each batch. The
+  idea of copies using a lost soldier's own lines waits until soldiers
+  have lines.
+- **Pool soldiers.** A lost soldier may be one the player made in the
+  soldier pool, with a real person's picture. Whether a copy may wear that
+  picture is to settle. Until the user answers, a copy uses the drawn face
+  only.
 - Self-test: safe.
-- Model: Opus for the framework, Fable for scripts and sound design.
 
 ### Package 8. The Moon finale
 
 Pairs with graphics phase 9 (craft and the final sites). Large. Needs
-package 6 (Tenders), package 7 (mission scripts) and graphics phase 3
+package 6 (Tenders), package 7 (goals and scripts) and graphics phase 3
 (dark-side lighting).
 
 - The final mission moves off Earth's globe to a target on the Moon. The
@@ -709,53 +1119,193 @@ package 6 (Tenders), package 7 (mission scripts) and graphics phase 3
 - **Dark side:** a light setting where the Registrar's own lights are the
   only light.
 - **Winning** cannot mean "no enemy left alive", because the Registrar
-  cannot be killed. The mission gets a scripted goal instead.
-- **The vote.** How it goes depends on how many Tenders the player has
-  freed. With enough, they vote and merge into a maker. What happens with
-  too few is to settle.
+  cannot be killed. The mission uses a scripted goal from package 7.
+- **No pass mark.** Every living freed Tender the player brings to the
+  Moon weakens the Seed's defences. With very few the mission is nearly
+  impossible. With many it is fair. There is no fixed number.
+  - Today the final mission always has the same fixed enemy force. That is
+    replaced by a strength worked out from the Tender count when the
+    mission launches.
+  - The curve (how much each Tender helps) is designed by Fable and set with
+    the test bench, then checked by playing.
+  - To settle: does a Tender count if it is alive anywhere, or only if it
+    is aboard the transport? The second runs into the squad size limit.
+- **The vote.** The Tenders vote and merge into a maker.
 - **The last word**, "there are many", goes on the end screen.
+- **Two fixes.** Today the final site also appears after 8 wins, with no
+  research. That shortcut goes. And the win text says the Seed "is dead",
+  which the lore says cannot be true. It gets reworded.
 - Self-test: safe if gravity is normal unless a mission says otherwise.
-- Model: Fable for the ending and the maps, Opus for the rules.
+- Model: Fable for the ending, the maps and the curve, Opus for the rules.
 
 ### Package 9. Multiplayer: join or be wiped out
 
 Version 3.0. A design note only for now. No code and no graphics pairing.
 
 - A player who loses may join the Registrar's side and keep playing, or be
-  wiped out.
+  wiped out. What a joined player controls is still open.
 - It needs the plain records from packages 1, 3 and 6.
 - It needs the simulation split from the drawing. Both live in one file
-  today.
+  today. Package 0 (the test bench) does that split first.
+- Soldier pool pictures are private. What crosses between games must be
+  decided before any soldier does.
 - Size: large. Model: Opus for the split, Fable for the design.
+
+### Package 10. The soldier pool (the user's idea, 2026-11-13)
+
+A page reached from the game's start screen. The player creates soldiers
+there once, with pictures. Soldiers from the pool are pulled at random into
+every campaign started afterwards. So the player and their friends can
+turn up in any game without being made again.
+
+Pairs with graphics phase 4 (soldiers and portraits). Two medium parts.
+
+**10a. Storage, screen, typing and arrival.** Medium. Opus for storage and
+arrival, Sonnet for the screen. Needs nothing, so it can be built first.
+- **What a pool soldier is.** A name, a look, a picture and a "start with
+  me" tick. Nothing else. Pictures cannot be added until 10b is built. A
+  pool soldier without a picture uses the game's drawn face.
+- **Dealt fresh.** The strength and the fear are random in every campaign
+  and hidden like anyone else's. Their other numbers (aim, health and so
+  on) are rolled as for any recruit. That last part is this plan's
+  reading; `LORE.md` only names the strength and the fear.
+- **Where it is kept.** One small file listing the pool, plus a folder of
+  pictures. Both live in the player's own data folder on their machine
+  (on Linux, under `~/.local/share/defending-earth/`). Never in the
+  project folder.
+- **The screen.** A new SOLDIER POOL button on the start screen opens the
+  page: a list of pool soldiers, with add, edit and remove. The look form
+  from the existing soldier editor is reused, pointed at a pool entry.
+- **Typing a name.** The game has no text typing anywhere today. The
+  soldier editor only has RANDOMIZE NAME. A small text box is new work.
+  Once it exists, the ordinary soldier editor can use it too.
+- **Arrival.**
+  - Ticked soldiers take places in the starting squad of 8.
+  - The others turn up at random among the recruits offered later, when
+    the player hires or buys.
+  - Proposed, to confirm: each pool soldier appears once per campaign. A
+    soldier in a campaign remembers which pool entry it came from.
+  - To settle with the user: how often a pool soldier is offered, and
+    what happens with more than 8 ticks.
+- **Privacy.** Names and pictures stay on the player's machine.
+  - The pool is switched off in all four debug runs (`--demo`,
+    `--screenshot`, `--self-test`, `--ai-test`). Otherwise a private face
+    could land in the screenshots folder, which is published, and the
+    self-test's result would change from machine to machine.
+  - Nothing from the pool is ever written into the project folder.
+- Self-test: safe, because the pool is off there.
+
+**10b. Picture import and crop.** Medium. Opus. Needs 1a and 3e.
+- **Getting a picture in.** Drag a picture file onto the game window.
+  The window code the game is built on supports this on Linux, macOS and
+  Windows. It has not been tried in this game yet, and dragging is
+  awkward on a handheld. So there is also an import folder, inside the
+  player's own data folder: put a picture in it and pick it from a list.
+- **The crop step.** The player slides and scales the picture until the
+  face sits inside a guide oval. This tells the game where the eyes are,
+  which the "darker eyes" overlay needs.
+- **The game keeps its own copy**: a square picture saved in the pool's
+  picture folder. The original file is not touched or needed again.
+- **File types.** The game can read PNG and TGA pictures today, not JPG.
+  Phone photos are JPG. Reading JPG means adding one small outside
+  library (ready-made code written by someone else). To settle with the
+  user: add it, or accept PNG only.
+- **Showing it.** Today a portrait is drawn from a look alone. A picture
+  needs the game to keep loaded pictures ready, one per pool soldier, and
+  to hand the right one to each of the five places a portrait is shown.
+- **The six stages** from 3e are then laid over the picture: lighting,
+  grime, darker eyes, and a scar for each wound.
+- Self-test: safe.
 
 ### Still to decide with the user
 
-`LORE.md` does not settle these. They go to the user in question rounds
-before the package that needs them starts.
+The third lore session closed most of the earlier list. Closed, for the
+record:
+- All eight starter traits are strengths. Flaws are fears.
+- The fears: the dark, fire, tight spaces, the Glow, water and sharks.
+  Water and sharks do nothing on land.
+- Portraits have six stages, plus event marks.
+- The Maul is controlled by a spike in its core.
+- A Cinder never becomes a Maul during a battle.
+- Buried Gorgers show signs; the radar finds them.
+- Dead Gorgers stock the mess. Hunger weakens; it does not kill.
+- Low infection means sabotage; high means a battle inside the base.
+- What each freed species can do, and that each needs its own harness.
+- The human worker appears after a soldier has been read. Early batches
+  are unarmed; late ones hide and shoot.
+- Five signposts, for now.
+- The ending has no pass mark.
 
-1. Which of the eight starter traits are strengths and which are flaws,
-   and their numbers (package 3).
-2. Which fears beyond water and sharks, and what exactly sets off the
-   fear of water (package 3).
-3. Maul numbers: Slag from a full and an empty corpse, how fast it eats,
-   how the Registrar controls it (packages 2 and 4).
-4. What happens when the mess runs out; how many Gorgers a refugee needs;
-   dead or alive (package 5).
-5. Infection tax and scrubbing numbers; what an attack from inside the
-   base looks like (package 5).
-6. What each freed species can and cannot do (package 6).
-7. The human worker's look and first appearance; how many batches;
-   whether it fights (package 7).
-8. More signposts and their triggers (package 7).
-9. What a joined multiplayer player controls (package 9).
-10. How many portrait stages there are between new and fifty missions
-    (package 3).
-11. How many freed Tenders are "enough" for the vote, and what the ending
-    is with too few (package 8).
-12. Whether a Cinder can grow into a full Maul within one battle; how
-    close a soldier must be to spot a buried Gorger (package 4).
+Still open. These go to the user in question rounds before the package
+that needs them starts.
+
+*Numbers, set with the test bench and checked by playing once the system exists:*
+1. What each strength and each fear is worth (package 3).
+2. How many missions each of the six portrait stages takes (package 3).
+3. Slag from a full and an empty Maul; how fast it eats; the spike's
+   health (packages 2 and 4).
+4. How far away a careful soldier spots a buried Gorger (package 4).
+5. Hunger figures, and how much Gorger meat a refugee needs (package 5).
+6. Infection and scrubbing figures (package 5).
+7. Numbers for each refugee species; the Lash's extra time for a pardon
+   (package 6).
+8. How many batches of human workers there are (package 7).
+9. How much each Tender weakens the Seed (package 8).
+
+*Questions raised by the third-session answers:*
+10. How the player aims at the Maul's spike: by shooting from behind, or
+    by a called shot (package 4).
+11. Whether a battle can end while wild units are still alive (packages
+    1c and 4).
+12. What a Cinder that survives a battle does between battles (package
+    4).
+13. Whether the fear of the Glow reacts to a soldier's own CORED weapon,
+    which is filled with Glow (package 3).
+14. Which mess feeds which soldiers, since soldiers are not tied to a
+    base (package 5).
+15. Whether a captive can be both studied and freed (package 6).
+16. Whether a Tender counts for the ending if it is alive at base, or
+    only if it is aboard the transport (package 8).
+17. Whether the game should read JPG pictures, or PNG only (package 10).
+18. Whether a human worker copied from a pool soldier may wear that
+    person's real picture (packages 7 and 10).
+
+19. Whether water and shark fears are left out of the deal in a land
+    campaign, or dealt and left asleep (package 3).
+20. What a fear does when it bites. The plan proposes a morale hit every
+    turn (package 3).
+21. What the Bloat's choking does (package 4).
+22. Which weapons a freed Tender or Lash may carry, and whether the
+    Tender's sense works through walls (package 6).
+23. The shape of each signpost: "First words" as a story screen and "The
+    split vote" as a moment in an ordinary battle, or full missions. And
+    where the captive's first words come from (package 7).
+24. Pool soldiers: once per campaign or more, how often one is offered,
+    and what happens with more than 8 "start with me" ticks (package 10).
+
+*Still open from before:*
+25. What a joined multiplayer player controls, and what happens to pool
+    pictures when soldiers cross between games (package 9).
+
+*Added 2026-11-13 with the test bench and the scale sheet:*
+26. How many metres across a battlefield square is. It must be settled with
+    the user before any modelling starts (the scale sheet, graphics phase 4).
+27. The test bench's report file format and command-line options (package
+    0). Its real size, once the tangle of rules and drawing has been
+    measured.
 
 ## Ideas (unsorted; we sort these into versions together)
+
+Moved out of this list on 2026-11-13, because they are now decided and
+scheduled in the game systems track:
+- Infection tax, sabotage and scrubbing: package 5. The attack that starts
+  inside the base: package 5b.
+- The Mess Hall, feeding and hunger: package 5.
+- Freeing captives to serve as soldiers: package 6.
+- Signpost missions, now five of them: package 7.
+- Melting panickers and the taker's pools: package 4.
+- Your own picture on a soldier, made once and used in every campaign: the
+  soldier pool, package 10.
 
 ### Lore
 Lore now lives in `LORE.md`: the enemy is the Registrar, a cataloguing
@@ -791,17 +1341,12 @@ both listed there.
   mirror the players' own chat, used wrongly, and improve from there. The
   two versions need bringing together.
 
-- From the lore sessions (details in `LORE.md`): infection tax on alien
-  technology and scrubbing research; freeing captives to serve as soldiers;
-  signpost missions set off by what the player has done ("The same face").
-  These are now scheduled in the game systems track (packages 5, 6 and 7).
-  Still unscheduled: base defence, including raids to recover a captive.
+- Base defence: ordinary attacks on a base, including raids to recover a
+  captive we are holding. Not scheduled yet. The inside-the-base map from
+  package 5b is what it would be fought on.
 
-- The Mess Hall: a base building that feeds soldiers (running cost), sells
-  researched stims and medicines, and, once refugees (freed aliens) exist,
-  must be restocked with Gorgers to feed them (details in `LORE.md`). The
-  building and the feeding are in package 5. Ordering stims and medicines
-  there is not scheduled yet.
+- Ordering researched stims and healing medicines at the Mess Hall. Not
+  scheduled yet. (The building, the feeding and hunger are in package 5.)
 
 - Civilians on terror missions (the user's design, 2026-11-13): they run
   TOWARD the soldiers to be saved, and hide beside or behind them, which
@@ -810,10 +1355,8 @@ both listed there.
   to the extraction vehicle"; the civilian then runs to the craft and stays
   there. A civilian who reaches the craft, or is alive when the mission
   ends, counts as saved. Aliens can follow them to the craft to kill them.
-- Melting panickers: civilians (and, after enough hits, soldiers) spat on
-  by the taker (the Brooder) run at soldiers and damage them on contact;
-  the pools left behind damage anyone who steps in them (details in
-  `LORE.md`). Scheduled in package 4. The rest of the civilian design above
+  The civilian side itself is scheduled (package 1c, then package 4), and
+  "Roll call" (package 7) needs a rescue goal. The rest of this design
   (hiding, being ordered to the craft, counting as saved) is not scheduled
   yet.
 - Footprints in snow: soldiers, civilians and aliens leave tracks. While it
@@ -822,13 +1365,11 @@ both listed there.
   read alien tracks the same way.
 
 ### Presentation
-- Your own face on a soldier (the user's idea, 2026-11-13): the player
-  gives the game a photograph and it is fitted to a soldier's face, to go
-  with naming them. Belongs with the soldier appearance generator (graphics
-  phase 4), and must work with the portrait stages that change with
-  service. To settle: how the photo is fitted (a face texture on our head
-  model is the cheap route), that photos stay on the player's own machine,
-  and what happens to such faces in 3.0 when soldiers cross between games.
+- Your own face on the soldier's body in battle (the user's idea,
+  2026-11-13). The close-up portrait part of this idea is now decided and
+  scheduled as the soldier pool (package 10). What is left as an idea:
+  fitting the photograph onto the 3D head seen on the battlefield (a face
+  texture on our head model is the cheap route).
 - Life in the base view (the user's idea, 2026-11-13): small figures of
   soldiers and scientists going about what fits the hour (training, eating,
   sleeping, lab work, repairs). Simple figures are enough. Belongs with base

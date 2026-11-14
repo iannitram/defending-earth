@@ -356,16 +356,43 @@ the fixed-order limits to watch. "Struct" means a named bundle of values,
 such as `Soldier`. "Flag" means a yes-or-no value. "Dice" means the game's
 random numbers. Line numbers were checked against the code on 2026-11-13.
 
+It was revised the same day for the third lore session (`LORE.md`, "Third
+session (2026-11-13): the open questions"). That session changed packages
+3 to 8 and added package 10, the soldier pool. Nothing from it is in the
+code yet.
+
 Item slot numbers, field names and table names given for new things are
-suggestions for whoever builds them. They are not decisions. What is
-decided is in `LORE.md`.
+suggestions for whoever builds them. They are not decisions. The same goes
+for any rule here that says *how* a decided thing works in the code (how a
+fear is tested, how a spike is hit, how food is counted). What is decided
+is in `LORE.md`. Where this section goes further, it says "suggested" or
+"not decided".
 
 ### How things stand today
 
 - **There is no save game.** Nothing is written to disk except the
-  self-test result (`tactical.rs` 1745–1747). So nothing here can break a
-  save. Keep every new record small and plain (numbers and short lists), so
-  the planned save slot and version 3.0 can store it.
+  self-test result (`tactical.rs` 1746–1747), screenshots (`main.rs`
+  2450–2451) and the `--dump-map` picture (`main.rs` 2413). So nothing here
+  can break a save. Keep every new record small and plain (numbers and
+  short lists), so the planned save slot and version 3.0 can store it. The
+  soldier pool (package 10) will be the first real player file.
+- **Nothing takes typed text.** The soldier editor (`base.rs` 1807–1958)
+  only has "RANDOMIZE NAME" (1847).
+- **A soldier can only be lost by dying.** Stun at or above full health
+  counts as death (`tactical.rs` 1083–1084), and `finalize` marks every
+  fallen soldier dead (1911). There is no withdraw action. The enemy's
+  Reach can only rout a soldier, never take one (`tactical.rs` 1424–1436).
+  Nobody is abducted. So "a soldier the Registrar has read" cannot happen
+  yet.
+- **There is no map of the inside of a base.** `SiteKind::BaseDefense`
+  exists (`main.rs` 24) and is never used.
+- **The event screen is never fed.** `draw_event` (`main.rs` 2123–2141)
+  reads `event_title` and `event_body`, but nothing sets them.
+- **HANDHELD RADAR does nothing in battle.** It is item slot 25 (`data.rs`
+  90) and is sold in the market (`base.rs` 1336).
+- **Live study kills the captive** (the log line at `main.rs` 1178).
+- **The final site also appears after 8 wins**, with no research (`main.rs`
+  1007–1008).
 - **`Soldier.missions` never goes up.** The soldier screens show it
   (`base.rs` 414, 439, 440, 1832) but it is always 0. The only counters
   that rise are for the whole campaign: `Game.missions_won` and
@@ -378,7 +405,11 @@ decided is in `LORE.md`.
 - **All enemies behave the same.** `update_ai` (`tactical.rs` 1400–1467)
   runs one routine for every creature kind.
 - **There are two sides only.** `Side` is `Player` or `Alien` (`tactical.rs`
-  15). There are no civilians.
+  15). There are no civilians and no wild creatures. The side also decides
+  the shape that is drawn (`tactical.rs` 2447–2448), and a Reach-taken unit
+  always goes back to `Alien` (951–953).
+- **Morale climbs 15 every turn** (`tactical.rs` 934), and panic is only
+  tested below 50 (812).
 - **Tiles hold no pool.** `Tile` (`tactical.rs` 18–28) has smoke and fire.
 - **A mission has no kind and no gravity.** See `MissionSpec` (`main.rs`
   341–355). `gen_map` (`tactical.rs` 383) always builds the same sort of
@@ -398,18 +429,43 @@ things without any error message.
 |---|---|---|
 | Land items `SURFACE_ITEMS` | `data.rs` 71–123 | 80 numbered slots (`item_table`, 58). A slot number never changes. Free land slots: 6, 7, 10, 11, 14, 15, 21, 27, 29–33, 40–49, 74–79. |
 | Corpse and live items | same table | Corpse = slot 50 + creature kind. Live captive = slot 61 + creature kind. |
-| Creature kinds | `alien_def`, `tactical.rs` 1767 | Land kinds 0–10. The number is stored in `Site.aliens` and `CapturedAlienSpec.kind`. Never renumber. |
+| Creature kinds | `alien_def`, `tactical.rs` 1767 | Land kinds 0–10. The number is stored in `Site.aliens` and `CapturedAlienSpec.kind`. Never renumber. The human worker (package 7) would be kind 11, added at the end. Its corpse and captive slots would then be 61 and 72. Both are taken: 61 is kind 0's live captive and 72 is SPINE. So the worker needs slots of its own, or none. |
 | Weapon list | `data.rs` 241–281 | A list that can grow, found by name. Soldiers store a position in it, so add new rows at the very end (after the two NATURAL WEAPON rows). Position 0 is the fallback when a name is not found. |
 | Damage table `DAMAGE_MODS` | `data.rs` 604–622 | 8 damage types down, 14 armour classes across. Keep every column. |
-| Armour `ARMORS` | `data.rs` 480–487 | Exactly 6. 0–2 land, 3–5 dive. |
+| Armour `ARMORS` | `data.rs` 480–487 | Exactly 6. 0–2 land, 3–5 dive. The three refugee harnesses (package 6) go at the end and change the count. |
 | Buildings `FACILITY_CATALOG` | `data.rs` 705–723 | Exactly 17. The count is written in the type, so adding a row means changing the number too. |
 | Research `RESEARCH_SURFACE` | `data.rs` 843–864 | Exactly 20. Same rule. Ids are keys. |
-| Workshop `WORKSHOP_BLUEPRINTS` | `data.rs` 903–919 | Exactly 14 (8 land, 6 sea). Same rule. |
+| Workshop `WORKSHOP_BLUEPRINTS` | `data.rs` 903–919 | Exactly 14 (8 land, 6 sea). Same rule. The three harnesses add three rows. |
+| Player files | none yet | The soldier pool lives in the player's data folder, outside the repository. Its names and pictures must never be committed. See package 10. |
 | Self-test dice | `tactical.rs` 1697–1752, 1832–1857 | It uses soldier 0, a snap shot and one Tender (kind 0). Any new dice roll on that path changes its result. Then the stored results in `checks/` and `assets/selftest.json` must be re-made on purpose and compared. |
 
 Who does what follows the roadmap table: Fable does design, lore and art.
 Opus does rules and behaviour. Sonnet does table wiring, menus and keeping
 the documents in step, checked by Opus.
+
+### Package 0. The test bench (decided 2026-11-13)
+
+Not built. What follows was checked by searching `src/` on 2026-11-13.
+- **Random numbers.** The game's own generator is `Rng` (`data.rs` 8–35): a
+  seeded linear generator that holds one `u32`. One `Rng` lives in `Game`
+  (`main.rs` 359). It is created with a fixed seed (`main.rs` 462) and then
+  replaced by one made from the clock (`main.rs` 493), so ordinary play is
+  not repeatable. `--seed` (`main.rs` 445) only feeds map generation
+  (`tactical.rs` 528), where it is mixed with the current `g.rng` value. Battle rolls in `tactical.rs` and dogfight rolls in
+  `dogfight.rs` use `g.rng` or `game.rng`. The only other randomness found
+  is the particle effects in `dogfight.rs` 445–454, which use macroquad's
+  own `rand::gen_range`, and small fixed-seed generators for sounds
+  (`audio.rs`) and face details (`ui.rs` 376–381). I did not check whether
+  anything draws on the clock elsewhere.
+- **Save and load.** No save or load of game state exists. The only files
+  the code writes are the self-test result (`tactical.rs` 1746–1747) and
+  screenshots and the world-map picture (`main.rs` 2413, 2450–2451).
+  `serde` and `serde_json` are in `Cargo.toml`. The `load` functions found
+  load fonts, sounds and shaders, not saves.
+- **Rules and drawing.** Battle methods take `g: &mut Game`, and `Game`
+  also holds the interface and sound (`main.rs` 462). Whether the rules can
+  be cut free of the window is not measured yet; that measuring is part of
+  the work.
 
 ### Package 1. Groundwork: honest records, and removing the Trestle
 
@@ -424,7 +480,9 @@ depends on 1a.
   `main.rs` 2376 and `start_selftest` (`tactical.rs` 1833). Each needs the
   new fields.
 - `Game` (`main.rs` 357–450) gains a `story_flags` list and a
-  `lost_soldiers` list (abducted, mind-taken, left on the field).
+  `lost_soldiers` list (abducted, mind-taken, left on the field). Each
+  `LostSoldier` keeps name, look, stats, rank and `pool_id` (package 10),
+  so the human worker can be built from it.
 - `finalize` (`tactical.rs` 1893–1920) writes back who fought, who was
   wounded, who was left behind, and corpses per creature kind.
 - `finish_battle` (`main.rs` 906–1031) adds 1 to `missions` and sets
@@ -432,6 +490,21 @@ depends on 1a.
 - Limits: none. Self-test: unchanged if no new dice are rolled. Setting
   `wounded_days` changes who can deploy (`tactical.rs` 555), so later
   campaign missions play differently. That is intended.
+
+**1a-2. Ways to lose a soldier alive** (new; medium, Opus)
+
+Without this the human worker (package 7) never appears, because nobody
+can ever be "read".
+
+- A withdraw action: the squad leaves, and whoever is not aboard stays.
+- A soldier can be unconscious without being dead. Today stun at or above
+  full health calls `on_unit_death` (`tactical.rs` 1083–1084).
+- An enemy Reach take, or an abduction. Today the enemy only routs
+  (`tactical.rs` 1424–1436).
+- `finalize` (`tactical.rs` 1893) writes "left on the field" and "taken"
+  into `lost_soldiers`, not `dead`.
+- Limits: none. Self-test: must give the same result file.
+- Needs 1a.
 
 **1b. Remove the Trestle** (small, Sonnet checked by Opus)
 - Take 8 out of the top land pool `[3, 4, 4, 8, 9]` in `roll_alien`
@@ -515,38 +588,53 @@ phase 3.
 ### Package 3. Soldier traits, fears, earned traits, changing faces
 
 Goes with graphics phase 4 (soldiers). Large. Fable writes the trait sheet
-and the portrait stages, Opus the rules, Sonnet the soldier file screen.
-Needs 1a: without it the mission count is always 0.
+and the six portrait looks, Opus the rules and the picture overlays, Sonnet
+the soldier file screen and the callers. Needs 1a: without it the mission
+count is always 0.
 
-**3a. Trait data**
-- New `TraitDef` table in `data.rs`, beside `RANKS` (466). Each row: name,
-  strength or flaw, a trigger (when it shows itself), an effect.
-- `Soldier` gains `strength`, `flaw`, `strength_seen`, `flaw_seen` and a
-  list of `earned` traits.
-- `make_soldier` (`main.rs` 674–686) draws one strength and one flaw.
-- The eight starters: BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY,
-  SUPERSTITIOUS, LONER. Which are strengths and which are flaws is not
-  decided.
+**3a. Trait data** (changed by the third session)
+- Two tables in `data.rs`, beside `RANKS` (466):
+  - `STRENGTHS`, 8 rows: BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY,
+    SUPERSTITIOUS, LONER. All eight are strengths. Each row holds its good
+    effect and its built-in catch.
+  - `FEARS`, 6 rows: the dark, fire, tight spaces, the Glow, water, sharks.
+    Water and sharks carry a "sea only" flag.
+- `Soldier` (`data.rs` 442–464) gains `strength`, `fear`, `strength_seen`,
+  `fear_seen` and a list of `earned` traits.
+- `make_soldier` (`main.rs` 674–686) deals one strength and one fear.
+- Suggested: on land it never deals a "sea only" fear, so no land soldier
+  gets a fear that can never show. `LORE.md` only says these two "stay
+  asleep" on land, which could also mean a soldier may carry one unseen.
+  `ROADMAP.md` reads it the same way as here. To confirm (open question
+  19).
 
-**3b. Fears** (AFRAID OF WATER, AFRAID OF SHARKS, and more of the kind)
-- A fear is a flaw that only bites where the thing is present. So each
-  fear row is "a thing" plus "how the game can tell it is here". Two kinds
-  of trigger cover all of them: **a place or condition**, and **a creature
-  kind in sight**.
-- AFRAID OF WATER, using what the code can already tell:
-  - An underwater mission: `Battle.underwater` exists.
-  - Rain: `Battle.weather == 1`. Heavy rain is only a word in
-    `weather_desc`. Give the battle a proper "heavy" flag before a fear
-    depends on it.
-  - Standing next to water: **not possible today.** Land maps have no water
-    tiles. This trigger waits until a map can hold water (the taker's
-    pools in package 4 are the first liquid on a tile).
-- AFRAID OF SHARKS is a "creature kind in sight" fear for a sea creature.
-  The sea campaign is deferred, so this fear stays asleep on land. It needs
-  no new sea design, only the trigger.
-- Further fears use the same two triggers and are for the user to pick.
-- Effect: a morale hit at the start of the soldier's turn while the thing
-  is present, fed into `check_unit_panic` (`tactical.rs` 810–823).
+**3b. Fears** (changed by the third session)
+- A fear bites only where the thing is present. Each fear row is "a thing"
+  plus "how the game can tell it is here".
+- How the game can tell, for the four land fears. These tests are
+  suggestions; `LORE.md` names the fears but not how they are measured:
+
+| Fear | Test | Ready today? |
+|---|---|---|
+| The dark | `Battle.ambient < 0.32`. This is the game's own night test (`tactical.rs` 2149). | Yes |
+| Fire | A tile with `Tile.fire > 0` within a few tiles of the soldier. | Yes |
+| Tight spaces | Count the blocked tiles around the soldier. Start from the list the sight test uses (`los`, `tactical.rs` 663: obstacles 2, 4, 10, 12, 13), plus tiles two levels up. | Yes |
+| The Glow | A pool tile, or a unit hit by the fluid, in sight. | No. Waits for the Brooder (package 4). |
+
+- Water and sharks: rows in the table, no rule written. They do nothing on
+  land and wait for the sea campaign. **The old plan's rain trigger and the
+  heavy-rain flag are dropped.**
+- Effect: not decided. `LORE.md` says a fear "bites" where the thing is
+  present, not what the bite is. Suggested: a morale hit at the start of
+  the soldier's turn while the thing is present, fed into
+  `check_unit_panic` (`tactical.rs` 810–823).
+- Things to watch:
+  - Morale climbs 15 every turn (`tactical.rs` 934) and panic is only
+    tested below 50 (812). The fear's hit must be bigger than 15 a turn, or
+    it never bites.
+  - "Dark" is one number for the whole battle, not per tile. Lighting per
+    tile lives in the drawing code and the rules must not read it. So a
+    soldier afraid of the dark is afraid for a whole night mission.
 
 **3c. Where the trait rules hook in**
 - STEADY: `hit_chance` (`data.rs` 581–590), where wounds cut accuracy.
@@ -554,6 +642,8 @@ Needs 1a: without it the mission count is always 0.
   `on_unit_death` (`tactical.rs` 848–854) and `check_unit_panic`.
 - PROTECTIVE and RECKLESS: `opportunity_fire` (`tactical.rs` 1502–1531) and
   `start_player_turn` (920–944).
+- EMPATH "can tell a copy from a real person": used by the late human
+  worker in package 7.
 - Hidden until shown: the first time a trigger fires, set the `seen` flag
   and write a log line. The soldier file (`base.rs` 414, 439–440, 1832)
   shows "UNKNOWN" until then.
@@ -567,18 +657,29 @@ Needs 1a: without it the mission count is always 0.
 - Each earned trait is a boost or a penalty, and is either permanent or
   wears off. So each one stored on a soldier needs a "missions left"
   number as well as its name.
+- Each earned trait may also carry a portrait mark, used by 3e.
 
-**3e. Faces that change with service**
-- `ui::portrait` (`ui.rs` 205) takes only a `Look`. Add a "service stage"
-  number worked out from `missions`: 0 is new and jittery, 50 is the
-  thousand-yard stare.
+**3e. Faces that change with service** (rewritten by the third session)
+- Six stages, 0 to 5, from new recruit to the thousand-yard stare. Plus
+  marks from events: scars from wounds, and changes from earned traits.
+- A small `PortraitState`: stage, scar count, earned-trait marks. It is
+  worked out fresh from the 1a `history` each time. It is never stored.
+- `ui::portrait` (`ui.rs` 205) takes only a `Look` today. It will take the
+  `PortraitState` and either a `Look` or a picture.
 - Callers to update: `tactical.rs` 3605 and 3753; `base.rs` 410, 429, 1819.
-- Keep the stage a plain number. No drawing state goes into the
-  simulation.
+- Two drawing paths:
+  - **The drawn face** changes its own shapes for each stage.
+  - **A pool picture** (package 10b) gets layers on top: lighting, grime,
+    darker eyes, scars. Darker eyes only land in the right place if the
+    crop step in 10b fixed where the eyes are.
+- How many missions each stage takes is not decided. Keep the five
+  thresholds as named constants in one place.
+- No drawing state goes into the simulation.
+- Needs 1a (missions, times wounded), 3d (earned marks), 10b (pictures).
 
 **Limits for the package**
 - No fixed table is touched.
-- **Self-test at risk.** Drawing traits in `make_soldier` adds dice rolls
+- **Self-test at risk.** Dealing traits in `make_soldier` adds dice rolls
   and shifts every roll after it. Give traits their own set of dice,
   started from the soldier's id number, so the main run of dice does not
   move.
@@ -590,9 +691,42 @@ fires go with phase 3. Large overall; each creature is medium. Fable writes
 a design sheet where `LORE.md` leaves gaps, Opus writes the rule, Sonnet
 adds one self-test case per creature.
 
-All of these use the hook and the status block from 1c. Build one creature
-at a time, in this order: Bloat, Kite, Gorger, Maul, Cinder, Brooder, Lathe.
-No new creature kinds are needed.
+All of these use the hook and the status block from 1c. Build in this
+order: sides, Bloat, Kite, Gorger, Maul, Cinder, Brooder, Lathe.
+
+**4a. More than two sides (do this once, first)** (medium, Opus)
+
+The third session needs a wild side (a Maul with its spike broken, and
+every Cinder). The Brooder needs civilians. Both change the same code, so
+add both in one step.
+
+- `Side` (`tactical.rs` 15) gains `Wild` and `Civilian`.
+- `Unit` (`tactical.rs` 31–83) gains `home_side`: the side a unit goes back
+  to. Today a Reach-taken unit always goes back to `Side::Alien`
+  (`start_alien_turn`, `tactical.rs` 951–953). With a home side, a taken
+  wild unit goes back to wild.
+- `soldier_idx` becomes "maybe none". Today every enemy carries
+  `soldier_idx: 0` (`tactical.rs` 613), and `finalize` writes every
+  `Side::Player` unit back to that soldier (1908–1913). So a taken enemy
+  that dies while on our side would mark soldier 0 dead. Fix this here.
+- Every place that tests the side must be re-read:
+  - `update_ai` (1400–1467) only moves `Side::Alien` and only hunts
+    `Side::Player`. A wild unit hunts whoever is nearest.
+  - `check_end` (1088–1099), through `alive_aliens` (628): do living wild
+    units stop the battle from ending? Not decided (open question 12).
+  - The right-click target test (1642) allows `Side::Alien` only.
+  - `finalize` counts kills and captives by `Side::Alien` (1895, 1899).
+  - The two helpers at 625–628.
+  - The drawing choice (2447–2448) picks soldier or alien shape by side.
+    It must pick by what the unit is.
+- Reaction fire already works for any number of sides. It tests "not my
+  side" (`opportunity_fire`, 1511).
+- Turn order: `Phase` (`tactical.rs` 12) has no wild turn. The simplest
+  rule is that wild units act at the end of the enemy turn.
+- Self-test: must give the same result file. No wild unit or civilian is
+  in it.
+
+**4b. The creatures**
 
 - **Bloat (kind 9).** Bursts into a thick cloud when shot or when it
   reaches a target. The cloud blocks sight (the Kite's too) and chokes.
@@ -608,43 +742,73 @@ No new creature kinds are needed.
     as the Kite can see that soldier. That is an exception in the sight
     test (`los`, 650) for the Lash only. Overhead cover, smoke above, or
     killing the Kite ends the mark.
-- **Gorger (kind 7).** A buried ambush.
-  - New `buried` flag. Hidden from the player until a soldier is next to
-    it or it attacks. Note that `compute_visibility` (630) lights tiles,
-    not units, so check how enemies on lit tiles are drawn first.
+- **Gorger (kind 7).** A buried ambush that shows signs.
+  - New `buried` flag. Hidden from the player until spotted or until it
+    attacks. Note that
+    `compute_visibility` (630) lights tiles, not units, so check how
+    enemies on lit tiles are drawn first.
+  - Signs (third session): shifting ground and dust. A spot check runs as
+    a soldier moves, a few tiles out. How many tiles is not decided.
+  - HANDHELD RADAR finds one reliably. The radar is item slot 25
+    (`data.rs` 90) and is sold in the market (`base.rs` 1336), but it does
+    nothing in battle today. This is its first use: a new soldier action
+    that reveals buried units nearby.
+  - Any dice rolled for the spot check must stay off the self-test path.
   - Its corpse (item slot 57) becomes refugee food in package 5.
-- **Maul (kind 3).** An animal with no weapon.
+- **Maul (kind 3).** An animal with no weapon, held by a control spike.
   - Its table row (`tactical.rs` 1788) names "ARC TORCH". Replace that
     with a magma blast: heat damage (type 1) through `explode`.
-  - It walks to corpses and dropped kit and eats them, and eats unconscious
-    soldiers. Each meal raises `fullness`.
-  - Its corpse gives Slag by fullness (ties to 2c and 2d).
+  - It walks to corpses and eats them, human or alien, with the weapons
+    and kit they carry. It eats unconscious soldiers too. Each meal raises
+    `fullness`.
+  - The spike (third session): `Unit` gains `spike_hp`. When it reaches 0
+    the Maul's side becomes `Wild`, and so does its `home_side`. It then
+    attacks whoever is nearest, the enemy included.
+  - How the player hits the spike is not decided (open question 11).
+    `fire` (975) aims at a whole unit. `damage_unit` already works out
+    which facing was hit (1057–1062). So the cheap rule would be "hits
+    from behind damage the spike". A called shot needs a new button and a new
+    aim mode.
+  - Its corpse gives Slag by fullness (ties to 2c and 2d). The numbers are
+    left for play. Keep them as named constants.
   - It cannot be freed: block it in the capture step of `finalize`
     (1898–1906) or at the freeing step in package 6.
   - Research id `"STUDY_MAUL"` stays (`data.rs` 862).
-- **Cinder (kind 10).** The Maul's young.
+- **Cinder (kind 10).** The Maul's young: a glowing cube-shaped rock that
+  rolls around.
   - It is never spawned today: no pool in `roll_alien` holds a 10. By
     `LORE.md` it breaks off a full Maul or comes out of a Maul's remains.
     So it is added to the battle while it runs, not rolled at the start.
+  - It is always `Side::Wild`. Nothing controls it. It eats and sets
+    fires, and goes for the enemy's dead as readily as ours.
+  - `Unit` gains `growth`. Eating raises it, and the Cinder gets bigger
+    and stronger. **It never changes `alien_kind` during a battle.** (The
+    earlier plan said it did. The third session ruled that out: it only
+    becomes a Maul between battles.)
+  - Its row in `alien_def` (`tactical.rs` 1795) must be rewritten. Today
+    it is a slow tank: 95 health, 34 time units, front armour 60. The lore
+    says small and quick.
   - Fire does not spread at the moment. The Cinder sets fires directly
     through `Tile.fire`.
-  - Growing into a Maul means changing `alien_kind` and the unit's numbers
-    in the middle of a battle.
+  - What a Cinder that outlives the battle does afterwards is not decided
+    (open question 13).
+  - Art rule, for `ART_BIBLE.md` when the Cinder is designed: its cube is
+    rough, rounded, orange and tumbling. Registrar cubes are black, exact
+    and still. The two must never look related.
 - **Brooder, the taker (kind 5).** A hovering machine that spits fluid.
-  - `Tile` gains a `pool` amount. `Side` gains `Civilian`. `Battle::new`
+  - `Tile` (`tactical.rs` 18–28) gains a `pool` amount. `Battle::new`
     (`tactical.rs` 517–623) places civilians on missions that suit them.
+    The civilian side comes from 4a.
   - A civilian melts in one spit and then runs at soldiers. Soldiers take
     several, because armour soaks it up.
   - Pools hurt units standing in them. Acid, damage type 7, is already a
     row in `DAMAGE_MODS`.
+  - Pools and fluid-hit units are what sets off the fear of the Glow (3b).
   - Neutralising spray (decided): item slot 14 plus one research row.
   - Its cube core as loot is a suggestion only, not decided. If wanted:
     item slot 15.
   - Its table row (1790) must change. Today it is a close-combat creature
     that does not float.
-  - Adding `Side::Civilian` means re-reading every "other side" test:
-    `check_end` (1088–1099), `opportunity_fire` (1511), the right-click
-    target test (1642), and the two helpers at 625–628.
 - **Lathe, the builder (kind 6).** Repairs, makes cover, and builds one new
   taker after several undisturbed turns beside a pool.
   - Uses `turns_working`. Heavily armoured while travelling, exposed while
@@ -659,26 +823,60 @@ No new creature kinds are needed.
 - `RESEARCH_SURFACE` is exactly 20 rows. The spray's research row means
   changing that number.
 - Self-test is safe as long as the Tender (kind 0) path is untouched.
-- Order: Brooder before Lathe. Maul before Cinder. 2c before Slag drops.
+- Order: 4a before everything. Brooder before Lathe. Maul before Cinder.
+  2c before Slag drops.
 
-### Package 5. MESS HALL, SCRUB ROOM, REFUGEE QUARTERS, infection tax
+### Package 5. MESS HALL, SCRUB ROOM, REFUGEE QUARTERS, infection
 
-Goes with graphics phase 7 (base modules and base people). Medium. Opus
-for the rules, Sonnet for the rows and screens, Fable for the icons.
+Goes with graphics phase 7 (base modules and base people). Medium for 5a,
+large for 5b. Opus for the rules, Sonnet for the rows and screens, Fable
+for the icons and the look of the base interior.
+
+**5a. Buildings, food, infection and sabotage**
 
 - Three new `FacilityType` values (`data.rs` 665–683).
 - `FACILITY_CATALOG` grows from 17 to 20 rows (705–723).
 - `FacilityDef` (686–703) gains `mess_cap`, `scrub_cap`, `refugee_cap`.
   Every existing row needs the three new values.
 - `MonthlyReport` (`data.rs` 1238–1254) gains food and scrubbing lines.
-- `Base` gains an `infection` number.
 - Capacity sums go beside the others (`main.rs` 304–330). Food use and
-  scrubbing go in `daily_tick` (1138–1316). Costs go in the expenses part
-  of `monthly_tick` (1077–1100).
-- Infection tax: the more alien-derived equipment a base builds and uses,
-  the higher its infection. The Scrub Room lowers it, at a cost in power
-  and resources, and never to zero. Refugees add nothing: by `LORE.md` a
-  freed alien is clean.
+  scrubbing go in `daily_tick` (`main.rs` 1138). Costs go in the expenses
+  part of `monthly_tick` (1077–1100).
+- **Hunger** (third session):
+  - Decided: soldiers must be fed and the mess costs money to run.
+    Refugees eat Gorger, and dead Gorgers are fine.
+  - Not decided: what exactly makes a soldier "unfed" (no Mess Hall, a
+    Mess Hall too small for the head count, or no money to run it). Open
+    question 20.
+  - Suggested: `Base` gains `gorger_meat`, and `Soldier` gains
+    `hungry_days`. `daily_tick` uses up Gorger meat for each refugee. For
+    human soldiers the simplest test is `mess_cap` against the head count,
+    with the running cost in `monthly_tick`. A separate `meals` stock is
+    only needed if the user wants food to be bought.
+  - An unfed soldier starts a battle with less than 100 morale. Today
+    every soldier starts at 100 (`tactical.rs` 578).
+  - An unfed soldier recovers more slowly: the countdown of
+    `wounded_days` (`main.rs` 1304–1306) slows down. This only matters
+    once 1a sets `wounded_days` at all.
+  - An unfed refugee loses stats, then leaves: removed from
+    `Game.soldiers` with a log line. Nobody starves on screen.
+  - Soldiers are not tied to a base today. "Which mess feeds whom" needs
+    a simple rule, for example one shared food count for all bases.
+  - How much a refugee eats is left for play. Named constants.
+- **Infection** (third session):
+  - `Base` gains an `infection` number. The more alien-derived equipment a
+    base builds and uses, the higher it goes. The Scrub Room pushes it
+    down, at a cost in power and resources, and never to zero. Refugees
+    add nothing: by `LORE.md` a freed alien is clean.
+  - Low risk brings sabotage, rolled in `daily_tick`. Three kinds:
+    - A module goes dark. `BaseFacility` (`main.rs` 61–66) gains an
+      "offline days" number, and the capacity sums skip it.
+    - Research is lost. Cut `ActiveResearch.progress` (`main.rs` 85).
+    - A craft is grounded. `CraftInstance.ready` is worked out again every
+      day (`main.rs` 1297), so a flag would be wiped. It needs a "grounded
+      days" number that the daily line respects.
+  - High risk brings the battle inside the base. That is 5b.
+  - The thresholds and odds are left for play. Named constants.
 - The Mess Hall is also where stims and healing medicines are ordered once
   researched. That is a new order list on a base screen.
 - New research rows are needed: the early stims and medicines topic, the
@@ -694,56 +892,160 @@ for the rules, Sonnet for the rows and screens, Fable for the icons.
     707). Reword it.
   - `RESEARCH_SURFACE` is exactly 20 rows. Each new research row means
     changing that number.
+  - Sabotage dice run in `daily_tick`, not in battle, so the self-test is
+    safe.
 - Needs 2d for Gorger meat as food. Refugee Quarters is only useful with
   package 6.
+
+**5b. The battle inside the base** (new; large, Opus, Fable for the look)
+
+- There is no map of the inside of a base. `gen_map` (`tactical.rs` 383)
+  only makes outdoor maps. So this needs a second map builder. It turns
+  the 6×6 base grid (`Base.grid`, `main.rs` 105) into rooms and corridors,
+  one room per module.
+- Enemies start in the Workshop and the Supply Bay ("stepping out of the
+  workshop and stores").
+- `SiteKind::BaseDefense` (`main.rs` 24) exists and has never been used.
+  This is what it is for.
+- The battle starts with no site and no transport.
+  `launch_selected_site` (`main.rs` 749) is the only way to start a battle
+  today, and it needs a site picked on the globe. A second start path is
+  needed.
+- The landing craft is always drawn (`draw_landing_craft`, called at
+  `tactical.rs` 2408) and always cut into the map. Both must be
+  switchable off.
+- Who defends: the soldiers at that base. Soldiers are not tied to a base
+  today (see hunger above). The same simple rule must cover both.
+- Needs the infection number from 5a. "The open door" in package 7 is its
+  first use. An ordinary attack on a base could reuse the same map later.
+- Self-test: safe. It uses the outdoor path.
 
 ### Package 6. Freed aliens ("refugees") as soldiers
 
 Goes with graphics phases 4 and 5. Large. Opus, with Fable for the species
-sheets. Needs packages 1a, 3 and 5.
+sheets. Needs packages 1a, 3, 4a and 5.
 
 - `Soldier` gains `species` (human, Regent, Tender, Lash).
+- A species table in `data.rs`: starting numbers, allowed weapons, allowed
+  armour.
 - `CapturedAlienSpec` (`data.rs` 491–496) gains `freed`.
-- A stat template per species.
 - One new research row for the line that removes the control hardware
   (`RESEARCH_SURFACE` is exactly 20 rows; change the number).
 - A "free" button on the Holding panel (`base.rs` 1038).
-- Freeing moves a captive from `Base.captured_aliens` to `Game.soldiers`,
-  if Refugee Quarters has room.
-- `Battle::new` (`tactical.rs` 554–593) must build a player unit from a
-  creature template.
+- Freeing moves a captive from `Base.captured_aliens` to `Game.soldiers`.
+  Suggested: only if Refugee Quarters has room.
+- **Study or free.** Live study kills the captive today (the log line at
+  `main.rs` 1178 says so). If that stays, one captive can be studied or
+  freed, not both, and the Holding panel must make that choice plain.
+  Whether it stays is not decided (open question 21). `LORE.md` does not
+  say that study kills.
+- `Battle::new` (`tactical.rs` 554–593) must build a player unit from the
+  species table.
 - `draw_soldier` (2888) or `draw_alien` (3067) must be chosen by species,
-  not by side.
-- Limits: `ARMORS` is exactly 6, all cut for humans. Whether refugees wear
-  armour at all is not decided (open question 6). A suit of their own
-  would be a new row and a new count. Self-test is safe; its soldier is
-  human.
+  not by side. 4a already changes that line (2447–2448).
+- What each species does (third session):
+  - **Regent.** Uses Reach. Cannot use human weapons. The Reach panel
+    (`draw_tactical_psi`, `tactical.rs` 3978) already works for a player
+    unit. But every soldier holds a weapon position, and position 0 is the
+    service pistol. "No weapon" needs a value of its own.
+  - **Tender.** Small and frail. A scout that senses Reach users and enemy
+    machines. That is a new reveal rule beside `compute_visibility`
+    (`tactical.rs` 630). Suggested: it marks Regents (the only kind that
+    uses Reach today) and the two machines (kinds 5 and 6) without lighting
+    their tiles. How far it reaches, and whether walls stop it, is not
+    decided.
+  - **Lash.** The best marksman. Its first shot at any new target costs
+    extra time. `Unit` gains a short list of targets already pardoned, and
+    `fire` (975) adds the extra cost when the target is not on it.
+- **Harnesses** (third session). No refugee can wear human armour. The
+  workshop makes each kind its own harness.
+  - Three new rows in `ARMORS` (`data.rs` 480–487). It is exactly 6 today,
+    so the count changes. Add them at the end: 0–2 stay land, 3–5 stay
+    dive.
+  - Each `ArmorDef` needs to say which species may wear it.
+  - The land and dive swap in `Battle::new` (`tactical.rs` 560–571) picks
+    armour by number (0 or 3). It needs a species check, or a refugee ends
+    up in a human suit.
+  - Three new rows in `WORKSHOP_BLUEPRINTS` (`data.rs` 903). It is exactly
+    14 today, so that count changes too.
+- Stat growth after a win (`main.rs` 944–953) and promotions (986) assume
+  a human. Decide per species whether they grow and hold rank.
+- Limits: `ARMORS` and `WORKSHOP_BLUEPRINTS` counts, as above. Self-test
+  is safe; its soldier is human.
 
 ### Package 7. Signpost missions and the human worker
 
-Goes with graphics phase 8 (environment, civilians). Medium for the
-framework, small per extra signpost. Opus for the framework, Fable for the
-scripts and the sound design. Needs 1a. The civilian side from the Brooder
-work helps.
+Goes with graphics phase 8 (environment, civilians). Medium to large for
+the framework, small per script. Opus for the framework and rules, Fable
+for the scripts, lines and sound design. Needs 1a and 1a-2. The civilian
+side comes from 4a.
 
-- A `SignpostDef` table: id, trigger, mission script. It uses
+**7a. The framework** (widened by the third session)
+
+There are five signposts now. `LORE.md` calls them all "signpost
+missions", but as written they do not all need a battle of their own. The
+"Shape" column below is our reading of each one, not a decision: a screen
+with no battle, a moment inside an ordinary battle, or a mission of its
+own.
+
+| Signpost | Shape | Where the trigger is | What it needs |
+|---|---|---|---|
+| First words | A screen, no battle | First live captive admitted to Holding (`main.rs` 927–931) | The event screen, which exists but is never fed. By the lore the gibberish is built from words the player's own staff have said. The game has no staff speech, so suggested sources are soldier names and the log. |
+| The split vote | A moment in the next ordinary battle | Research `"STUDY_REGENT"` finishes (the study branch at `main.rs` 1176) | The 1c hook. A Regent must be in that battle. |
+| The same face | Its own mission | First entry in `lost_soldiers` | 1a-2, and the worker in 7b |
+| Roll call | Its own mission, a rescue | The worker batch number reaches "late" | Civilians (4a), the late worker (7b), a goal that is not "kill everything" |
+| The open door | A battle inside the base | Infection first runs high | Package 5a and 5b |
+
+- A `SignpostDef` table: id, trigger, shape, script. It uses
   `story_flags`, `lost_soldiers` and `MissionSpec.kind` from 1a.
-- Triggers are checked in `daily_tick` and `finish_battle`: first live
-  capture, first soldier taken, first Regent studied, share of
-  alien-derived kit past a threshold.
+- `Game` gains `pending_beats`: moments waiting for the next battle.
+- `MissionSpec` gains a `goal`. Today the only goal is "no living aliens"
+  (`check_end`, `tactical.rs` 1088–1099). The finale needs another goal
+  too, so build it once, here.
+- The event screen (`draw_event`, `main.rs` 2123–2141) reads `event_title`
+  and `event_body` (2129, 2132). Nothing ever sets them. "First words" is
+  the first thing to feed it.
+- Triggers are checked in `daily_tick` and `finish_battle`.
 - "The same face" builds its enemies from the highest-ranked entry in
   `lost_soldiers`.
-- The worker is a new unit that does not fight, with a `voice_stage`
-  number. Its "duck calls" are generated sounds in `audio.rs` (new `gen_*`
-  functions). They move closer to speech as `voice_stage` rises.
-- Limits: `SiteKind` (`main.rs` 24) has values that are never used. Add
-  `Signpost`; do not reuse those.
+- Limits: `SiteKind` (`main.rs` 24) has a value that has never been used,
+  `BaseDefense`. That one is now spoken for by 5b. Add `Signpost` for the
+  missions here.
+
+**7b. The human worker** (medium; Opus for rules, Fable for sound and lines)
+
+- It first appears after the Registrar has read one of the player's
+  soldiers. That means a soldier in `lost_soldiers`, so it needs 1a-2.
+- `Game` gains `worker_batch`, a number that rises over the campaign. How
+  many batches there are is not decided.
+- A new creature kind 11, added at the end of `alien_def`
+  (`tactical.rs` 1767). Its numbers, name and face come from a
+  `LostSoldier`, not from the table row. By the lore workers are also made
+  from abducted civilians. Those have no record today; a random `Look` and
+  name would do.
+- It needs the human shape while on the enemy side. 4a's "draw by what the
+  unit is" covers this.
+- **Early batch.** No weapon. It runs at the squad, clings, and calls out.
+  Clinging is a new hold effect in the 1c status block. This settles
+  "whether it fights": early ones do not.
+- **Late batch.** It stands on the civilian side until revealed, then uses
+  human weapons. A soldier with EMPATH can tell.
+- **Voices.** `audio.rs` only has generated sound effects and no speech.
+  For now a "voice" is lines of text plus generated calls (new `gen_*`
+  functions) that move closer to speech as the batch number rises. The
+  idea that a copy uses altered lines of the soldier it was read from
+  waits until soldiers have lines.
+- **Pool soldiers.** A copy made from a pool soldier would wear a real
+  person's name and photo. Whether that is allowed is the user's call
+  (open question 14). Until it is answered, build the copy with the drawn
+  face, not the photo.
 
 ### Package 8. The Moon finale
 
 Goes with graphics phase 9 (craft and the final sites). Large. Fable for
-the ending and the maps, Opus for the rules. Needs package 6 (Tenders),
-package 7 (the script system) and graphics phase 3 (dark-side light).
+the ending, the maps and the difficulty curve, Opus for the rules. Needs
+package 6 (Tenders), package 7 (the goal and the script system) and
+graphics phase 3 (dark-side light).
 
 - `MissionSpec.gravity`, and a map source for the lunar surface.
 - A height-map loader. `gen_map` makes one sort of layout with a single
@@ -754,11 +1056,25 @@ package 7 (the script system) and graphics phase 3 (dark-side light).
 - Low gravity: longer throws (`throw_grenade`, `tactical.rs` 1354, range 12
   tiles today) and cheaper climbs in `walk_cost` (689).
 - Victory cannot be "no living aliens" (`check_end`, 1088–1099), because
-  the Registrar cannot be killed. It needs a scripted goal.
-- The freed Tenders' vote and merge depends on how many Tenders the player
-  freed.
+  the Registrar cannot be killed. It uses the `goal` from 7a.
+- **No pass mark** (third session). Every living freed Tender weakens the
+  Seed's defences. There is no fixed number.
+  - No new data. Count the living `Soldier`s whose species is Tender.
+  - `make_final_mission` fixes 8 enemies at tier 6 (`main.rs` 894–900).
+    Replace that with a strength worked out from the Tender count, at the
+    moment the mission launches, not when the site appears.
+  - "Brings to the Moon" is not settled: alive anywhere, or aboard the
+    transport (open question 15). Aboard collides with the squad size.
+  - The curve from "nearly impossible" to "fair" is Fable's to draw. Keep
+    it as one small table.
+- **The 8-wins shortcut.** The final site also appears after 8 wins with
+  no research (`main.rs` 1007–1008). Suggested: remove it, because a
+  player could reach the Moon without ever having freed a Tender. Not
+  decided (open question 22).
+- **Fix the win text.** It says the Seed "is dead" (`main.rs` 2155). By
+  the lore it was overruled, not killed.
 - The last word, "there are many", goes on the end screen (`draw_end`,
-  `main.rs` 2143). The win flags are set at `main.rs` 997–1003.
+  `main.rs` 2143). The land win flags are set at `main.rs` 997–1003.
 - Limits: the final mission is found by research id `"SEED_LOCATION"`
   (`main.rs` 1189). Keep that id. Self-test is safe if gravity defaults to
   normal.
@@ -772,21 +1088,171 @@ Opus for the split, Fable for the design.
 - It needs the simulation split from the drawing. Both live in
   `tactical.rs` and share the `Battle` struct today.
 
+### Package 10. The soldier pool (new, from the third session)
+
+A page reached from the title screen. The player makes soldiers there
+once, with a name, a look and a picture. Every campaign started afterwards
+pulls them in. No earlier package covers this. Goes with graphics phase 4
+(soldiers).
+
+**Where the pool lives: outside the repository**
+
+- The pool is the first real player file the game writes. Today the game
+  only writes test results and screenshots.
+- It lives in the player's own data folder, never in the project folder.
+  On this machine (Linux) that is `~/.local/share/defending-earth/`. On
+  Windows it is under `%APPDATA%`. On macOS it is under
+  `~/Library/Application Support/`.
+- Inside it: one `pool.json` (names, looks, picture file names, the
+  "start with me" tick) and a `portraits/` folder (one square PNG per
+  soldier, saved by the game).
+- **Pool pictures and names must never be committed.** The repository is
+  public. Rules that keep it so:
+  - The game never reads or writes pool data anywhere under the project
+    folder. No "copy next to the game" fallback.
+  - No real name or photo goes into `assets/`, `checks/`, `shots/`,
+    `docs/`, test data or example files. Tests and examples use made-up
+    names and the drawn face.
+  - `shots/` is not in `.gitignore` today. So a screenshot that shows a
+    pool soldier would be published with the next commit. See the debug
+    rule below.
+- A new small file, `src/pool.rs`, holds all the disk code: find the
+  folder, load, save, import a picture. Nothing in `tactical.rs` touches
+  the disk. The game already uses `serde_json`, which can write
+  `pool.json`.
+- Finding the folder needs either one small new dependency (an outside
+  code library the game pulls in) or a few lines of our own that read the
+  system's settings. Either is fine.
+
+**10a. Storage, the pool page, typing, arrival** (medium; Opus for storage
+and arrival, Sonnet for the page)
+
+- `PoolSoldier`: a `pool_id`, name, `Look`, picture file name, "start with
+  me" tick. No stats and no traits: those are dealt fresh in every
+  campaign and hidden like anyone else's.
+- A new `Screen::Pool` in the `Screen` list (`main.rs` 21). A "SOLDIER
+  POOL" button on `draw_title` (`main.rs` 1567), beside the three buttons
+  there now (1586–1593).
+- The look form already exists in `draw_editor` (`base.rs` 1807–1958). But
+  it edits `g.soldiers[g.selected_soldier]` directly (1816). It must be
+  pointed at "the look being edited", so the same form serves a campaign
+  soldier and a pool entry.
+- **Name typing is new.** Nothing in the game takes typed text. The editor
+  only has "RANDOMIZE NAME". The engine offers `get_char_pressed`, which
+  the game never calls. A small text box is needed: letters, backspace, a
+  length limit, and only characters the game's font can draw.
+- **Arrival.** `make_soldier` (`main.rs` 674) has four callers:
+  - the land start, 8 soldiers (`main.rs` 564–565);
+  - the sea start (`main.rs` 612–613);
+  - HIRE on the soldier list (`base.rs` 381);
+  - BUY in the market (`base.rs` 1366).
+  Ticked pool soldiers take places in the starting 8. The rest turn up at
+  random when the player hires. Suggested: if more than 8 are ticked, the
+  extras arrive by hiring.
+- `Soldier` gains `pool_id` (maybe none). Suggested: one pool soldier
+  appears at most once per campaign. Dying in one campaign does not remove
+  them from the pool; they are available again in the next.
+- Stats, strength and fear are rolled as for any recruit.
+- Things to watch:
+  - **Debug runs must ignore the pool.** `--demo`, `--screenshot`,
+    `--self-test` and `--ai-test` all start a campaign (`new_campaign` is
+    called at `main.rs` 2327, 2374, 2389, 2419 and 2425). If they loaded
+    the pool, private faces would land in `shots/` and the self-test
+    result would change from one machine to the next. The pool loads only
+    from the two real "start campaign" buttons (`main.rs` 1668, 1707).
+  - **Dice.** Choosing whether a hire is a pool soldier must not use the
+    main run of dice. Use a separate set, as for traits in package 3.
+  - A broken or missing `pool.json` must not stop the game. Start with an
+    empty pool and say so on the pool page.
+- Needs nothing else. It can be built before package 3; traits are added
+  when 3a exists.
+
+**10b. Picture import and crop** (medium, Opus)
+
+- **File types.** The engine reads PNG and TGA only. Its picture reader is
+  built without JPG (macroquad 0.4.16 asks for just those two). Phone
+  photos are JPG. So either the game takes PNG only, or the picture reader
+  is added as a dependency of our own with JPG switched on. Not decided
+  (open question 16).
+- **Getting the file in.** Two ways:
+  - Drag the file onto the game window. The engine has
+    `get_dropped_files`, and miniquad 0.4.11 has code for it on Linux,
+    macOS and Windows. The game has never used it, so it is untested here.
+  - A fallback that needs no dragging: an `import/` folder inside the data
+    folder. The pool page lists the pictures found there.
+- **Crop** (suggested design). The player slides and scales the picture until the face sits
+  inside a guide oval, with the eyes on a guide line. The game then saves
+  its own square PNG into `portraits/`. The original file is not kept or
+  touched.
+- **Why the crop matters.** The six portrait stages (3e) lay darker eyes
+  and scars over the picture. They only land right if every picture has
+  the eyes in the same place.
+- **Drawing.** `Look` is a small copyable value and `ui::portrait` takes
+  only that (`ui.rs` 205). A picture has to be loaded onto the graphics
+  card before it can be drawn, and that loaded picture cannot ride along
+  inside `Look`. Keep a small store of loaded pictures, looked up by
+  `pool_id` and held with the other drawing state, so each picture is
+  loaded once.
+- A missing picture file falls back to the drawn face from the `Look`.
+- In battle the 3D soldier is still built from the `Look`. The picture is
+  for the portrait only.
+- Needs 10a. The stage overlays need 3e and 1a.
+
+| Part | What | Size | Who |
+|---|---|---|---|
+| 10a | Storage, page, typing, arrival | Medium | Opus for storage and arrival, Sonnet for the page |
+| 10b | Picture import and crop | Medium | Opus |
+
 ### Order
 
 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9. Packages 2 and 3 can run side by side
-after 1. Package 5 can start once 2d is in.
+after 1. Package 5a can start once 2d is in.
+
+- 1a-2 must be in before 7b, or the human worker never appears.
+- 4a (sides) must be in before the Maul, the Cinder, the Brooder,
+  package 6 and package 7.
+- 5b (the base interior) must be in before "the open door" in package 7.
+- The `goal` in 7a must be in before package 8.
+- 10a stands alone and can be built any time. 10b's overlays wait for 3e.
 
 ### Still open (the user decides; ask through the question tool)
 
-1. Which of the eight starter traits are strengths and which are flaws.
-2. Which fears beyond water and sharks.
-3. Maul numbers: Slag yield, eating speed, how the Registrar controls it.
-4. What happens when the mess runs out, how many Gorgers a refugee needs,
-   and whether the Gorgers must be dead or alive.
-5. Infection tax and scrubbing numbers, and whether there is an attack
-   from inside.
-6. What each freed species can do.
-7. The human worker's look and first appearance.
-8. More signposts and their triggers.
-9. What a joined multiplayer player controls.
+What the third session closed, and what is left of each old question:
+
+| # | Question | Where it stands |
+|---|---|---|
+| 1 | Strengths and flaws | Closed. All eight are strengths with a catch. Flaws are fears. The numbers are open. |
+| 2 | Which fears | Closed. Six: the dark, fire, tight spaces, the Glow, water, sharks. The last two are sea-only. |
+| 3 | Maul numbers and control | Partly closed. Control is the spike. Slag and eating numbers are left for play. |
+| 4 | The mess runs out; Gorgers | Partly closed. Dead Gorgers are fine. Hunger is decided. How many per refugee is left for play. |
+| 5 | Infection and an inside attack | Partly closed. Sabotage, then a battle inside. The numbers are left for play. |
+| 6 | What each freed species can do | Closed in outline. The numbers are open. |
+| 7 | The human worker | Partly closed. First appearance and the two kinds of batch are decided. How many batches is open. |
+| 8 | More signposts | Closed for now: five. |
+| 9 | What a joined multiplayer player controls | Open. |
+
+New questions the third session raises:
+
+10. How many missions each of the six portrait stages takes.
+11. How the player aims at the Maul's spike: from behind, or a called
+    shot.
+12. Whether living wild units stop a battle from ending.
+13. What a Cinder that survives a battle does between battles.
+14. Whether a copy may wear a pool soldier's real name and photo.
+15. Whether a Tender counts for the finale if alive at base, or only if
+    aboard the transport.
+16. Pool pictures: JPG as well, or PNG only.
+17. Whether the Glow fear reacts to a soldier's own cored weapon, which is
+    filled with Glow.
+18. Whether each refugee species gains stats and rank as humans do.
+19. Water and shark fears on land: never dealt to a land soldier (what
+    this file and `ROADMAP.md` assume), or dealt and simply never seen.
+20. What makes a soldier "unfed": no Mess Hall, one too small for the head
+    count, or no money to run it. And whether human food is a stock the
+    player buys or only a running cost.
+21. Whether live study still kills the captive, so that each captive is
+    either studied or freed.
+22. Whether to remove the rule that shows the final site after 8 wins
+    without research.
+23. What the bite of a fear is (a morale hit is suggested), and how each
+    land fear is measured.

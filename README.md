@@ -163,6 +163,7 @@ drawn by code at runtime. See `CREDITS.md`.
   finale is still an ordinary battle: low gravity, the lunar
   ground and the ending vote are decided in `docs/LORE.md` but not built.
 * Much of the story in `docs/LORE.md` is decided but not built yet. The list
-  is in `docs/STATUS.md`.
+  is in `docs/STATUS.md`. That includes the soldier pool: there is no page
+  yet for making your own soldiers.
 * Several rules (hit chance, time-unit costs, reaction fire, promotion,
   funding) are marked "under review for 2.0" in `MECHANICS.md` and will change.

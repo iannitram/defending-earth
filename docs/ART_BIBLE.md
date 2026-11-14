@@ -251,14 +251,14 @@ full list of names are in `NAMES.md`.
 | Tender | One lone maker mind in a small body: simple, obedient, issued by the thousand | | Fathom | Line infantry |
 | Kite | Gliding spotter that marks targets for the Lash | | Mantle | Armoured heavy |
 | Lash | Low, many-limbed marksman | | Deacon | Reach officer |
-| Maul | The enemy's heavy: living stone with a molten core, an animal | | Bell | Pressure-shelled brute |
+| Maul | The enemy's heavy: living stone with a molten core, an animal. A Registrar control spike is driven into the core | | Bell | Pressure-shelled brute |
 | Regent | Reach commander, one of the makers | | Wader | Amphibious raider |
 | Brooder | The taker: a hovering machine that spits glowing fluid | | Lamp | Lure-light drone |
 | Husk | A taken soldier or animal, still wearing what it wore | | Wreath | Drifting parasite |
 | Lathe | The builder: a machine that repairs and builds, not a fighter | | Hulk | Massive beast |
 | Gorger | Buried ambush worm | | Silt | Small bottom-lying ambusher |
 | Bloat | Drifting spore bag that bursts into a cloud | | | |
-| Cinder | The Maul's young: small, fast chips of living stone that set fires | | | |
+| Cinder | The Maul's young: small, glowing, cube-shaped rocks that roll around, eat and set fires. Wild | | | |
 
 The Trestle was dropped as a unit on 2026-11-13 and folded into the Brooder.
 It is still in the code until the roadmap removes it (package 1 of the game
@@ -266,6 +266,30 @@ systems track). The Husk row is from the first draft. It is not in the game
 and not in the land roster in `LORE.md`, which mentions Husks only as an
 open multiplayer idea. Later in the campaign `LORE.md` adds one more kind,
 the human worker (decided, not built).
+
+Fixed in the third lore session (2026-11-13). None of it is drawn yet.
+Anything `LORE.md` does not say is marked "to settle":
+- **Two cubes, never confused.** The Cinder is cube-shaped, and the cube is
+  also the Registrar's sign for reading and taking apart (the taker's core,
+  the Seed's core). The likeness is a coincidence and the two must never
+  be mistaken for each other.
+  - *Cinder:* rough, rounded, orange, tumbling. A glowing rock that rolls
+    around, almost cute. It grows bigger as it eats.
+  - *Registrar cube:* black, exact, still.
+- **Cinders are wild.** Nothing controls them. To settle with the user:
+  whether that means a Cinder shows none of the Registrar's marks (ring
+  segments, amber lenses, frame).
+- **The Maul's control spike.** A piece of Registrar hardware driven into
+  the Maul's molten core. The player can destroy it, so it has to be
+  visible and has to read as the Registrar's work, not as part of the
+  stone. With the spike gone the Maul is wild and attacks whoever is
+  nearest. To settle: the spike's shape and where on the body it shows.
+- **Buried Gorger signs.** A buried Gorger gives itself away by shifting
+  ground and dust. A careful soldier can spot them from a few tiles away.
+  To settle: how strong the signs look on screen.
+- **Refugee harnesses.** Freed Regents, Tenders and Lashes cannot wear
+  human armour. The workshop makes each kind its own harness. To settle:
+  what each harness looks like.
 
 The final site is the Seed, on the far side of the Moon. A hive that looks
 biological and is not. Ribbed, resin-like
@@ -292,6 +316,16 @@ From `LORE.md`:
 - The close-up portrait changes with service (decided 2026-11-13, not yet in
   the game). A soldier with no missions looks new and jittery. A soldier with
   fifty has the thousand-yard stare.
+  - **Six stages**, from new recruit to the thousand-yard stare. What each
+    of the six looks like is not designed yet.
+  - **Marks from events** come on top of the stage: scars from wounds, and
+    changes that come with earned traits.
+  - **Soldier pool pictures.** A soldier made on the soldier pool page has
+    one picture supplied by the player. The game lays the six stages over
+    that picture: lighting, grime, darker eyes, and scars from wounds.
+  - Pool pictures and names stay on the player's machine. They are never
+    put in the public repository. Screenshots kept in `shots/` are part of
+    the repository, so no pool picture may appear in one.
 
 ### Base
 Chunky, serviced, lived-in hardware: cable trays, floor markings, spill

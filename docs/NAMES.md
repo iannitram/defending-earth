@@ -391,10 +391,92 @@ for them on screen. When one is built, move it into its table above.
 | SHOTGUN | Soldier weapon | Starting weapon for close range. It should go at the end of the weapon list, so no row number moves |
 | KNIFE | Soldier weapon | Starting blade for close range. Also to be added at the end |
 | refugees | People | Freed aliens who can serve as soldiers: Regent, Tender, Lash. `LORE.md` also calls them "defectors"; it means the same people |
-| BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY, SUPERSTITIOUS, LONER | Soldier traits | The first eight. Each recruit gets one strength and one flaw, hidden until something in battle shows it. Which are strengths and which are flaws is still open |
-| AFRAID OF WATER, AFRAID OF SHARKS | Fears | A fear is a kind of flaw. It only bites where the thing is present. More fears are still to be chosen |
+| BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY, SUPERSTITIOUS, LONER | Soldier traits (strengths) | The eight starter traits. All eight are strengths, each with its own built-in catch. Every recruit gets one strength and one fear, both hidden until something in battle shows them |
 
-Changes to names already in the tables above:
+### Soldiers: strengths and fears (third session, 2026-11-13)
+
+The rule: **the eight starter traits are strengths, and fears are flaws.**
+A recruit gets one of each. Both are dealt at random and stay hidden until
+something in battle shows them.
+
+| Name | Kind | What it is |
+|---|---|---|
+| strength | Term | One of the eight starter traits in the row above. The good half of a recruit, with a catch built in |
+| fear | Term | A recruit's flaw. It only bites where the feared thing is present, so it can stay hidden for years |
+| THE DARK | Fear (land) | Afraid of the dark |
+| FIRE | Fear (land) | Afraid of fire |
+| TIGHT SPACES | Fear (land) | Afraid of being closed in |
+| THE GLOW | Fear (land) | Afraid of Glow, the enemy's shining fluid |
+| WATER | Fear (sea only) | Afraid of water. Does nothing on land, so it stays asleep until the sea campaign exists |
+| SHARKS | Fear (sea only) | Afraid of sharks. Sea only, the same as WATER |
+| portrait stages | Term | The six steps a soldier's close-up face goes through, from new recruit to the thousand-yard stare. Events add marks on top: scars from wounds, and changes that come with earned traits |
+
+The older spellings AFRAID OF WATER and AFRAID OF SHARKS are replaced by
+WATER and SHARKS. `LORE.md` writes the six fears in plain words ("the dark,
+fire..."). The capital letters here are the working screen spelling, still to
+settle with the user. What each fear does to a soldier in battle is not
+designed yet.
+
+### The soldier pool (third session)
+
+| Name | Kind | What it is |
+|---|---|---|
+| SOLDIER POOL ("the pool"; `LORE.md` says "the soldier pool", the capitals are a working screen spelling) | Start-page screen | A page reached from the game's starting screen. The player makes soldiers there once, with a name, a look and a picture. They are then pulled at random into every campaign started afterwards |
+| pool soldier | Term | A soldier made in the pool. Mixed at random into the recruits offered during a campaign. Its strength and fear are dealt fresh in every campaign and hidden like anyone else's |
+| "start with me" | Tick box on the pool page | Guarantees that pool soldier a place in the starting squad |
+| pool picture | Term | One picture per pool soldier. The game lays the six portrait stages over it: lighting, grime, darker eyes, scars from wounds. Pool pictures and names stay on the player's machine. They are never put in the public repository (the project's shared online folder) |
+
+### Creatures (third session)
+
+| Name | Kind | What it is |
+|---|---|---|
+| control spike ("the spike") | Enemy hardware | A piece of Registrar hardware driven into a Maul's molten core. It is what controls the Maul. Destroy it and the Maul goes wild |
+| wild | Creature state | A creature nothing controls. A wild Maul attacks whoever is nearest, the enemy included. Cinders are always wild: they eat and set fires, and go for the enemy's dead as readily as ours |
+| Gorger signs | Term | Shifting ground and dust over a buried Gorger. A careful soldier can spot them from a few tiles away. The HANDHELD RADAR finds a buried Gorger reliably |
+| human worker | Enemy kind (no screen name yet) | The Registrar's copies of real people it has read. First appears after it has read one of the player's soldiers. Early batches carry no weapon: they run at the squad, cling and call out in broken recorded lines. Late batches hide among civilians and use human weapons |
+| batch | Term | One run of human workers. Each batch is closer to a real person than the last |
+
+### Refugees and their kit (third session)
+
+| Name | Kind | What it is |
+|---|---|---|
+| harness | Kit for refugees | Refugees cannot wear human armour. The workshop makes each kind (Regent, Tender, Lash) its own harness. The three harnesses have no names of their own yet. Note: the battle screen already uses the word for a soldier's SHOULDER HARNESS and BELT HARNESS (ammunition straps), so the refugee harness may need a clearer name. To settle |
+
+What each refugee does as a soldier: a Regent uses Reach and cannot use
+human weapons. A Tender is small and frail, a scout that senses Reach and
+enemy machines. A Lash is the best marksman the player can have, but its
+first shot at any target costs extra time, because it must ask the target's
+pardon.
+
+### Signpost missions (third session)
+
+A signpost mission is a fixed story mission that marks a turn in the
+campaign. Each is set off by something the player has done, so players meet
+them in different orders and may not see them all. `LORE.md` writes the
+titles in plain words ("The same face"); the capitals are a working screen
+spelling.
+
+| Name | Set off by | What it is |
+|---|---|---|
+| THE SAME FACE | A soldier the Registrar was able to read: abducted, mind-taken, or left on the field when the squad withdrew. The exact moment that sets it off is still to settle | Every enemy on the map is a copy of that one soldier: deformed, unfinished, with stats close to the original's. It copies the highest-ranked soldier it was able to read. A soldier killed and brought home cannot be copied |
+| FIRST WORDS | The first live capture | In the holding block the captive starts speaking the Registrar's first gibberish, built from words the player's own staff have said |
+| THE SPLIT VOTE | First studying a Regent | In the next battle a Regent hesitates, lets a soldier live, and is recycled in front of the squad |
+| ROLL CALL | A late batch of human workers appearing | A rescue mission where the "civilians" call the soldiers by name, in the voices of people the player lost |
+| THE OPEN DOOR | Infection risk running high for the first time | The first battle that starts inside the player's own base. It teaches scrubbing |
+
+### Running the base (third session)
+
+| Name | Kind | What it is |
+|---|---|---|
+| hunger | Base rule | What happens when the MESS HALL cannot feed everyone. Unfed soldiers lose morale and recover more slowly. Unfed refugees weaken, then leave. Nobody starves to death on screen. Gorger corpses stock the mess for refugees |
+| infection risk | Base rule | How likely the Registrar's hidden copy, carried in equipment built from enemy parts, is to act inside a base. Low risk brings sabotage. High risk brings a battle that starts inside the base with no warning, enemies stepping out of the workshop and stores. The SCRUB ROOM pushes the risk back down, never to zero. Refugees add no risk: once freed they are clean |
+| sabotage | Base event | What low infection risk causes: a module goes dark, research is lost, or a craft is grounded |
+| scrubbing | Term | Cleaning the Registrar's copy out of what we build. Done in the SCRUB ROOM. It costs power and resources |
+
+The exact numbers for hunger and infection are left for later. They will be
+set by playing once the systems exist.
+
+### Changes to names already in the tables above
 
 - **Trestle** (land kind 8) is to be removed as a unit. It was folded into the
   Brooder. Its row number, and the TRESTLE WRECK and DISABLED TRESTLE item
@@ -403,8 +485,12 @@ Changes to names already in the tables above:
 - **Brooder** keeps its name but becomes "the taker": a hovering machine that
   spits Glow. **Lathe** becomes "the builder". Their Role cells will change
   when the new rules are built.
-- **Maul** will lose the arc torch and attack with its own magma. **Cinder**
-  becomes the Maul's young.
+- **Maul** will lose the arc torch and attack with its own magma. It carries
+  a control spike (see the creature table above). **Cinder** becomes the
+  Maul's young: a glowing cube-shaped rock that rolls around, wild, and grows
+  as it eats. It only becomes a full Maul between battles, never during one.
+- **HANDHELD RADAR** gets its first job in battle: finding buried Gorgers.
+  Today it can be bought but does nothing in a battle.
 - **Kite** becomes a spotter that marks soldiers for the Lash; its only shot
   dazes. **Bloat** becomes a floater that bursts into a choking cloud.
   **Gorger** becomes a buried ambusher, and food for refugees.
