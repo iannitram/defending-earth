@@ -118,8 +118,8 @@ const SURFACE_ITEMS: &[ItemRow] = &[
     (69, "DISABLED TRESTLE", 0, 0, [0, 0, 0], [0, 0, 0], 0, 90),
     (70, "LIVE BLOAT", 0, 0, [0, 0, 0], [0, 0, 0], 0, 18),
     (71, "LIVE CINDER", 0, 0, [0, 0, 0], [0, 0, 0], 0, 70),
-    (72, "RECOVERED LATTICE", 0, 0, [0, 0, 0], [0, 0, 0], 0, 3),
-    (73, "ELECTROLYTE", 0, 0, [0, 0, 0], [0, 0, 0], 0, 1),
+    (72, "SPINE", 0, 0, [0, 0, 0], [0, 0, 0], 0, 3),
+    (73, "GLOW", 0, 0, [0, 0, 0], [0, 0, 0], 0, 1),
 ];
 
 /// Underwater item table. Indices are fixed; any index not listed is a RESERVED row.
@@ -479,7 +479,7 @@ pub struct ArmorDef {
 /// Soldier suits. Index order is fixed: 0..2 land, 3..5 dive.
 pub const ARMORS: [ArmorDef; 6] = [
     ArmorDef { name: "COMBAT UNIFORM", front: 8, side: 6, rear: 5, under: 2, armor_class: 1, weight: 0, underwater: false, unlock: 0, color: [0.30, 0.34, 0.30] },
-    ArmorDef { name: "LATTICE CARRIER", front: 46, side: 30, rear: 36, under: 20, armor_class: 2, weight: 9, underwater: false, unlock: 2, color: [0.34, 0.42, 0.38] },
+    ArmorDef { name: "SPINE CARRIER", front: 46, side: 30, rear: 36, under: 20, armor_class: 2, weight: 9, underwater: false, unlock: 2, color: [0.34, 0.42, 0.38] },
     ArmorDef { name: "SEALED FRAME", front: 90, side: 72, rear: 64, under: 50, armor_class: 3, weight: 18, underwater: false, unlock: 5, color: [0.40, 0.52, 0.58] },
     ArmorDef { name: "DIVE RIG", front: 40, side: 28, rear: 24, under: 16, armor_class: 2, weight: 14, underwater: true, unlock: 9, color: [0.14, 0.34, 0.42] },
     ArmorDef { name: "NACRE DIVE RIG", front: 84, side: 60, rear: 56, under: 40, armor_class: 3, weight: 17, underwater: true, unlock: 11, color: [0.12, 0.28, 0.40] },
@@ -714,10 +714,10 @@ pub const FACILITY_CATALOG: [FacilityDef; 17] = [
     FacilityDef { ftype: FacilityType::Holding, name_surface: "HOLDING BLOCK", name_water: "HOLDING TANK", cost: 450_000, build_days: 21, upkeep: 14_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 8, craft_cap: 0, radar_range: 0, defense_val: 0, desc: "Sealed cells for up to 8 live captives awaiting study." },
     FacilityDef { ftype: FacilityType::AdaptedBattery, name_surface: "CORED BATTERY", name_water: "CAV BATTERY", cost: 450_000, build_days: 21, upkeep: 9_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 650, desc: "Point defence rebuilt around recovered cores. Fast and accurate." },
     FacilityDef { ftype: FacilityType::CapturedBattery, name_surface: "ARC BATTERY", name_water: "PRESSURE BATTERY", cost: 650_000, build_days: 28, upkeep: 13_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 950, desc: "Enemy tools on a human mount. Hits hard, runs hot." },
-    FacilityDef { ftype: FacilityType::DerivedBattery, name_surface: "DERIVED BATTERY", name_water: "DERIVED BATTERY", cost: 900_000, build_days: 35, upkeep: 18_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 1300, desc: "Our own design, built their way. The last line, and the heaviest." },
+    FacilityDef { ftype: FacilityType::DerivedBattery, name_surface: "BREACHER BATTERY", name_water: "BREACHER BATTERY", cost: 900_000, build_days: 35, upkeep: 18_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 1300, desc: "Our own design, built their way. The last line, and the heaviest." },
     FacilityDef { ftype: FacilityType::DefenceScreen, name_surface: "FARADAY SCREEN", name_water: "BAFFLE SCREEN", cost: 1_100_000, build_days: 35, upkeep: 16_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 350, desc: "Grounded mesh over the site. Bleeds off incoming fire and slows the attackers' approach." },
-    FacilityDef { ftype: FacilityType::PsiDamper, name_surface: "PSI DAMPER", name_water: "PSI DAMPER", cost: 1_250_000, build_days: 35, upkeep: 18_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 0, desc: "Keeps the base quiet to whatever they listen with. Scouts pass it by." },
-    FacilityDef { ftype: FacilityType::PsiWing, name_surface: "PSI WING", name_water: "PSI WING", cost: 800_000, build_days: 21, upkeep: 16_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 0, desc: "Testing and training rooms for soldiers who show psi ability." },
+    FacilityDef { ftype: FacilityType::PsiDamper, name_surface: "REACH DAMPER", name_water: "REACH DAMPER", cost: 1_250_000, build_days: 35, upkeep: 18_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 0, desc: "Keeps the base quiet to whatever they listen with. Scouts pass it by." },
+    FacilityDef { ftype: FacilityType::PsiWing, name_surface: "REACH WING", name_water: "REACH WING", cost: 800_000, build_days: 21, upkeep: 16_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 0, defense_val: 0, desc: "Testing and training rooms for soldiers who show Reach ability." },
     FacilityDef { ftype: FacilityType::SigintStation, name_surface: "SIGINT STATION", name_water: "SIGINT STATION", cost: 1_500_000, build_days: 28, upkeep: 32_000, size: 1, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 0, radar_range: 2600, defense_val: 0, desc: "Reads the enemy's traffic: every contact in range, with class, crew and heading." },
     FacilityDef { ftype: FacilityType::Hangar, name_surface: "HANGAR", name_water: "WET DOCK", cost: 250_000, build_days: 21, upkeep: 22_000, size: 2, living_cap: 0, lab_cap: 0, workshop_cap: 0, store_cap: 0, alien_cap: 0, craft_cap: 1, radar_range: 0, defense_val: 0, desc: "2x2 bay for one craft, with fuel, arming and a way out." },
 ];
@@ -759,11 +759,11 @@ pub struct CraftDef {
 
 pub const CRAFT_CATALOG: [CraftDef; 10] = [
     // Surface
-    CraftDef { ctype: CraftType::Heron, name: "HERON", game: 0, speed: 700, max_fuel: 1600, fuel_name: "JET FUEL", soldier_cap: 12, weapon_mounts: 0, max_hp: 140, cost: 550_000, upkeep: 36_000, desc: "Tiltrotor troop transport. Slow, long-legged, lands anywhere." },
+    CraftDef { ctype: CraftType::Heron, name: "HERON", game: 0, speed: 700, max_fuel: 1600, fuel_name: "JET FUEL", soldier_cap: 12, weapon_mounts: 0, max_hp: 140, cost: 550_000, upkeep: 36_000, desc: "Twin-rotor transport helicopter. Slow, long-legged, lands anywhere." },
     CraftDef { ctype: CraftType::Swift, name: "SWIFT", game: 0, speed: 1900, max_fuel: 900, fuel_name: "JET FUEL", soldier_cap: 0, weapon_mounts: 2, max_hp: 110, cost: 650_000, upkeep: 12_000, desc: "Twin-engine interceptor with two hardpoints. What an air force has today." },
-    CraftDef { ctype: CraftType::Peregrine, name: "PEREGRINE", game: 0, speed: 3800, max_fuel: 24, fuel_name: "ELECTROLYTE", soldier_cap: 0, weapon_mounts: 2, max_hp: 240, cost: 1_300_000, upkeep: 18_000, desc: "Adapted interceptor: a human airframe built around a recovered power plant." },
-    CraftDef { ctype: CraftType::Ibis, name: "IBIS", game: 0, speed: 2900, max_fuel: 32, fuel_name: "ELECTROLYTE", soldier_cap: 10, weapon_mounts: 1, max_hp: 280, cost: 1_500_000, upkeep: 24_000, desc: "Adapted assault transport. Carries a squad and one weapon." },
-    CraftDef { ctype: CraftType::Albatross, name: "ALBATROSS", game: 0, speed: 5000, max_fuel: 64, fuel_name: "ELECTROLYTE", soldier_cap: 20, weapon_mounts: 2, max_hp: 480, cost: 2_800_000, upkeep: 34_000, desc: "Derived long-range transport. The only craft that can reach Noctis Labyrinthus." },
+    CraftDef { ctype: CraftType::Peregrine, name: "PEREGRINE", game: 0, speed: 3800, max_fuel: 24, fuel_name: "GLOW", soldier_cap: 0, weapon_mounts: 2, max_hp: 240, cost: 1_300_000, upkeep: 18_000, desc: "Adapted interceptor: a human airframe built around a recovered power plant." },
+    CraftDef { ctype: CraftType::Ibis, name: "IBIS", game: 0, speed: 2900, max_fuel: 32, fuel_name: "GLOW", soldier_cap: 10, weapon_mounts: 1, max_hp: 280, cost: 1_500_000, upkeep: 24_000, desc: "Adapted assault transport. Carries a squad and one weapon." },
+    CraftDef { ctype: CraftType::Albatross, name: "ALBATROSS", game: 0, speed: 5000, max_fuel: 64, fuel_name: "GLOW", soldier_cap: 20, weapon_mounts: 2, max_hp: 480, cost: 2_800_000, upkeep: 34_000, desc: "Derived long-range transport. The only craft that can reach the far side of the Moon." },
     // Underwater
     CraftDef { ctype: CraftType::Gannet, name: "GANNET", game: 1, speed: 720, max_fuel: 1500, fuel_name: "DIESEL-ELECTRIC", soldier_cap: 12, weapon_mounts: 0, max_hp: 150, cost: 550_000, upkeep: 36_000, desc: "Transport submersible with a lock-out chamber for a full dive team." },
     CraftDef { ctype: CraftType::Skua, name: "SKUA", game: 1, speed: 2200, max_fuel: 850, fuel_name: "DIESEL-ELECTRIC", soldier_cap: 0, weapon_mounts: 2, max_hp: 125, cost: 650_000, upkeep: 12_000, desc: "Small attack submarine with two torpedo stations." },
@@ -846,21 +846,21 @@ pub const RESEARCH_SURFACE: [ResearchTopic; 20] = [
     ResearchTopic { id: "CORED_RIFLE", name: "CORED RIFLE", game: 0, points: 180, prereqs: &["CORED_WEAPONS"], category: "Weapons", description: "The service rifle's layout with a core where the magazine well was. Accurate, and it never runs dry.", unlocks: "Armoury: Cored Rifle" },
     ResearchTopic { id: "CORED_HEAVY_GUN", name: "CORED HEAVY GUN", game: 0, points: 240, prereqs: &["CORED_WEAPONS"], category: "Weapons", description: "A crew-served mount for the largest core one soldier can carry. Heavy, slow and worth it.", unlocks: "Armoury: Cored Heavy Gun" },
     ResearchTopic { id: "CORED_LANCE", name: "CORED LANCE", game: 0, points: 320, prereqs: &["CORED_HEAVY_GUN"], category: "Craft", description: "The heavy gun's core scaled up for an aircraft pylon.", unlocks: "Aircraft weapon: Cored Lance" },
-    ResearchTopic { id: "LATTICE", name: "RECOVERED LATTICE", game: 0, points: 220, prereqs: &[], category: "Materials", description: "The printed frame under every creature and hull. Lighter than aluminium, and it mends itself when fed.", unlocks: "Lattice Carrier, enemy craft studies" },
-    ResearchTopic { id: "LATTICE_CARRIER", name: "LATTICE CARRIER", game: 0, points: 160, prereqs: &["LATTICE"], category: "Armor", description: "The issue plate carrier with its ceramic plates swapped for cut lattice.", unlocks: "Workshop: Lattice Carrier" },
-    ResearchTopic { id: "SEALED_FRAME", name: "SEALED FRAME", game: 0, points: 320, prereqs: &["LATTICE_CARRIER", "ELECTROLYTE"], category: "Armor", description: "A powered, sealed shell grown on a lattice frame and driven by electrolyte.", unlocks: "Workshop: Sealed Frame" },
+    ResearchTopic { id: "LATTICE", name: "SPINE", game: 0, points: 220, prereqs: &[], category: "Materials", description: "The printed frame under every creature and hull. Cut from their wrecks and their dead. Lighter than aluminium, and it mends itself when fed.", unlocks: "Spine Carrier, enemy craft studies" },
+    ResearchTopic { id: "LATTICE_CARRIER", name: "SPINE CARRIER", game: 0, points: 160, prereqs: &["LATTICE"], category: "Armor", description: "The issue plate carrier with its ceramic plates swapped for cut Spine.", unlocks: "Workshop: Spine Carrier" },
+    ResearchTopic { id: "SEALED_FRAME", name: "SEALED FRAME", game: 0, points: 320, prereqs: &["LATTICE_CARRIER", "ELECTROLYTE"], category: "Armor", description: "A powered, sealed shell grown on a Spine frame and driven by Glow.", unlocks: "Workshop: Sealed Frame" },
     ResearchTopic { id: "ARC_TOOLS", name: "ARC TOOLS", game: 0, points: 380, prereqs: &[], category: "Weapons", description: "They do not carry guns. They carry cutting tools and point them at us. Learning the grips and the cells.", unlocks: "Arc Stylus, Arc Cutter, Arc Torch" },
-    ResearchTopic { id: "ELECTROLYTE", name: "ELECTROLYTE", game: 0, points: 260, prereqs: &[], category: "Propulsion", description: "The charged fluid every enemy machine runs on. Handling it without losing the charge.", unlocks: "Sealed Frame, enemy power plant study" },
+    ResearchTopic { id: "ELECTROLYTE", name: "GLOW", game: 0, points: 260, prereqs: &[], category: "Propulsion", description: "The shining fluid every enemy machine runs on, gathered from the pools they leave. Handling it without losing the charge.", unlocks: "Sealed Frame, enemy power plant study" },
     ResearchTopic { id: "CRAFT_POWER_PLANT", name: "ENEMY POWER PLANT", game: 0, points: 340, prereqs: &["ELECTROLYTE"], category: "Propulsion", description: "How a craft with no intakes and no exhaust stays in the air.", unlocks: "Enemy airframe study" },
     ResearchTopic { id: "CRAFT_GUIDANCE", name: "ENEMY GUIDANCE", game: 0, points: 310, prereqs: &["LATTICE"], category: "Propulsion", description: "The craft are not flown. They are told where to be. Reading what tells them.", unlocks: "SIGINT Station, enemy airframe study" },
     ResearchTopic { id: "CRAFT_AIRFRAME", name: "ENEMY AIRFRAME", game: 0, points: 440, prereqs: &["CRAFT_POWER_PLANT", "CRAFT_GUIDANCE"], category: "Craft", description: "Putting a recovered power plant and guidance into an airframe a human can fly.", unlocks: "Workshop: Peregrine" },
     ResearchTopic { id: "SIGINT_STATION", name: "SIGINT STATION", game: 0, points: 420, prereqs: &["CRAFT_GUIDANCE"], category: "Facilities", description: "A listening post tuned to the traffic between enemy craft.", unlocks: "Facility: SIGINT Station" },
-    ResearchTopic { id: "PSI_WING", name: "PSI STUDIES", game: 0, points: 360, prereqs: &[], category: "Psi", description: "Some creatures push on minds. Some soldiers can push back. Finding out which ones.", unlocks: "Facility: Psi Wing" },
-    ResearchTopic { id: "SEED_LOCATION", name: "THE NOCTIS SIGNAL", game: 0, points: 520, prereqs: &["CRAFT_AIRFRAME"], category: "Story", description: "Every craft we have opened was told to come here by the same source. It is not on Earth.", unlocks: "Objective: Noctis Labyrinthus, Mars" },
+    ResearchTopic { id: "PSI_WING", name: "REACH STUDIES", game: 0, points: 360, prereqs: &[], category: "Reach", description: "Some creatures push on minds. Some soldiers can push back. Finding out which ones.", unlocks: "Facility: Reach Wing" },
+    ResearchTopic { id: "SEED_LOCATION", name: "THE FARSIDE SIGNAL", game: 0, points: 520, prereqs: &["CRAFT_AIRFRAME"], category: "Story", description: "Every craft we have opened was told to come here by the same source. It is not on Earth. It is on the side of the Moon we never see.", unlocks: "Objective: the far side of the Moon" },
     ResearchTopic { id: "STUDY_TENDER", name: "LIVE STUDY: TENDER", game: 0, points: 140, prereqs: &[], category: "Live Study", description: "A living Tender, observed until it stops.", unlocks: "Tender file" },
     ResearchTopic { id: "STUDY_LASH", name: "LIVE STUDY: LASH", game: 0, points: 170, prereqs: &[], category: "Live Study", description: "A living Lash, observed until it stops.", unlocks: "Lash file" },
     ResearchTopic { id: "STUDY_MAUL", name: "LIVE STUDY: MAUL", game: 0, points: 190, prereqs: &[], category: "Live Study", description: "A living Maul, observed until it stops.", unlocks: "Maul file" },
-    ResearchTopic { id: "STUDY_REGENT", name: "LIVE STUDY: REGENT", game: 0, points: 310, prereqs: &[], category: "Live Study", description: "A living Regent, observed until it stops. Keep the psi-sensitive staff away.", unlocks: "Regent file" },
+    ResearchTopic { id: "STUDY_REGENT", name: "LIVE STUDY: REGENT", game: 0, points: 310, prereqs: &[], category: "Live Study", description: "A living Regent, observed until it stops. Keep the Reach-sensitive staff away.", unlocks: "Regent file" },
 ];
 
 pub const RESEARCH_WATER: [ResearchTopic; 20] = [
@@ -877,13 +877,13 @@ pub const RESEARCH_WATER: [ResearchTopic; 20] = [
     ResearchTopic { id: "BRINE_DRIVE", name: "BRINE DRIVE", game: 1, points: 370, prereqs: &["LIVE_BRINE"], category: "Propulsion", description: "A drive with no screw and no wake. Making one turn for us.", unlocks: "Enemy pressure hull study" },
     ResearchTopic { id: "SEA_HULL", name: "ENEMY PRESSURE HULL", game: 1, points: 470, prereqs: &["BRINE_DRIVE", "SEA_GUIDANCE"], category: "Craft", description: "Putting a brine drive and their guidance into a hull a human crew can survive in.", unlocks: "Workshop: Cormorant" },
     ResearchTopic { id: "SIGINT_STATION_DEEP", name: "SIGINT STATION", game: 1, points: 420, prereqs: &["SEA_GUIDANCE"], category: "Facilities", description: "A listening post tuned to the traffic between enemy craft under water.", unlocks: "Facility: SIGINT Station" },
-    ResearchTopic { id: "PSI_WING_DEEP", name: "PSI STUDIES", game: 1, points: 370, prereqs: &[], category: "Psi", description: "Some creatures push on minds. Some divers can push back. Finding out which ones.", unlocks: "Facility: Psi Wing" },
+    ResearchTopic { id: "PSI_WING_DEEP", name: "REACH STUDIES", game: 1, points: 370, prereqs: &[], category: "Reach", description: "Some creatures push on minds. Some divers can push back. Finding out which ones.", unlocks: "Facility: Reach Wing" },
     ResearchTopic { id: "ROOT_SIGNAL", name: "THE ROOT SIGNAL", game: 1, points: 460, prereqs: &["SEA_HULL"], category: "Story", description: "Every craft we have opened was told where to go by one source, and it is under the South Pacific.", unlocks: "Verity Deep study" },
     ResearchTopic { id: "VERITY_DEEP", name: "VERITY DEEP", game: 1, points: 560, prereqs: &["ROOT_SIGNAL", "SEA_HULL"], category: "Story", description: "Charting the basin the signal comes from, and what it would take to get a dive team to the bottom of it.", unlocks: "Objective: Verity Deep" },
     ResearchTopic { id: "STUDY_FATHOM", name: "LIVE STUDY: FATHOM", game: 1, points: 150, prereqs: &[], category: "Live Study", description: "A living Fathom, observed until it stops.", unlocks: "Fathom file" },
     ResearchTopic { id: "STUDY_WADER", name: "LIVE STUDY: WADER", game: 1, points: 170, prereqs: &[], category: "Live Study", description: "A living Wader, observed until it stops.", unlocks: "Wader file" },
     ResearchTopic { id: "STUDY_MANTLE", name: "LIVE STUDY: MANTLE", game: 1, points: 230, prereqs: &[], category: "Live Study", description: "A living Mantle, observed until it stops.", unlocks: "Mantle file" },
-    ResearchTopic { id: "STUDY_DEACON", name: "LIVE STUDY: DEACON", game: 1, points: 330, prereqs: &[], category: "Live Study", description: "A living Deacon, observed until it stops. Keep the psi-sensitive staff away.", unlocks: "Deacon file" },
+    ResearchTopic { id: "STUDY_DEACON", name: "LIVE STUDY: DEACON", game: 1, points: 330, prereqs: &[], category: "Live Study", description: "A living Deacon, observed until it stops. Keep the Reach-sensitive staff away.", unlocks: "Deacon file" },
 ];
 
 // ---------------------------------------------------------------- WORKSHOP BLUEPRINTS
@@ -901,14 +901,14 @@ pub struct ProductionBlueprint {
 }
 
 pub const WORKSHOP_BLUEPRINTS: [ProductionBlueprint; 14] = [
-    ProductionBlueprint { id: "LATTICE_CARRIER", name: "LATTICE CARRIER", game: 0, tech_req: "LATTICE_CARRIER", engineer_hours: 700, cost: 20_000, structure: 4, power: 0, desc: "Plate carrier with cut lattice plates." },
-    ProductionBlueprint { id: "SEALED_FRAME", name: "SEALED FRAME", game: 0, tech_req: "SEALED_FRAME", engineer_hours: 1100, cost: 48_000, structure: 6, power: 4, desc: "Powered sealed shell on a lattice frame." },
+    ProductionBlueprint { id: "LATTICE_CARRIER", name: "SPINE CARRIER", game: 0, tech_req: "LATTICE_CARRIER", engineer_hours: 700, cost: 20_000, structure: 4, power: 0, desc: "Plate carrier with cut Spine plates." },
+    ProductionBlueprint { id: "SEALED_FRAME", name: "SEALED FRAME", game: 0, tech_req: "SEALED_FRAME", engineer_hours: 1100, cost: 48_000, structure: 6, power: 4, desc: "Powered sealed shell on a Spine frame." },
     ProductionBlueprint { id: "CORED_PISTOL", name: "CORED PISTOL", game: 0, tech_req: "CORED_PISTOL", engineer_hours: 250, cost: 9_000, structure: 1, power: 0, desc: "Service pistol frame with a sealed core." },
     ProductionBlueprint { id: "CORED_RIFLE", name: "CORED RIFLE", game: 0, tech_req: "CORED_RIFLE", engineer_hours: 450, cost: 18_000, structure: 2, power: 0, desc: "Service rifle layout with a sealed core." },
     ProductionBlueprint { id: "CORED_HEAVY_GUN", name: "CORED HEAVY GUN", game: 0, tech_req: "CORED_HEAVY_GUN", engineer_hours: 750, cost: 36_000, structure: 4, power: 0, desc: "Heavy mount for the largest carried core." },
     ProductionBlueprint { id: "CORED_LANCE", name: "CORED LANCE", game: 0, tech_req: "CORED_LANCE", engineer_hours: 1100, cost: 170_000, structure: 6, power: 0, desc: "Aircraft weapon. Never needs rearming." },
     ProductionBlueprint { id: "PEREGRINE", name: "PEREGRINE INTERCEPTOR", game: 0, tech_req: "CRAFT_AIRFRAME", engineer_hours: 4200, cost: 1_300_000, structure: 22, power: 14, desc: "Adapted interceptor around a recovered power plant." },
-    ProductionBlueprint { id: "ALBATROSS", name: "ALBATROSS TRANSPORT", game: 0, tech_req: "SEED_LOCATION", engineer_hours: 8500, cost: 2_800_000, structure: 42, power: 32, desc: "Derived long-range transport. Reaches Mars." },
+    ProductionBlueprint { id: "ALBATROSS", name: "ALBATROSS TRANSPORT", game: 0, tech_req: "SEED_LOCATION", engineer_hours: 8500, cost: 2_800_000, structure: 42, power: 32, desc: "Derived long-range transport. Reaches the Moon." },
     // Underwater
     ProductionBlueprint { id: "NACRE_DIVE_RIG", name: "NACRE DIVE RIG", game: 1, tech_req: "NACRE_DIVE_RIG", engineer_hours: 750, cost: 22_000, structure: 4, power: 0, desc: "Dive rig with nacre plate." },
     ProductionBlueprint { id: "DEEP_FRAME", name: "DEEP FRAME", game: 1, tech_req: "DEEP_FRAME", engineer_hours: 1150, cost: 50_000, structure: 6, power: 4, desc: "Powered pressure suit grown in nacre." },

@@ -9,7 +9,7 @@ There are two campaigns, both starting in 2027 and chosen from the campaign
 screen:
 
 * **LANDFALL** — land and air. Bases on land, funded by the 16 Charter states.
-  Ends at the Seed, Noctis Labyrinthus, Mars.
+  Ends at the Seed, on the far side of the Moon.
 * **UNDERTOW** — sea floor and trenches. Sea-floor stations, funded by 13
   sea-lane groups. Dive gear only. Ends at the Root, Verity Deep, South Pacific.
 
@@ -103,7 +103,7 @@ Esc Break Off. Space or Enter continues when the engagement is over.
 | G | Frag grenade at the hovered tile |
 | V or Shift+G | Smoke grenade |
 | I | Inventory |
-| P | Psi panel |
+| P | Reach panel |
 | `[` / `]` or PageDown / PageUp | View level down / up |
 | Q / E | Rotate the camera |
 | WASD or arrows | Pan |
@@ -124,7 +124,7 @@ Esc Break Off. Space or Enter continues when the engagement is over.
   the mission's place, date and time, with shadows. It has time units, three firing
   modes, armour facings and armour wear, kneeling, reloading, grenades, smoke
   and fire that linger and spread, walls and cover that break, reaction fire,
-  morale and panic, psi (READ, ROUT, TAKE), a slot inventory with carry weight,
+  morale and panic, Reach (READ, ROUT, TAKE), a slot inventory with carry weight,
   and trauma kits.
 * **Soldiers.** Seven ranks from Recruit to Major, an appearance editor, a
   loadout screen with full weapon readouts, wounds and recovery time.
@@ -153,12 +153,16 @@ drawn by code at runtime. See `CREDITS.md`.
 
 * No save slot yet: each launch starts a fresh campaign.
 * Buildings have no multi-level interiors yet.
-* The enemy AI is simple: advance, shoot, strike in melee, and use psi where
+* The enemy AI is simple: advance, shoot, strike in melee, and use Reach where
   the kind has it.
 * Night battles are close to black until flashlights exist (graphics phase 3).
 * Trees, buildings, crates and soldiers are still simple boxes.
 * Overcast, storm and night skies are still set by hand, so storm and dust
   scenes look flat.
-* Mars is not drawn; the LANDFALL finale's marker is the launch point.
+* The Moon is not drawn; the LANDFALL finale's marker sits on Earth. The
+  finale is still an ordinary battle: low gravity, the lunar
+  ground and the ending vote are decided in `docs/LORE.md` but not built.
+* Much of the story in `docs/LORE.md` is decided but not built yet. The list
+  is in `docs/STATUS.md`.
 * Several rules (hit chance, time-unit costs, reaction fire, promotion,
   funding) are marked "under review for 2.0" in `MECHANICS.md` and will change.

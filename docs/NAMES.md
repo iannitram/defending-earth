@@ -6,6 +6,14 @@ Every name in the game and what it is for. All of them are this project's own.
 The code is the authority for spelling; this file is the readable list. When a
 name changes in `src/`, change it here in the same edit.
 
+Last matched to the code on 2026-11-13. This file lists the names shown on
+screen. Some labels inside the code still use older words (`lattice`,
+`electrolyte`, `psi_strength`, `PsiDamper`, `PsiWing`, `DerivedBattery`, and
+research ids such as `LATTICE`, `LATTICE_CARRIER`, `ELECTROLYTE`, `PSI_WING`,
+`PSI_WING_DEEP` and `SEED_LOCATION`). The
+player never sees those, so they are not names. Names that are decided but not
+built yet are in section 12.
+
 Several tables below are index-stable: the code stores a row number, so rows
 may be renamed but not reordered, inserted or removed. Those are marked
 **(fixed order)**.
@@ -43,7 +51,7 @@ The four words used across weapons, armour, craft and base modules.
 | Step | Meaning | How the name shows it |
 |---|---|---|
 | **Issue** | What armies and police have today | Named the way a quartermaster would list it: service rifle, machine gun, frag grenade |
-| **Adapted** | The same kit rebuilt around a recovered part | *Cored* on land (a sealed lattice core in place of a magazine); *cav* at sea (a brine-driven slug that travels in its own vapour pocket) |
+| **Adapted** | The same kit rebuilt around a recovered part | *Cored* on land (a sealed core filled with Glow, in place of a magazine); *cav* at sea (a brine-driven slug that travels in its own vapour pocket) |
 | **Enemy tool** | The enemy's own equipment, used as found | Named by our soldiers after workshop tools: arc stylus, cutter, torch on land; pressure awl, bore, ram at sea |
 | **Derived** | Our own design, built their way | Plain functional names: breacher, implosion pod, deep frame |
 
@@ -51,6 +59,14 @@ The four words used across weapons, armour, craft and base modules.
 
 One maker's work (see `ART_BIBLE.md` section 5). Names are single words; the
 live-study matching relies on that.
+
+**The land creature names are final** (decided 2026-11-13, see `LORE.md`):
+Tender, Kite, Lash, Maul, Regent, Brooder, Lathe, Gorger, Bloat, Cinder. They
+are no longer placeholders. The sea names are still placeholders; the sea
+campaign is on hold.
+
+The Role column says what each kind does in the game today. Several kinds have
+new rules decided in `LORE.md` that are not built yet (section 12).
 
 ### Land (kinds 0..10, fixed order)
 
@@ -60,11 +76,11 @@ live-study matching relies on that.
 | 1 | **Kite** | Gliding membrane scout. Fast, sharp reactions, tears easily |
 | 2 | **Lash** | Serpent hunter. Scaled, steady shot |
 | 3 | **Maul** | Heavy infantry. Carries the arc torch |
-| 4 | **Regent** | Psi commander. The only land kind that routs and takes soldiers |
+| 4 | **Regent** | Reach commander. The only land kind that routs and takes soldiers |
 | 5 | **Brooder** | Parasite breeder. Fast melee |
 | 6 | **Lathe** | Hovering fabrication drone turned weapon |
 | 7 | **Gorger** | Large pack beast. Melee, soft underside |
-| 8 | **Trestle** | Walking weapons platform. Heaviest plate in the game |
+| 8 | **Trestle** | Walking weapons platform. Heaviest plate in the game. To be removed (section 12); the row number stays reserved |
 | 9 | **Bloat** | Drifting spitter |
 | 10 | **Cinder** | Slow mineral-bodied crawler. Not yet in any spawn pool |
 
@@ -75,7 +91,7 @@ live-study matching relies on that.
 | 0 | **Fathom** | Line infantry |
 | 1 | **Wader** | Amphibious raider. Quick, scaled |
 | 2 | **Mantle** | Armoured heavy. Carries the pressure ram |
-| 3 | **Deacon** | Psi officer. The only sea kind that routs and takes soldiers |
+| 3 | **Deacon** | Reach officer. The only sea kind that routs and takes soldiers |
 | 4 | **Bell** | Pressure-shelled brute. Slow melee, very hard shell |
 | 5 | **Silt** | Small bottom-lying ambusher. Fast melee, almost no armour |
 | 6 | **Lamp** | Lure-light drone. Floats, cannot be stunned |
@@ -150,22 +166,28 @@ for a carried smoke grenade) and `EMPTY COMPARTMENT`.
 
 | Name | Short | Campaign | What it is |
 |---|---|---|---|
-| RECOVERED LATTICE | LATTICE | LANDFALL | The printed frame under every creature and hull. Structure material |
-| ELECTROLYTE | — | LANDFALL | The charged fluid the frame runs on. Power material and Adapted craft fuel |
-| NACRE PLATE | NACRE | UNDERTOW | The layered shell the sea-going builds grow instead of lattice. Structure material |
-| LIVE BRINE | BRINE | UNDERTOW | Their electrolyte at sea; stays charged only while cold and dark. Power material and Adapted craft fuel |
+| SPINE | — | LANDFALL | The printed frame under every creature and hull, cut from their wrecks and their dead. Structure material |
+| GLOW | — | LANDFALL | The shining fluid every enemy machine runs on, gathered from the pools they leave. Power material and Adapted craft fuel |
+| NACRE PLATE | NACRE | UNDERTOW | The layered shell the sea-going builds grow in place of Spine. Structure material |
+| LIVE BRINE | BRINE | UNDERTOW | The sea match for Glow; stays charged only while cold and dark. Power material and Adapted craft fuel |
 | JET FUEL | — | LANDFALL | Fuel for Issue aircraft |
 | DIESEL-ELECTRIC | — | UNDERTOW | Power for Issue submarines |
 
 Blueprint costs name the two materials generically as *structure* and *power*.
+
+In the game today a won mission simply adds a set amount of both materials to
+the base. Cutting Spine from wrecks and collecting Glow from pools is decided
+in `LORE.md` but not built yet. In the stores list at a base of the other
+campaign, the four show as SPINE (LAND), GLOW (LAND), NACRE (SEA) and
+BRINE (SEA).
 
 ## 6. Soldier armour (fixed order)
 
 | # | Name | Step | What it is |
 |---|---|---|---|
 | 0 | COMBAT UNIFORM | Issue | Fatigues, helmet and webbing. What a soldier arrives in |
-| 1 | LATTICE CARRIER | Adapted | Plate carrier with cut lattice plates |
-| 2 | SEALED FRAME | Derived | Powered sealed shell on a lattice frame |
+| 1 | SPINE CARRIER | Adapted | Plate carrier with cut Spine plates |
+| 2 | SEALED FRAME | Derived | Powered sealed shell on a Spine frame, driven by Glow |
 | 3 | DIVE RIG | Issue | Chest plate and twin rebreather bottles |
 | 4 | NACRE DIVE RIG | Adapted | The dive rig with nacre plate over it |
 | 5 | DEEP FRAME | Derived | Powered pressure suit grown in nacre |
@@ -190,7 +212,7 @@ and trim fins to the Deep Frame.
 |---|---|---|
 | 0 | Bare | Reserved: civilians, animals, Husks |
 | 1 | Soft | Soldier in combat uniform; Tender; Fathom |
-| 2 | Plated | Lattice Carrier, Dive Rig |
+| 2 | Plated | Spine Carrier, Dive Rig |
 | 3 | Sealed shell | Sealed Frame, Nacre Dive Rig, Deep Frame |
 | 4 | Membrane | Kite, Bloat, Wreath |
 | 5 | Scaled | Lash, Wader |
@@ -226,11 +248,11 @@ seabirds for submarines.
 
 | Name | Campaign | Step | Role |
 |---|---|---|---|
-| HERON | LANDFALL | Issue | Tiltrotor troop transport. Slow, long-legged, lands anywhere |
+| HERON | LANDFALL | Issue | Twin-rotor transport helicopter. Slow, long-legged, lands anywhere |
 | SWIFT | LANDFALL | Issue | Twin-engine interceptor with two hardpoints |
 | PEREGRINE | LANDFALL | Adapted | Interceptor: a human airframe around a recovered power plant |
 | IBIS | LANDFALL | Adapted | Assault transport. Carries a squad and one weapon |
-| ALBATROSS | LANDFALL | Derived | Long-range transport. The only craft that can reach Noctis Labyrinthus |
+| ALBATROSS | LANDFALL | Derived | Long-range transport. The only craft that can reach the far side of the Moon |
 | GANNET | UNDERTOW | Issue | Transport submersible with a lock-out chamber for a full dive team |
 | SKUA | UNDERTOW | Issue | Small attack submarine with two torpedo stations |
 | CORMORANT | UNDERTOW | Adapted | Attack sub: a human hull around a recovered brine drive |
@@ -269,10 +291,10 @@ seabirds for submarines.
 | HOLDING BLOCK | HOLDING TANK | Sealed cells for live captives awaiting study |
 | CORED BATTERY | CAV BATTERY | Adapted point defence. Fast and accurate |
 | ARC BATTERY | PRESSURE BATTERY | Enemy tools on a human mount. Hits hard, runs hot |
-| DERIVED BATTERY | DERIVED BATTERY | Our own design, built their way. The last line, and the heaviest |
+| BREACHER BATTERY | BREACHER BATTERY | Our own design, built their way. The last line, and the heaviest |
 | FARADAY SCREEN | BAFFLE SCREEN | Bleeds off incoming fire and slows the attackers' approach |
-| PSI DAMPER | PSI DAMPER | Keeps the base quiet to whatever the enemy listens with |
-| PSI WING | PSI WING | Testing and training rooms for soldiers who show psi ability |
+| REACH DAMPER | REACH DAMPER | Keeps the base quiet to whatever the enemy listens with |
+| REACH WING | REACH WING | Testing and training rooms for soldiers who show Reach ability |
 | SIGINT STATION | SIGINT STATION | Reads the enemy's traffic: every contact in range, with class, crew and heading |
 | HANGAR | WET DOCK | 2×2 bay for one craft, with fuel, arming and a way out |
 
@@ -286,7 +308,10 @@ on the situation map and are matched to their outlines by name.
 ## 10. Research
 
 Categories: Weapons, Armor, Materials, Propulsion, Craft, Facilities,
-Psi, Story, Live Study.
+Reach, Story, Live Study.
+
+"Reach" is this game's word for one mind pushing on another. A Regent reaches
+a soldier. In the field view the button reads REACH (key P).
 
 ### LANDFALL
 
@@ -297,17 +322,17 @@ Psi, Story, Live Study.
 | CORED RIFLE | Weapons | Armoury: Cored Rifle |
 | CORED HEAVY GUN | Weapons | Armoury: Cored Heavy Gun |
 | CORED LANCE | Craft | Aircraft weapon: Cored Lance |
-| RECOVERED LATTICE | Materials | Lattice Carrier, enemy craft studies |
-| LATTICE CARRIER | Armor | Workshop: Lattice Carrier |
+| SPINE | Materials | Spine Carrier, enemy craft studies |
+| SPINE CARRIER | Armor | Workshop: Spine Carrier |
 | SEALED FRAME | Armor | Workshop: Sealed Frame |
 | ARC TOOLS | Weapons | Arc Stylus, Arc Cutter, Arc Torch |
-| ELECTROLYTE | Propulsion | Sealed Frame, enemy power plant study |
+| GLOW | Propulsion | Sealed Frame, enemy power plant study |
 | ENEMY POWER PLANT | Propulsion | Enemy airframe study |
 | ENEMY GUIDANCE | Propulsion | SIGINT Station, enemy airframe study |
 | ENEMY AIRFRAME | Craft | Workshop: Peregrine |
 | SIGINT STATION | Facilities | Facility: SIGINT Station |
-| PSI STUDIES | Psi | Facility: Psi Wing |
-| THE NOCTIS SIGNAL | Story | Objective: Noctis Labyrinthus, Mars |
+| REACH STUDIES | Reach | Facility: Reach Wing |
+| THE FARSIDE SIGNAL | Story | Objective: the far side of the Moon |
 | LIVE STUDY: TENDER / LASH / MAUL / REGENT | Live Study | That creature's file |
 
 ### UNDERTOW
@@ -327,14 +352,14 @@ Psi, Story, Live Study.
 | BRINE DRIVE | Propulsion | Enemy pressure hull study |
 | ENEMY PRESSURE HULL | Craft | Workshop: Cormorant |
 | SIGINT STATION | Facilities | Facility: SIGINT Station |
-| PSI STUDIES | Psi | Facility: Psi Wing |
+| REACH STUDIES | Reach | Facility: Reach Wing |
 | THE ROOT SIGNAL | Story | Verity Deep study |
 | VERITY DEEP | Story | Objective: Verity Deep |
 | LIVE STUDY: FATHOM / WADER / MANTLE / DEACON | Live Study | That creature's file |
 
 ### Workshop blueprints
 
-LANDFALL: LATTICE CARRIER, SEALED FRAME, CORED PISTOL, CORED RIFLE, CORED HEAVY
+LANDFALL: SPINE CARRIER, SEALED FRAME, CORED PISTOL, CORED RIFLE, CORED HEAVY
 GUN, CORED LANCE, PEREGRINE INTERCEPTOR, ALBATROSS TRANSPORT.
 
 UNDERTOW: NACRE DIVE RIG, DEEP FRAME, DEEP FRAME THRUST PACK, CAV RIFLE,
@@ -344,9 +369,42 @@ CORMORANT ATTACK SUB, EMPEROR TRANSPORT SUB.
 
 | | LANDFALL | UNDERTOW |
 |---|---|---|
-| Place | **Noctis Labyrinthus, Mars** — a real region: the maze of canyons at the western end of Valles Marineris, about 7°S 101°W | **Verity Deep** — our invention: a hadal basin in the South Pacific near the point furthest from any land, about 47°S 126°W, named in the fiction for the survey ship that first sounded it |
+| Place | **The far side of the Moon** — a real place: the half of the Moon that always faces away from Earth. Moved here from Mars on 2026-11-13 | **Verity Deep** — our invention: a hadal basin (the very deepest kind of sea floor) in the South Pacific near the point furthest from any land, about 47°S 126°W, named in the fiction for the survey ship that first sounded it |
 | Enemy installation | **the Seed** — the Registrar's crashed seed | **the Root** — what the Seed put down on Earth |
-| Why there | A seed that has been consuming a planet would look, from orbit, like a labyrinth of collapsed canyons | The deepest, quietest water on Earth, with nobody near it |
-| Found by research | THE NOCTIS SIGNAL | THE ROOT SIGNAL, then VERITY DEEP |
+| Why there | It is the side of the Moon we never see. The fight is on the dark half, so the Registrar's own lights are what light the ground | The deepest, quietest water on Earth, with nobody near it |
+| Found by research | THE FARSIDE SIGNAL | THE ROOT SIGNAL, then VERITY DEEP |
 | Craft needed | ALBATROSS | EMPEROR |
-| Map label | NOCTIS LABYRINTHUS // FINAL ASSAULT | VERITY DEEP // FINAL ASSAULT |
+| Map label | LUNAR FAR SIDE // FINAL ASSAULT | VERITY DEEP // FINAL ASSAULT |
+| Win screen | THE MOON IS SILENT | THE DEEP IS SILENT |
+
+## 12. Decided, not yet in the game
+
+These names are settled in `LORE.md` but are not in the code yet. Do not look
+for them on screen. When one is built, move it into its table above.
+
+| Name | Kind | What it is |
+|---|---|---|
+| SLAG | Material | What is left of a dead Maul. Limited and valuable. The fuller the Maul was when it died, the more there is. Needed for the best heat and blast protection and a late close-range magma weapon |
+| MESS HALL | Base module | Feeds the soldiers, and later the refugees |
+| SCRUB ROOM | Base module | Cleans the Registrar's hidden copy out of what we build from enemy parts |
+| REFUGEE QUARTERS | Base module | Where freed aliens live |
+| SHOTGUN | Soldier weapon | Starting weapon for close range. It should go at the end of the weapon list, so no row number moves |
+| KNIFE | Soldier weapon | Starting blade for close range. Also to be added at the end |
+| refugees | People | Freed aliens who can serve as soldiers: Regent, Tender, Lash. `LORE.md` also calls them "defectors"; it means the same people |
+| BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY, SUPERSTITIOUS, LONER | Soldier traits | The first eight. Each recruit gets one strength and one flaw, hidden until something in battle shows it. Which are strengths and which are flaws is still open |
+| AFRAID OF WATER, AFRAID OF SHARKS | Fears | A fear is a kind of flaw. It only bites where the thing is present. More fears are still to be chosen |
+
+Changes to names already in the tables above:
+
+- **Trestle** (land kind 8) is to be removed as a unit. It was folded into the
+  Brooder. Its row number, and the TRESTLE WRECK and DISABLED TRESTLE item
+  slots, should be kept as `RESERVED` so nothing else moves. Today the Trestle
+  is still in the game.
+- **Brooder** keeps its name but becomes "the taker": a hovering machine that
+  spits Glow. **Lathe** becomes "the builder". Their Role cells will change
+  when the new rules are built.
+- **Maul** will lose the arc torch and attack with its own magma. **Cinder**
+  becomes the Maul's young.
+- **Kite** becomes a spotter that marks soldiers for the Lash; its only shot
+  dazes. **Bloat** becomes a floater that bursts into a choking cloud.
+  **Gorger** becomes a buried ambusher, and food for refugees.

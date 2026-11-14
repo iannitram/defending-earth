@@ -29,12 +29,18 @@ until each one is decided here.
   the campaign until it is fluent and personal.
 - **It is in everything it builds.** Every craft, weapon and creature carries
   a copy of it ("electrical DNA"). Shooting down a craft or killing the seed
-  on Mars does not end it.
+  on the Moon does not end it.
 
 ## The two wars
 
-- **Land war** ends at the Seed on Mars. Its core is hard, geometric and
+- **Land war** ends at the Seed on the far side of the Moon (moved from
+  Mars on 2026-11-13, the user's decision). Its core is hard, geometric and
   wrong: a cube crossed with an engine room that should not be looked at.
+  - Lower gravity changes how soldiers move, jump and throw.
+  - The ground is made from real lunar surface maps.
+  - The sky shows the line between the lit and dark halves. The fight is on
+    the dark side, so the Registrar's own lights are what light the
+    landscape.
 - **Sea war** ends at the Root in the deep Pacific. The Root is the same
   thing, regrown from a copy, and reshaped by the sea life it read on
   arrival: cuttlefish, giant octopus. Same design language, mutated.
@@ -46,7 +52,7 @@ until each one is decided here.
 - How much of the original mind survives varies by species, according to
   what they once were. Now and then something shows through; interrogation
   is where the player sees it most.
-- **The makers are the Regents** (placeholder name). The psi commanders are
+- **The makers are the Regents** . The Reach commanders are
   reissues of the species that built the Registrar. It keeps them at the top
   of its forces because its instructions still say to serve them. The most
   shows through in them.
@@ -136,7 +142,7 @@ sit on top of that, not replace it.
 ### The Regent — a hive in each body (decided 2026-11-13)
 
 The makers were a thoughtful, scientific people, and each "person" was a
-colony: many small minds sharing one body, every movement a vote. Psi is the
+colony: many small minds sharing one body, every movement a vote. Reach is the
 colony reaching into another nervous system to add it to the vote. The
 Registrar now sits in that vote and synchronises it, which is how the
 "rubber stamp" works: the count always comes out yes. What shows through is
@@ -228,7 +234,7 @@ is still to settle.
 ### The sea Regent — a raft of Vessels (decided 2026-11-13)
 
 Many single Vessels (sea Tenders) linked by their tendrils into one
-drifting colony: the makers' hive with the body dissolved away. Its psi
+drifting colony: the makers' hive with the body dissolved away. Its Reach
 strength comes from the number joined. Shoot it apart and it breaks into
 ordinary sea Tenders that scatter. Replaces the sea commander placeholder
 (the Deacon). To settle: how many Vessels make a raft, whether scattered
@@ -339,7 +345,7 @@ There are two machines, a pair. **One takes apart, one builds.**
 - Both change shape for what they are doing. At the centre of one is a
   cube, at the centre of the other a sphere: **the taker's core is a cube,
   the builder's a sphere.** The cube is the Registrar's sign for reading
-  and taking apart (the Seed's core on Mars is a cube); the sphere is its
+  and taking apart (the Seed's core on the Moon is a cube); the sphere is its
   sign for making.
 - **What the builder makes in battle.** Repairs to machines, cover for the
   enemy, and, after several undisturbed turns beside a pool, one new taker.
@@ -374,20 +380,116 @@ People: Regent, Tender, Lash. Animals: Gorger, Kite, Bloat, Maul, Cinder.
 Machines: the taker (field reader) and the builder (Lathe). Later: the
 human worker. All names are still placeholders.
 
+### Decided in the second session (2026-11-13)
+
+- **Creature names are final.** Tender, Kite, Lash, Maul, Regent, Brooder,
+  Lathe, Gorger, Bloat, Cinder: one name each, no longer placeholders.
+- **The ending is a vote.** The Registrar cannot be killed. The peoples it
+  conquered are the key: the player wins by empowering them to overrule it,
+  with a vote that changes what "preserve all life" means.
+- **The last word is chilling.** After the win the player learns the
+  Registrar has been crossing the universe since before the dinosaurs, and
+  that there are many of them. We fixed one.
+- **Resources come from the battlefield.** The structure material is cut
+  from wrecks and bodies. The power material is the taker's fluid,
+  collected from the pools it leaves. Maul stone and Gorger meat are the
+  two special ones.
+- **Resource names.** The structure material is **SPINE** (was Recovered
+  Lattice). The power material, the taker's fluid, is **GLOW** (was
+  Electrolyte). Maul remains are **SLAG**.
+- **Who votes.** The Tenders the player has freed. Free enough of them
+  and, at the end, they vote, then merge into the pure form of their
+  people: a maker as it was before the Registrar, which nobody has seen
+  until that moment.
+- **Multiplayer: join or be wiped out** (the user's idea). A player who
+  loses is offered a choice: join the Registrar's side and keep playing, or
+  be wiped out. What a joined player controls is to be decided later.
+- **Craft names stay.** Birds for ours, plant parts for theirs.
+- **Weapon names stay.** Our rebuilt weapons remain CORED (the core is
+  filled with Glow); enemy tools remain ARC.
+- **The base keeps its module list.** Add the mess hall, a scrubbing room
+  and quarters for freed aliens, and rename the stand-in modules.
+- **Starting vehicles** are our own designs of ordinary present-day types
+  (a transport helicopter, a jet fighter). No real maker's name, badge or
+  exact airframe is used.
+- **Starting technology is normal.** Everything the player begins with
+  looks like what armies have today, nothing near-future. The Heron
+  becomes a twin-rotor transport helicopter with a rear ramp (was a
+  tiltrotor).
+- **Two more starting weapons:** a shotgun and a knife, for close range.
+- **"Psi" becomes REACH.** A Regent reaches a soldier. The stat is Reach
+  strength; the buildings are the Reach Damper and the Reach Wing.
+- **New building names.** MESS HALL, SCRUB ROOM, and BREACHER BATTERY (was
+  Derived Battery). The word for freed aliens, and so the name of their
+  quarters, is **REFUGEES**: survivors of dead worlds with nowhere to go
+  back to. The building is REFUGEE QUARTERS. ("Defectors" elsewhere in
+  this file means the same people.)
+
+### Decided but not yet in the game (2026-11-13)
+
+The code and `NAMES.md` still use the old words. To change together:
+Recovered Lattice → SPINE; Electrolyte → GLOW; new material SLAG; Psi →
+REACH (stat, Reach Damper, Reach Wing); Derived Battery → BREACHER
+BATTERY; new buildings MESS HALL, SCRUB ROOM, REFUGEE QUARTERS; new
+weapons SHOTGUN and KNIFE; Heron described as a twin-rotor helicopter; the
+final site moved from Noctis Labyrinthus, Mars to the far side of the Moon
+(research topic, map label and the Albatross text); Trestle removed as a
+unit; Maul, Brooder and Cinder rules as written above; soldier traits and
+changing portraits.
+- **The human worker improves batch by batch.** The first are plainly
+  unfinished; each batch is closer, until late ones pass among civilians.
+  - They wear the faces of the soldiers and civilians they were read from.
+  - They have "duck calls". Early batches play recorded lines that sound
+    digital and make no sense. Late batches speak clearly, beg, and appeal
+    to the squad's sympathy.
+  - If soldiers get voice lines, a copy uses, in altered form, the lines of
+    the soldier it was read from.
+
+## Soldiers (the user's ideas, 2026-11-13)
+
+- **Character traits.** Each recruit comes with traits drawn at random
+  (brave, cold, empath and so on) that change what happens on the
+  battlefield. They are found out through play, for deeper strategy and
+  story the player discovers rather than reads.
+- **Two to start.** Every recruit has one strength and one flaw.
+- **Hidden until shown.** A trait stays hidden until something in battle
+  triggers it (the first panic, the first civilian death, the first time a
+  squadmate falls). Then it is written on the soldier's file.
+- **The first eight.**
+  - BRAVE: slow to panic.
+  - COLD: unmoved by deaths and hard to Reach, but unsettles squadmates.
+  - EMPATH: can tell a copy from a real person, but hurt by civilian
+    deaths and easier to Reach.
+  - PROTECTIVE: fires back hard when a squadmate is hit; may break orders
+    to reach the wounded.
+  - RECKLESS: moves further when enemies are in sight; shoots worse under
+    fire.
+  - STEADY: no accuracy loss when wounded.
+  - SUPERSTITIOUS: better with a weapon carried for many missions; shaken
+    when a squadmate dies nearby.
+  - LONER: better alone, worse in a group.
+- **Earned traits.** More traits attach during a career when a particular
+  set of circumstances happens: shell shock after too much, competence
+  after surviving alone, and others to be designed. Each gives a boost or
+  a penalty and is either permanent or wears off. The game checks each
+  soldier's record after every mission against a list of such rules.
+- **Fears** (the user's idea). Flaws can be phobias: afraid of water,
+  afraid of sharks, and the like. They bite only where the thing is
+  present, so a soldier may serve for years before one shows.
+- **Faces that change.** A soldier's close-up portrait changes with
+  service. A soldier with no missions looks new and jittery. A soldier
+  with fifty has the thousand-yard stare.
+- **The taker's fluid glows.** It lights the ground, the pools and the
+  people it has hit. To be built with the lights in graphics phase 3.
+
 ### Proposed, not yet answered (asked 2026-11-13; my recommendations)
 
 - **Sea roster.** Each land creature gets a sea-changed twin (my
   recommendation), a mostly new roster from Earth sea life, or half and
   half.
-- **Names.** Keep placeholders for now; later give each creature a
-  soldiers' nickname and a researched true name (my recommendation).
 - **Human worker's look.** Nearly right and wrong in small ways, hiding
   among civilians (my recommendation); obviously unfinished; or improving
   batch by batch.
-- **The ending.** It cannot be killed; the finale is casting a vote, with a
-  freed Regent, that changes what "preserve all life" means (my
-  recommendation); or destroy both cores and scrub; or it can only be held
-  off.
 - **Lash confirmation.** Whether the many-legged marksman image was meant
   for the Lash.
 

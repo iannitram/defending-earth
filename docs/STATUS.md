@@ -6,8 +6,73 @@ work order), the code is explained in `CODE_MAP.md`, look in `ART_BIBLE.md`,
 story in `LORE.md`, names in `NAMES.md`.
 
 **Right now:** graphics phases 1 and 2 are finished. Next is phase 3
-(flashlights, flares, fire). Lore: land roster settled, sea campaign deferred by the
-user until the land campaign is much further along.
+(flashlights, flares, fire). Lore: land roster settled and creature names
+final; sea campaign deferred by the user until the land campaign is much
+further along. A second lore session was held on 2026-11-13 (see the note
+below).
+
+## Second lore session (2026-11-13)
+
+- **Held and written down.** The decisions are in `LORE.md` under "Decided
+  in the second session".
+- **On-screen words renamed in the game.** Only the words changed. No rule
+  or number changed.
+  - Recovered Lattice is now SPINE. Electrolyte is now GLOW. The Lattice
+    Carrier armour is now the SPINE CARRIER.
+  - Psi is now REACH everywhere on screen (REACH DAMPER, REACH WING, REACH
+    STUDIES, the battle button). The key is still P.
+  - Derived Battery is now BREACHER BATTERY.
+  - The final land site moved from Mars to the far side of the Moon. The
+    map label, the research topic (THE FARSIDE SIGNAL), the win screen and
+    the Albatross text all say so.
+  - The Heron is described as a twin-rotor transport helicopter.
+  - Inside the code the old words remain as internal names (for example
+    `lattice`, `electrolyte`, `psi_strength`, research id `SEED_LOCATION`).
+    The player never sees them.
+- **A game systems track now exists in `ROADMAP.md`.** It is nine packages
+  of rules work, each matched to a graphics phase. Nothing in it is built
+  yet.
+- **Decided but not built yet:**
+  - The SLAG material, and collecting Glow from pools.
+  - MESS HALL, SCRUB ROOM and REFUGEE QUARTERS buildings.
+  - SHOTGUN and KNIFE.
+  - Removing the Trestle unit. It is still in the code.
+  - New rules for the Maul, Brooder (the taker), Lathe (the builder), Kite,
+    Bloat, Cinder and Gorger.
+  - Soldier traits: one strength and one flaw, hidden until triggered,
+    eight starters, earned traits, and fears (afraid of water, afraid of
+    sharks and the like). Portraits that change with service.
+  - Freed aliens ("refugees") as soldiers.
+  - Infection tax and scrubbing.
+  - The human worker and its improving voice lines ("duck calls").
+  - Signpost missions.
+  - The Moon finale: low gravity, real lunar surface maps, dark-side
+    lighting, the freed Tenders' vote and merge, and the last word that
+    there are many.
+  - Multiplayer: join or be wiped out.
+- **Still open** (from `LORE.md`; each is the user's call):
+  - Which of the eight starter traits are strengths and which are flaws,
+    and their numbers. Which fears exist beyond water and sharks. Which
+    earned traits exist beyond shell shock and competence.
+  - Maul: how the Registrar reads and controls it, SLAG yield for a full
+    versus an empty corpse, how fast it eats, how it overlaps with the
+    Cinder.
+  - Mess hall: what happens when it runs out, how many Gorgers a refugee
+    needs, and whether they must be dead or alive.
+  - Infection tax: the numbers, what scrubbing costs, what an inside
+    attack looks like.
+  - What each freed species can and cannot do as a soldier.
+  - The human worker: its look, when it first appears, its signpost
+    mission.
+  - More signpost missions and their triggers. The order of the reveal
+    that nobody is home, and of the name.
+  - Whether the many-legged marksman picture was meant for the Lash.
+  - How the Bloat and the Cinder look (no picture for either yet).
+  - Enemy craft, and the look of the Seed and the Root.
+  - Multiplayer: what a joined player controls and gains; how players tell
+    real chat from the Registrar's; soldiers crossing between games.
+  - Waiting with the sea campaign: the sea roster and the sea Regent
+    details.
 
 ## Done
 
@@ -71,7 +136,9 @@ user until the land campaign is much further along.
    Tailscale exit node on).
 3. Phases 4–9 as listed in `ROADMAP.md`, which now holds the full list of
    things to design and animate and which AI model does which part.
-4. Lore: continue from "Proposed, not yet answered" in `LORE.md`.
+4. The game systems track in `ROADMAP.md`, alongside the graphics phases.
+   Package 1 (groundwork) needs no art and can go with phase 3.
+5. Lore: the open questions listed under "Second lore session" above.
 
 ## Known flaws
 
@@ -90,6 +157,15 @@ user until the land campaign is much further along.
   small text; the target panel covers the controls hint in the field view;
   a few unsold items sell at a flat $700; sea soldiers show COMBAT UNIFORM
   at base.
+- Game (records): a soldier's mission count never goes up, wounded soldiers
+  never actually rest, and every won mission gives the same flat loot (25
+  Spine and 10 Glow). The game systems track fixes these: the records in
+  package 1, the loot in package 2.
+- The Moon is not drawn. The final assault's marker sits on Earth and the
+  battle is an ordinary one. The win screen says the Seed is dead, but the
+  decided ending is a vote (the Registrar cannot be killed).
+- `mechanics.json`, `NAMES.md` and `CODE_MAP.md` may still use the old
+  words until they are brought in step.
 - Battles still get the old stepped screen-edge darkening and scan lines
   drawn over them (`ui::vignette`, `scanlines` in `src/main.rs`), on top of
   the new lens.

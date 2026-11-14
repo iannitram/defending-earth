@@ -1127,14 +1127,14 @@ impl Battle {
     fn execute_psi_probe(&mut self, g: &mut Game, user_idx: usize, target_idx: usize) {
         if user_idx >= self.units.len() || target_idx >= self.units.len() { return; }
         if self.units[user_idx].tu < 25.0 {
-            self.log("NOT ENOUGH TU FOR PSI READ (NEEDS 25).", DIM);
+            self.log("NOT ENOUGH TU FOR REACH READ (NEEDS 25).", DIM);
             return;
         }
         self.units[user_idx].tu -= 25.0;
         g.audio.play_psi();
         self.probed_alien = Some(target_idx);
         let t = &self.units[target_idx];
-        self.log(format!("PSI READ: {} [HP:{}/{} TU:{:.0} MOR:{} PSI-STR:{}]", t.name, t.hp, t.max_hp, t.tu, t.morale, t.psi_strength), CYAN);
+        self.log(format!("REACH READ: {} [HP:{}/{} TU:{:.0} MOR:{} REACH-STR:{}]", t.name, t.hp, t.max_hp, t.tu, t.morale, t.psi_strength), CYAN);
         let p = self.chest_pos(target_idx);
         self.effects.push(Effect::Flash { p, t: 0.0, life: 0.45, color: CYAN, size: 1.6 });
         self.effects.push(Effect::Text { p, text: "READ".into(), color: CYAN, t: 0.0, life: 1.0 });
@@ -1143,7 +1143,7 @@ impl Battle {
     fn execute_psi_panic(&mut self, g: &mut Game, user_idx: usize, target_idx: usize) {
         if user_idx >= self.units.len() || target_idx >= self.units.len() { return; }
         if self.units[user_idx].tu < 25.0 {
-            self.log("NOT ENOUGH TU FOR PSI ROUT (NEEDS 25).", DIM);
+            self.log("NOT ENOUGH TU FOR REACH ROUT (NEEDS 25).", DIM);
             return;
         }
         self.units[user_idx].tu -= 25.0;
@@ -1160,19 +1160,19 @@ impl Battle {
             let drain = ((attack_roll - defense_thresh).max(25) + 15).min(75);
             self.units[target_idx].morale = (self.units[target_idx].morale - drain).max(0);
             self.effects.push(Effect::Flash { p, t: 0.0, life: 0.55, color: AMBER, size: 1.9 });
-            self.effects.push(Effect::Text { p, text: format!("PSI MORALE -{}", drain), color: AMBER, t: 0.0, life: 1.2 });
-            self.log(format!("PSI ROUT: {} BREAKS (-{})", self.units[target_idx].name, drain), AMBER);
+            self.effects.push(Effect::Text { p, text: format!("REACH MORALE -{}", drain), color: AMBER, t: 0.0, life: 1.2 });
+            self.log(format!("REACH ROUT: {} BREAKS (-{})", self.units[target_idx].name, drain), AMBER);
             self.check_unit_panic(g, target_idx);
         } else {
             self.effects.push(Effect::Text { p, text: "RESISTED".into(), color: DIM, t: 0.0, life: 0.8 });
-            self.log(format!("PSI ROUT SHRUGGED OFF BY {}.", self.units[target_idx].name), DIM);
+            self.log(format!("REACH ROUT SHRUGGED OFF BY {}.", self.units[target_idx].name), DIM);
         }
     }
 
     fn execute_psi_control(&mut self, g: &mut Game, user_idx: usize, target_idx: usize) {
         if user_idx >= self.units.len() || target_idx >= self.units.len() { return; }
         if self.units[user_idx].tu < 25.0 {
-            self.log("NOT ENOUGH TU FOR PSI TAKE (NEEDS 25).", DIM);
+            self.log("NOT ENOUGH TU FOR REACH TAKE (NEEDS 25).", DIM);
             return;
         }
         self.units[user_idx].tu -= 25.0;
@@ -1189,11 +1189,11 @@ impl Battle {
             self.units[target_idx].mind_controlled = true;
             self.effects.push(Effect::Flash { p, t: 0.0, life: 0.8, color: Color::new(0.85, 0.25, 1.0, 1.0), size: 2.4 });
             self.effects.push(Effect::Text { p, text: "TAKEN!".into(), color: CYAN, t: 0.0, life: 1.5 });
-            self.log(format!("PSI TAKE: {} IS OURS FOR NOW.", self.units[target_idx].name), CYAN);
+            self.log(format!("REACH TAKE: {} IS OURS FOR NOW.", self.units[target_idx].name), CYAN);
             self.refresh_move_tiles();
         } else {
             self.effects.push(Effect::Text { p, text: "TAKE FAILED".into(), color: ui::RED, t: 0.0, life: 0.8 });
-            self.log(format!("PSI TAKE FAILED ON {}.", self.units[target_idx].name), ui::RED);
+            self.log(format!("REACH TAKE FAILED ON {}.", self.units[target_idx].name), ui::RED);
         }
     }
 
@@ -3642,7 +3642,7 @@ fn draw_hud(g: &mut Game, b: &mut Battle) {
         if button(&g.ui, Rect::new(bx + 160.0, y0 + 60.0, 56.0, 26.0), "GRENADE", Btn::Normal, b.units[b.selected].grenades > 0) { b.grenade_clicked = true; }
         if button(&g.ui, Rect::new(bx + 218.0, y0 + 60.0, 50.0, 26.0), "SMOKE", Btn::Normal, b.units[b.selected].smoke_grenades > 0) { b.smoke_clicked = true; }
         if button(&g.ui, Rect::new(bx + 270.0, y0 + 60.0, 56.0, 26.0), "GEAR [I]", if b.inventory_open { Btn::Amber } else { Btn::Primary }, true) { b.inventory_clicked = true; }
-        if button(&g.ui, Rect::new(bx + 330.0, y0 + 60.0, 52.0, 26.0), "PSI [P]", if b.psi_open { Btn::Amber } else { Btn::Primary }, true) { b.psi_clicked = true; }
+        if button(&g.ui, Rect::new(bx + 330.0, y0 + 60.0, 52.0, 26.0), "REACH", if b.psi_open { Btn::Amber } else { Btn::Primary }, true) { b.psi_clicked = true; }
 
         // -------- squad strip
         let players: Vec<usize> = b.units.iter().enumerate()
@@ -3716,7 +3716,7 @@ fn draw_hud(g: &mut Game, b: &mut Battle) {
 
     // small control hint, tucked under the top banner on its own dark strip
     draw_rectangle(0.0, 46.0, w, 15.0, Color { r: 0.01, g: 0.02, b: 0.03, a: 0.55 });
-    g.ui.text(10.0, 57.0, 7.5, Color { a: 0.85, ..TEXT }, "LMB MOVE  RMB FIRE  1-3 MODE  K KNEEL  R RELOAD  H KIT  G GRENADE  I GEAR  P PSI  [/] LEVEL  TAB NEXT  SPACE END TURN  Q/E ROTATE  WASD PAN");
+    g.ui.text(10.0, 57.0, 7.5, Color { a: 0.85, ..TEXT }, "LMB MOVE  RMB FIRE  1-3 MODE  K KNEEL  R RELOAD  H KIT  G GRENADE  I GEAR  P REACH  [/] LEVEL  TAB NEXT  SPACE END TURN  Q/E ROTATE  WASD PAN");
 }
 
 fn draw_tactical_inventory(g: &mut Game, b: &mut Battle) {
@@ -3991,7 +3991,7 @@ fn draw_tactical_psi(g: &mut Game, b: &mut Battle) {
     // Title bar
     draw_rectangle(px, py, pw, 36.0, Color { r: 0.04, g: 0.12, b: 0.16, a: 1.0 });
     draw_rectangle_lines(px, py, pw, 36.0, 1.0, CYAN_DIM);
-    g.ui.bold(px + 16.0, py + 23.0, 13.0, CYAN, "PSI // SELECT A TARGET");
+    g.ui.bold(px + 16.0, py + 23.0, 13.0, CYAN, "REACH // SELECT A TARGET");
 
     let sel_idx = b.selected;
     let (sel_name, sel_psi_str, sel_psi_skl, sel_tu) = if let Some(u) = b.units.get(sel_idx) {
@@ -4000,8 +4000,8 @@ fn draw_tactical_psi(g: &mut Game, b: &mut Battle) {
         ("NONE".to_string(), 0, 0, 0.0)
     };
 
-    g.ui.text(px + 16.0, py + 56.0, 9.5, TEXT, &format!("OPERATIVE: {}   PSI-STRENGTH: {}   PSI-SKILL: {}   AVAILABLE TU: {:.0}", sel_name, sel_psi_str, sel_psi_skl, sel_tu));
-    g.ui.text(px + 16.0, py + 72.0, 8.5, DIM, "Each action costs 25 TU: your psi strength and skill against the target's. Pick a hostile you can see.");
+    g.ui.text(px + 16.0, py + 56.0, 9.5, TEXT, &format!("OPERATIVE: {}   REACH-STRENGTH: {}   REACH-SKILL: {}   AVAILABLE TU: {:.0}", sel_name, sel_psi_str, sel_psi_skl, sel_tu));
+    g.ui.text(px + 16.0, py + 72.0, 8.5, DIM, "Each action costs 25 TU: your Reach strength and skill against the target's. Pick a hostile you can see.");
 
     let list_y = py + 86.0;
     let list_h = ph - 140.0;
@@ -4035,7 +4035,7 @@ fn draw_tactical_psi(g: &mut Game, b: &mut Battle) {
         g.ui.text(rr.x + 10.0, rr.y + 32.0, 8.5, DIM, &format!("DIST: {:.1} TILES   ARMOR: {}   MORALE: {}", dist, alien.armor_cur[0], alien.morale));
 
         if b.probed_alien == Some(ai) {
-            g.ui.bold(rr.x + 10.0, rr.y + 46.0, 8.5, CYAN, &format!("READ: HP {}/{} | TU {:.0} | PSI-STR {} | WPN {}", alien.hp, alien.max_hp, alien.tu, alien.psi_strength, g.data.weapons[alien.weapon].name));
+            g.ui.bold(rr.x + 10.0, rr.y + 46.0, 8.5, CYAN, &format!("READ: HP {}/{} | TU {:.0} | REACH-STR {} | WPN {}", alien.hp, alien.max_hp, alien.tu, alien.psi_strength, g.data.weapons[alien.weapon].name));
         }
 
         // Action buttons

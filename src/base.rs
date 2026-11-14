@@ -1211,7 +1211,7 @@ fn draw_workshop(g: &mut Game, c: Rect) {
 
         g.ui.bold(r.x + 10.0, r.y + 16.0, 10.5, if sel { CYAN } else { TEXT }, bp.name);
         let mat_str = if bp.game == 1 { format!("${} // {} NACRE // {} BRINE", crate::fmt_money(bp.cost), bp.structure, bp.power) }
-                      else { format!("${} // {} LATTICE // {} ELECTROLYTE", crate::fmt_money(bp.cost), bp.structure, bp.power) };
+                      else { format!("${} // {} SPINE // {} GLOW", crate::fmt_money(bp.cost), bp.structure, bp.power) };
         g.ui.text(r.x + 10.0, r.y + 30.0, 8.5, DIM, &format!("{} ENG-HOURS  //  {}", bp.engineer_hours, mat_str));
 
         let can_build = g.funds >= bp.cost &&
@@ -1283,9 +1283,9 @@ fn draw_workshop(g: &mut Game, c: Rect) {
     g.ui.label(right.x + 14.0, vy + 4.0, 10.5, CYAN, "BASE STORES VAULT // MATERIALS");
 
     let mats = if b.water {
-        [("NACRE PLATE", b.nacre), ("LIVE BRINE", b.brine), ("LATTICE (LAND)", b.lattice), ("ELECTROLYTE (LAND)", b.electrolyte)]
+        [("NACRE PLATE", b.nacre), ("LIVE BRINE", b.brine), ("SPINE (LAND)", b.lattice), ("GLOW (LAND)", b.electrolyte)]
     } else {
-        [("RECOVERED LATTICE", b.lattice), ("ELECTROLYTE", b.electrolyte), ("NACRE (SEA)", b.nacre), ("BRINE (SEA)", b.brine)]
+        [("SPINE", b.lattice), ("GLOW", b.electrolyte), ("NACRE (SEA)", b.nacre), ("BRINE (SEA)", b.brine)]
     };
 
     let mut my = vy + 24.0;
@@ -1417,8 +1417,8 @@ fn draw_market(g: &mut Game, c: Rect) {
     }
 
     let mut sellables: Vec<SellEntry> = Vec::new();
-    if b.lattice > 0 { sellables.push(SellEntry { name: "RECOVERED LATTICE".into(), kind: 0, count: b.lattice, price: 6_000, item_key: "".into() }); }
-    if b.electrolyte > 0 { sellables.push(SellEntry { name: "ELECTROLYTE".into(), kind: 1, count: b.electrolyte, price: 5_500, item_key: "".into() }); }
+    if b.lattice > 0 { sellables.push(SellEntry { name: "SPINE".into(), kind: 0, count: b.lattice, price: 6_000, item_key: "".into() }); }
+    if b.electrolyte > 0 { sellables.push(SellEntry { name: "GLOW".into(), kind: 1, count: b.electrolyte, price: 5_500, item_key: "".into() }); }
     if b.nacre > 0 { sellables.push(SellEntry { name: "NACRE PLATE".into(), kind: 2, count: b.nacre, price: 7_000, item_key: "".into() }); }
     if b.brine > 0 { sellables.push(SellEntry { name: "LIVE BRINE".into(), kind: 3, count: b.brine, price: 6_500, item_key: "".into() }); }
     let captives_count = b.captured_aliens.len() as i32;

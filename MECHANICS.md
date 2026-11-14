@@ -7,6 +7,11 @@ the 2.0 rules sheet (see `docs/ROADMAP.md`).
 
 Code locations are given as file and function so they survive edits.
 
+On 2026-11-13 several on-screen words were renamed (SPINE, GLOW, REACH,
+BREACHER BATTERY, the far side of the Moon). This file uses the new words.
+The numbers did not change. Rules that are decided in `docs/LORE.md` but not
+built yet are listed in section 26, so nobody mistakes them for working rules.
+
 ## 1. Terms
 
 | Term | Meaning |
@@ -50,7 +55,7 @@ up to 8 hostiles. **All TU costs are under review for 2.0.**
 | Fire | weapon's TU% for the mode × the unit's maximum TU ÷ 100 |
 | Throw a grenade | 25% of maximum TU; range 12 tiles |
 | Trauma kit action | 10 TU |
-| Psi action | 25 TU |
+| Reach action | 25 TU |
 
 Polar ground means ice-sheet tiles (terrain 9 on the world map). Snow lying on
 other terrain is drawing only and costs nothing extra.
@@ -142,7 +147,7 @@ Damage roll:
 |---|---|---|
 | 0 | Bare | Reserved |
 | 1 | Soft | Soldier in combat uniform; Tender; Fathom |
-| 2 | Plated | Lattice Carrier, Dive Rig |
+| 2 | Plated | Spine Carrier, Dive Rig |
 | 3 | Sealed shell | Sealed Frame, Nacre Dive Rig, Deep Frame |
 | 4 | Membrane | Kite, Bloat, Wreath |
 | 5 | Scaled | Lash, Wader |
@@ -151,7 +156,7 @@ Damage roll:
 | 8 | Mineral | Cinder |
 | 9 | Slick | Brooder, Silt |
 | 10 | Beast hide | Gorger, Hulk |
-| 11 | Machine plate | Trestle |
+| 11 | Machine plate | Trestle (to be removed, see section 14) |
 | 12 | Drone casing | Lathe, Lamp |
 | 13 | Pressure shell | Bell |
 
@@ -193,7 +198,7 @@ so that the suit's armour values decide survival.
 | # | Suit | Step | Front | Side | Rear | Under | Class | Weight | Where |
 |---|---|---|---|---|---|---|---|---|---|
 | 0 | COMBAT UNIFORM | Issue | 8 | 6 | 5 | 2 | 1 Soft | 0 | Land |
-| 1 | LATTICE CARRIER | Adapted | 46 | 30 | 36 | 20 | 2 Plated | 9 | Land |
+| 1 | SPINE CARRIER | Adapted | 46 | 30 | 36 | 20 | 2 Plated | 9 | Land |
 | 2 | SEALED FRAME | Derived | 90 | 72 | 64 | 50 | 3 Sealed | 18 | Land |
 | 3 | DIVE RIG | Issue | 40 | 28 | 24 | 16 | 2 Plated | 14 | Sea |
 | 4 | NACRE DIVE RIG | Adapted | 84 | 60 | 56 | 40 | 3 Sealed | 17 | Sea |
@@ -221,8 +226,8 @@ A new recruit rolls:
 | Firing accuracy | 38–66 |
 | Throwing accuracy | 45–75 |
 | Strength | 25–55 |
-| Psi skill | 0 |
-| Psi strength | 5–95 |
+| Reach skill | 0 |
+| Reach strength | 5–95 |
 
 Promotion happens at the monthly review (**under review for 2.0**):
 
@@ -254,27 +259,33 @@ Leadership is set by the highest rank alive on the side:
   `rand(3)`: 0 the unit freezes; 1 or 2 it panics and loses its TU; 3 it goes
   berserk (TU to 0, morale +20).
 
-## 10. Psi
+## 10. Reach
+
+Reach is what a Regent does when it reaches into another mind. Until
+2026-11-13 the game called it psi. Only the on-screen word changed; the rules
+below are the same.
 
 `src/tactical.rs`. Three actions, 25 TU each, against a hostile in sight.
 **Under review for 2.0.**
 
-* **READ** shows the target's HP, TU, morale, psi strength and weapon.
+* **READ** shows the target's HP, TU, morale, Reach strength and weapon.
 * **ROUT** attacks morale.
 * **TAKE** turns the target to your side until the start of the enemy turn.
 
-Attack = `rand(55) + psi strength × psi skill ÷ 50 − distance ÷ 2`.
+Attack = `rand(55) + Reach strength × Reach skill ÷ 50 − distance ÷ 2`.
 
-Soldier using psi on a hostile: defence = target psi strength + 10, plus a
-rank bonus (Corporal 10, Sergeant or Lieutenant 15, Captain 25, Major 40),
-plus 25 more for TAKE. ROUT succeeds when attack beats defence and drains
+Soldier using Reach on a hostile: defence = target Reach strength + 10 for
+ROUT, or + 25 for TAKE, plus a rank bonus (Corporal 10, Sergeant or
+Lieutenant 15, Captain 25, Major 40). ROUT succeeds when attack beats defence and drains
 `max(attack − defence, 25) + 15` morale, capped at 75, followed by a panic
 check. A taken unit loses 30 morale when it is released.
 
-Hostile using psi on a soldier (only Regent and Deacon have the skill):
-defence = psi strength + 10 + (psi skill ÷ 5 if skill is above 4). On success
-the soldier loses `bravery_mod × 10` morale and takes a panic check. The
-attempt costs the hostile 25 TU.
+Hostile using Reach on a soldier (only Regent and Deacon have the skill):
+defence = Reach strength + 10 + (Reach skill ÷ 5 if skill is above 4). On success
+the soldier loses `bravery_mod × 10` morale and takes a panic check. A
+successful attempt costs the hostile 25 TU and is its action for the turn.
+A failed attempt costs nothing and the hostile goes on to the next step in
+section 13.
 
 ## 11. Reaction fire
 
@@ -343,7 +354,7 @@ levels higher block it. So does smoke once the smoke along the line adds up to
 
 `src/tactical.rs`. One action per hostile per turn:
 
-1. Psi, if the kind has both psi strength and psi skill.
+1. Reach, if the kind has both Reach strength and Reach skill.
 2. Melee, if its melee value is above 25 and a soldier is within 1.7 tiles.
    *Known quirk:* the strike uses the damage of weapon 0 (SERVICE PISTOL,
    22 kinetic), not the creature's own natural weapon.
@@ -360,7 +371,7 @@ The mission is won when every hostile is down and lost when every soldier is.
 
 Land:
 
-| # | Name | HP | TU | React | Acc | Armour | Class | Psi str | Psi skill | Weapon | Melee | Floats |
+| # | Name | HP | TU | React | Acc | Armour | Class | Reach str | Reach skill | Weapon | Melee | Floats |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 0 | Tender | 24 | 62 | 52 | 45 | 2/2/2/1/0 | 1 | 55 | 0 | ARC STYLUS | 0 | no |
 | 1 | Kite | 30 | 66 | 68 | 48 | 5/4/4/3/8 | 4 | 20 | 0 | ARC CUTTER | 0 | yes |
@@ -376,7 +387,7 @@ Land:
 
 Sea:
 
-| # | Name | HP | TU | React | Acc | Armour | Class | Psi str | Psi skill | Weapon | Melee | Floats |
+| # | Name | HP | TU | React | Acc | Armour | Class | Reach str | Reach skill | Weapon | Melee | Floats |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 0 | Fathom | 38 | 50 | 50 | 50 | 8/6/6/4/2 | 1 | 25 | 0 | PRESSURE AWL | 0 | no |
 | 1 | Wader | 46 | 60 | 52 | 54 | 14/10/10/8/6 | 5 | 20 | 0 | PRESSURE BORE | 0 | no |
@@ -390,6 +401,11 @@ Sea:
 
 Which kinds appear depends on how far the campaign has gone
 (`src/main.rs` `roll_alien`). Cinder is in no spawn pool yet.
+
+The land table shows what the code runs today. `docs/LORE.md` has since
+decided changes that are not built: the Trestle is dropped as a unit (it is
+still in the code and can still appear), and the Maul, Brooder, Lathe, Kite,
+Bloat, Cinder and Gorger get rules of their own. See section 26.
 
 ## 15. Weapons
 
@@ -456,8 +472,9 @@ field rule yet).
 * A site that is not answered before it expires costs 30 score.
 * Enemy craft classes: SPORE (light scout), BURR (collector), THORN (city
   raider), RHIZOME (undersea runner), TAPROOT (capital craft).
-* Research `SEED_LOCATION` puts the Noctis Labyrinthus assault on the map;
-  `VERITY_DEEP` puts the Verity Deep assault on the map. The first needs an
+* Research THE FARSIDE SIGNAL (still `SEED_LOCATION` inside the code) puts
+  the lunar far side assault on the map; VERITY DEEP puts the Verity Deep
+  assault on the map. The first needs an
   Albatross, the second an Emperor.
 
 Score:
@@ -532,14 +549,18 @@ for diving seabirds.
 |---|---|---|---|---|---|---|---|---|---|---|
 | HERON | Land | Issue | 700 | 1600 | JET FUEL | 12 | 0 | 140 | $550,000 | $36,000 |
 | SWIFT | Land | Issue | 1900 | 900 | JET FUEL | 0 | 2 | 110 | $650,000 | $12,000 |
-| PEREGRINE | Land | Adapted | 3800 | 24 | ELECTROLYTE | 0 | 2 | 240 | $1,300,000 | $18,000 |
-| IBIS | Land | Adapted | 2900 | 32 | ELECTROLYTE | 10 | 1 | 280 | $1,500,000 | $24,000 |
-| ALBATROSS | Land | Derived | 5000 | 64 | ELECTROLYTE | 20 | 2 | 480 | $2,800,000 | $34,000 |
+| PEREGRINE | Land | Adapted | 3800 | 24 | GLOW | 0 | 2 | 240 | $1,300,000 | $18,000 |
+| IBIS | Land | Adapted | 2900 | 32 | GLOW | 10 | 1 | 280 | $1,500,000 | $24,000 |
+| ALBATROSS | Land | Derived | 5000 | 64 | GLOW | 20 | 2 | 480 | $2,800,000 | $34,000 |
 | GANNET | Sea | Issue | 720 | 1500 | DIESEL-ELECTRIC | 12 | 0 | 150 | $550,000 | $36,000 |
 | SKUA | Sea | Issue | 2200 | 850 | DIESEL-ELECTRIC | 0 | 2 | 125 | $650,000 | $12,000 |
 | CORMORANT | Sea | Adapted | 4100 | 28 | LIVE BRINE | 0 | 2 | 260 | $1,400,000 | $18,000 |
 | RAZORBILL | Sea | Adapted | 3600 | 40 | LIVE BRINE | 10 | 1 | 320 | $1,600,000 | $24,000 |
 | EMPEROR | Sea | Derived | 5000 | 64 | LIVE BRINE | 20 | 2 | 520 | $2,900,000 | $38,000 |
+
+The HERON is a twin-rotor transport helicopter with a rear ramp, and the
+SWIFT is a jet fighter: ordinary present-day types, our own designs. The
+ALBATROSS is the only craft that can reach the far side of the Moon.
 
 A LANDFALL campaign starts with SWIFT-1 (short-range and long-range missiles)
 and HERON-1. An UNDERTOW campaign starts with SKUA-1 (light and heavy
@@ -563,10 +584,10 @@ connect back to the entry, which cannot be dismantled.
 | HOLDING BLOCK / HOLDING TANK | Issue | $450,000 | 21 | $14,000 | 8 live captives |
 | CORED BATTERY / CAV BATTERY | Adapted | $450,000 | 21 | $9,000 | Defence 650 |
 | ARC BATTERY / PRESSURE BATTERY | enemy tool | $650,000 | 28 | $13,000 | Defence 950 |
-| DERIVED BATTERY | Derived | $900,000 | 35 | $18,000 | Defence 1300 |
+| BREACHER BATTERY | Derived | $900,000 | 35 | $18,000 | Defence 1300 |
 | FARADAY SCREEN / BAFFLE SCREEN | Adapted | $1,100,000 | 35 | $16,000 | Defence 350 |
-| PSI DAMPER | Adapted | $1,250,000 | 35 | $18,000 | Hides the base from scouts |
-| PSI WING | Adapted | $800,000 | 21 | $16,000 | Psi testing and training |
+| REACH DAMPER | Adapted | $1,250,000 | 35 | $18,000 | Hides the base from scouts |
+| REACH WING | Adapted | $800,000 | 21 | $16,000 | Reach testing and training |
 | SIGINT STATION | Adapted | $1,500,000 | 28 | $32,000 | Detection to 2,600 nm with class, crew and heading |
 | HANGAR / WET DOCK | Issue | $250,000 | 21 | $22,000 | One craft; takes 2×2 |
 
@@ -577,15 +598,19 @@ Live captives beyond holding capacity (8 per finished holding module,
 
 | Material | Short | Campaign | What it is |
 |---|---|---|---|
-| LATTICE | LATTICE | LANDFALL | The printed frame under every creature and hull |
-| ELECTROLYTE | — | LANDFALL | The charged fluid the frame runs on |
+| SPINE | SPINE | LANDFALL | The printed frame under every creature and hull, cut from wrecks and bodies |
+| GLOW | GLOW | LANDFALL | The glowing charged fluid the frame runs on |
 | NACRE PLATE | NACRE | UNDERTOW | The layered shell sea-going builds grow |
-| LIVE BRINE | BRINE | UNDERTOW | Their electrolyte; live only while cold and dark |
+| LIVE BRINE | BRINE | UNDERTOW | Their power fluid; live only while cold and dark |
+
+On land the structure material is SPINE and the power material is GLOW. Cored
+weapons are filled with Glow, and Adapted and Derived craft burn it as fuel.
 
 A campaign starts with 30 structure material and 15 power material. A won
 mission brings back 25 structure and 10 power material, plus enemy tools and
-bodies. (**Counts under review for 2.0.**) Full stores names for the materials
-are in `docs/NAMES.md` section 5.
+bodies. (**Counts under review for 2.0.**) These are flat amounts today. The
+decided rule, not built yet, is that loot comes from the battlefield (section
+26). Full stores names for the materials are in `docs/NAMES.md` section 5.
 
 ## 21. Research
 
@@ -601,17 +626,17 @@ LANDFALL:
 | CORED RIFLE | 180 | Cored Weapons | Cored Rifle |
 | CORED HEAVY GUN | 240 | Cored Weapons | Cored Heavy Gun |
 | CORED LANCE | 320 | Cored Heavy Gun | Aircraft weapon: Cored Lance |
-| LATTICE | 220 | — | Lattice Carrier, enemy craft studies |
-| LATTICE CARRIER | 160 | Lattice | Lattice Carrier |
-| SEALED FRAME | 320 | Lattice Carrier, Electrolyte | Sealed Frame |
+| SPINE | 220 | — | Spine Carrier, enemy craft studies |
+| SPINE CARRIER | 160 | Spine | Spine Carrier |
+| SEALED FRAME | 320 | Spine Carrier, Glow | Sealed Frame |
 | ARC TOOLS | 380 | — | Arc Stylus, Arc Cutter, Arc Torch |
-| ELECTROLYTE | 260 | — | Sealed Frame, enemy power plant |
-| ENEMY POWER PLANT | 340 | Electrolyte | Enemy airframe |
-| ENEMY GUIDANCE | 310 | Lattice | SIGINT Station, enemy airframe |
+| GLOW | 260 | — | Sealed Frame, enemy power plant |
+| ENEMY POWER PLANT | 340 | Glow | Enemy airframe |
+| ENEMY GUIDANCE | 310 | Spine | SIGINT Station, enemy airframe |
 | ENEMY AIRFRAME | 440 | Enemy Power Plant, Enemy Guidance | Peregrine |
 | SIGINT STATION | 420 | Enemy Guidance | SIGINT Station module |
-| PSI STUDIES | 360 | — | Psi Wing module |
-| THE NOCTIS SIGNAL | 520 | Enemy Airframe | Noctis Labyrinthus objective, Albatross |
+| REACH STUDIES | 360 | — | Reach Wing module |
+| THE FARSIDE SIGNAL | 520 | Enemy Airframe | Far side of the Moon objective, Albatross |
 | LIVE STUDY: TENDER | 140 | a live Tender | Tender file |
 | LIVE STUDY: LASH | 170 | a live Lash | Lash file |
 | LIVE STUDY: MAUL | 190 | a live Maul | Maul file |
@@ -634,7 +659,7 @@ UNDERTOW:
 | BRINE DRIVE | 370 | Live Brine | Enemy pressure hull |
 | ENEMY PRESSURE HULL | 470 | Brine Drive, Enemy Sea Guidance | Cormorant |
 | SIGINT STATION | 420 | Enemy Sea Guidance | SIGINT Station module |
-| PSI STUDIES | 370 | — | Psi Wing module |
+| REACH STUDIES | 370 | — | Reach Wing module |
 | THE ROOT SIGNAL | 460 | Enemy Pressure Hull | Verity Deep study |
 | VERITY DEEP | 560 | The Root Signal, Enemy Pressure Hull | Verity Deep objective, Emperor |
 | LIVE STUDY: FATHOM | 150 | a live Fathom | Fathom file |
@@ -651,14 +676,14 @@ day. "Structure" and "power" are the campaign's two materials.
 
 | Blueprint | Campaign | Needs research | Engineer hours | Cost | Structure | Power |
 |---|---|---|---|---|---|---|
-| LATTICE CARRIER | LANDFALL | Lattice Carrier | 700 | $20,000 | 4 | 0 |
+| SPINE CARRIER | LANDFALL | Spine Carrier | 700 | $20,000 | 4 | 0 |
 | SEALED FRAME | LANDFALL | Sealed Frame | 1,100 | $48,000 | 6 | 4 |
 | CORED PISTOL | LANDFALL | Cored Pistol | 250 | $9,000 | 1 | 0 |
 | CORED RIFLE | LANDFALL | Cored Rifle | 450 | $18,000 | 2 | 0 |
 | CORED HEAVY GUN | LANDFALL | Cored Heavy Gun | 750 | $36,000 | 4 | 0 |
 | CORED LANCE | LANDFALL | Cored Lance | 1,100 | $170,000 | 6 | 0 |
 | PEREGRINE INTERCEPTOR | LANDFALL | Enemy Airframe | 4,200 | $1,300,000 | 22 | 14 |
-| ALBATROSS TRANSPORT | LANDFALL | The Noctis Signal | 8,500 | $2,800,000 | 42 | 32 |
+| ALBATROSS TRANSPORT | LANDFALL | The Farside Signal | 8,500 | $2,800,000 | 42 | 32 |
 | NACRE DIVE RIG | UNDERTOW | Nacre Dive Rig | 750 | $22,000 | 4 | 0 |
 | DEEP FRAME | UNDERTOW | Deep Frame | 1,150 | $50,000 | 6 | 4 |
 | DEEP FRAME THRUST PACK | UNDERTOW | Deep Frame Thrust Pack | 1,500 | $62,000 | 8 | 7 |
@@ -713,8 +738,8 @@ Sale prices:
 
 | Item | Price |
 |---|---|
-| LATTICE | $6,000 |
-| ELECTROLYTE | $5,500 |
+| SPINE | $6,000 |
+| GLOW | $5,500 |
 | NACRE PLATE | $7,000 |
 | LIVE BRINE | $6,500 |
 | LIVE ALIEN CAPTIVE | $45,000 |
@@ -741,5 +766,50 @@ Canal Authority. The 16 Charter states of LANDFALL are real countries.
 * A melee creature's adjacent strike deals weapon 0's damage, not its own.
 * Blast against units always reads the land damage table.
 * The weapon panel shows a fallback ammunition label for weapons that use none.
-* Mars is not drawn; the LANDFALL finale marker is the launch point.
+* The Moon is not drawn; the LANDFALL finale marker sits on Earth, and the
+  finale is fought as an ordinary battle.
 * A 100% chance can still fail (section 2).
+
+## 26. Decided, not yet in the rules
+
+Decided with the user in `docs/LORE.md` on 2026-11-13. None of this runs in
+the game yet. The build order is the game systems track in `docs/ROADMAP.md`.
+
+* **Materials.** A third land material, SLAG, from Maul remains. Glow is
+  collected from the pools the Brooder's fluid leaves. Spine is cut from
+  wrecks and bodies.
+* **Weapons.** Two more starting weapons for close range: SHOTGUN and KNIFE.
+* **Base modules.** MESS HALL, SCRUB ROOM and REFUGEE QUARTERS.
+* **Creatures.**
+  * The Trestle is removed as a unit. Its job is folded into the Brooder.
+  * Maul: an animal with no weapon. It blasts magma, eats bodies and dropped
+    kit, and its corpse gives more SLAG the fuller it was.
+  * Brooder (the taker): a hovering machine that spits glowing fluid. One
+    hit melts a civilian; a soldier's armour takes several. It leaves pools
+    that hurt.
+  * Lathe (the builder): repairs machines, makes cover and can build one new
+    Brooder. Both machines are heavily armoured while moving and exposed
+    while working.
+  * Kite: marks a soldier for the Lash, and its shot dazes (half TU and no
+    reaction fire for one turn).
+  * Bloat: bursts into a cloud that blocks sight and chokes.
+  * Cinder: the Maul's young. Sets fires, eats and grows.
+  * Gorger: a buried ambusher. Its meat feeds refugees.
+* **Soldiers.** Each recruit has one strength and one flaw, hidden until
+  something in battle shows it. The first eight traits are BRAVE, COLD,
+  EMPATH, PROTECTIVE, RECKLESS, STEADY, SUPERSTITIOUS and LONER. More traits
+  are earned in service. A flaw can be a fear (afraid of water, afraid of
+  sharks and the like) that only bites where the thing is present. Portraits
+  change with the number of missions served.
+* **Refugees.** Freed Regents, Tenders and Lashes can serve as soldiers.
+* **Infection tax and scrubbing.** Alien-derived equipment raises a risk
+  inside the base; scrubbing lowers it and never brings it to zero.
+* **The human worker** and its voice lines ("duck calls") that get closer to
+  speech with each batch.
+* **Signpost missions.** Fixed story missions set off by what the player has
+  done.
+* **The Moon finale.** Low gravity, ground made from real lunar surface maps,
+  a fight on the dark side lit by the enemy's own lights, and an ending
+  decided by the freed Tenders' vote.
+* **Multiplayer.** A player who loses may join the Registrar's side or be
+  wiped out.

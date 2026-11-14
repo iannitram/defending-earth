@@ -1,7 +1,7 @@
 # DEFENDING EARTH — VISUAL DESIGN
 
 Working draft 1, 2026-11-13. This is the rulebook every frame is judged against.
-Names marked *(working)* are proposals, kept in one table so they are cheap to change.
+Land creature names are final (2026-11-13); every name is listed in `NAMES.md`.
 Notes marked *As built* (dated) say where the game knowingly differs from a rule
 or has not reached it yet. The rule itself stands.
 
@@ -200,6 +200,14 @@ must read as one family:
 | 2. Adapted | Human kit rebuilt around recovered parts | The same silhouettes with foreign cores: sealed housings, cable runs, heat sinks, field repairs | Above, plus dull grown-metal inserts that do not match anything around them |
 | 3. Derived | Human design that has absorbed the foreign method | Fewer parts, continuous surfaces, no fasteners, weight where balance wants it | Grown metal as structure, ceramic skins, soft-sealed joints |
 
+Step 1 is strict (decided 2026-11-13): everything the player begins with
+looks like what armies have today, nothing near-future. The starting
+vehicles are our own designs of ordinary present-day types, with no real
+maker's name, badge or exact airframe. The Heron is a twin-rotor transport
+helicopter with a rear ramp, and the Swift is a jet fighter. The starting
+weapons include a shotgun and a knife for close range (decided, not yet in
+the game).
+
 Rules: every later item keeps one recognisable feature of its ancestor (a grip
 angle, a stock line, a helmet brow). Nothing becomes glossy, chrome or neon.
 Step 3 is quieter than step 1, not louder.
@@ -208,45 +216,69 @@ The same three steps apply to base modules, craft and soldier armour.
 
 ### The enemy: the Registrar and its reissues
 Story in `LORE.md`. A machine built to catalogue life; it "preserved" its
-makers by reading them completely, which destroyed them, and spread. One seed came down on Mars, has been consuming the
-planet, and rebuilds living species from genomes held in its memory. What
-lands on Earth are those rebuilt species: creatures above, a machine below.
+makers by reading them completely, which destroyed them, and spread. One seed
+came down on the far side of the Moon (moved from Mars on 2026-11-13) and
+reissues dead species from the records held in its memory. What lands on
+Earth are those reissues, and two kinds of machine it builds itself.
 
 Visual language, shared by every enemy so they read as one maker's work:
-- **Grown on a frame.** Flesh over a printed lattice. Where skin is thin or
-  torn the lattice shows: regular, dark, slightly wet.
+- **Grown on a frame.** Flesh over a printed frame. Where skin is thin or
+  torn the frame shows: regular, dark, slightly wet. Cut from wrecks and
+  bodies, this frame is the material the game calls SPINE.
 - **Wrong repairs.** The machine patches its creatures the way it would patch
   equipment: seams, plugs, a limb replaced with something that works but is
   not the same species.
+- **Glow.** The taker's fluid (the material the game calls GLOW) gives off
+  its own light. It is a light source: it lights the ground, the pools it
+  leaves and the people it has hit. It is built with the lights in graphics
+  phase 3 and follows the exposure rules in section 1, like every other
+  light source.
 - **Electrical life.** Faint, irregular discharge at joints and along the
-  spine, visible mainly at night. It is a symptom, not decoration, and it
+  back, visible mainly at night. It is a symptom, not decoration, and it
   flickers out when the creature dies.
 - **No faces to read.** Eyes are sensors or missing. Expression comes from
   posture and motion only.
 - **Injuries** show as on soldiers, located where the hit landed, and expose
-  lattice rather than bone.
+  the frame rather than bone.
 
-Working roster by battlefield role. Each name fills one slot in the creature
-table; slot order and the full list of names are in `NAMES.md`.
+Roster by battlefield role. The land names are final (2026-11-13) and each
+land creature's look is described in `LORE.md`, which wins over this table.
+The sea column is unchanged: the sea campaign is deferred. Slot order and the
+full list of names are in `NAMES.md`.
 
 | Surface | Role | | Underwater | Role |
 |---|---|---|---|---|
-| Tender | Small handler, psi-capable | | Fathom | Line infantry |
-| Kite | Gliding membrane scout | | Mantle | Armoured heavy |
-| Lash | Serpent hunter; real body-wave motion on the ground | | Deacon | Psi officer |
-| Maul | Heavy infantry | | Bell | Pressure-shelled brute |
-| Regent | Psi commander | | Wader | Amphibious raider |
-| Brooder | Parasite breeder: slimy, wet, reflective, catches every light | | Lamp | Lure-light drone |
+| Tender | One lone maker mind in a small body: simple, obedient, issued by the thousand | | Fathom | Line infantry |
+| Kite | Gliding spotter that marks targets for the Lash | | Mantle | Armoured heavy |
+| Lash | Low, many-limbed marksman | | Deacon | Reach officer |
+| Maul | The enemy's heavy: living stone with a molten core, an animal | | Bell | Pressure-shelled brute |
+| Regent | Reach commander, one of the makers | | Wader | Amphibious raider |
+| Brooder | The taker: a hovering machine that spits glowing fluid | | Lamp | Lure-light drone |
 | Husk | A taken soldier or animal, still wearing what it wore | | Wreath | Drifting parasite |
-| Lathe | Hovering fabrication drone turned weapon | | Hulk | Massive beast |
-| Gorger | Large pack beast | | Silt | Small bottom-lying ambusher |
-| Trestle | Walking weapons platform | | | |
-| Bloat | Drifting spitter | | | |
-| Cinder | Slow mineral-bodied crawler | | | |
+| Lathe | The builder: a machine that repairs and builds, not a fighter | | Hulk | Massive beast |
+| Gorger | Buried ambush worm | | Silt | Small bottom-lying ambusher |
+| Bloat | Drifting spore bag that bursts into a cloud | | | |
+| Cinder | The Maul's young: small, fast chips of living stone that set fires | | | |
 
-The final site: a hive that looks biological and is not. Ribbed, resin-like
+The Trestle was dropped as a unit on 2026-11-13 and folded into the Brooder.
+It is still in the code until the roadmap removes it (package 1 of the game
+systems track). The Husk row is from the first draft. It is not in the game
+and not in the land roster in `LORE.md`, which mentions Husks only as an
+open multiplayer idea. Later in the campaign `LORE.md` adds one more kind,
+the human worker (decided, not built).
+
+The final site is the Seed, on the far side of the Moon. A hive that looks
+biological and is not. Ribbed, resin-like
 surfaces that are actually conductor and insulation; light that travels along
 the walls as current; symmetry that is too exact; spaces sized for no body.
+From `LORE.md`:
+- Its core is hard, geometric and wrong: a cube crossed with an engine room
+  that should not be looked at.
+- The ground is made from real lunar surface maps.
+- The sky shows the line between the Moon's lit and dark halves. The fight
+  is on the dark side, so the Registrar's own lights are what light the
+  landscape.
+- Gravity is lower, which changes how soldiers move, jump and throw.
 
 ### Soldiers
 - Appearance is generated once from a seed at hiring and stored as a small
@@ -257,6 +289,9 @@ the walls as current; symmetry that is too exact; spaces sized for no body.
   load carriage, gait, weapon handling and material response, not faces.
 - The designer view is lit like a photo-ID booth or a field portrait, slightly
   stylised in the face to stay out of the uncanny valley.
+- The close-up portrait changes with service (decided 2026-11-13, not yet in
+  the game). A soldier with no missions looks new and jittery. A soldier with
+  fifty has the thousand-yard stare.
 
 ### Base
 Chunky, serviced, lived-in hardware: cable trays, floor markings, spill

@@ -890,7 +890,7 @@ impl Game {
         // Only one final site of each kind may be on the globe at a time.
         if self.sites.iter().any(|s| s.kind == SiteKind::Final && s.underwater == underwater) { return; }
         let (lat, lon) = if underwater { self.find_water(-47.0, -126.0) } else { self.find_land(10.0, 160.0) };
-        let name = if underwater { "VERITY DEEP // FINAL ASSAULT".to_string() } else { "NOCTIS LABYRINTHUS // FINAL ASSAULT".to_string() };
+        let name = if underwater { "VERITY DEEP // FINAL ASSAULT".to_string() } else { "LUNAR FAR SIDE // FINAL ASSAULT".to_string() };
         let n = 8usize;
         let mut aliens = Vec::new();
         for _ in 0..n { aliens.push(self.roll_alien(underwater, 6)); }
@@ -995,7 +995,7 @@ impl Game {
                 return;
             }
             if final_mission && !final_underwater {
-                // Noctis Labyrinthus: LANDFALL is won.
+                // Lunar far side: LANDFALL is won.
                 self.won = true;
                 self.game_over = true;
                 self.screen = Screen::End;
@@ -1188,8 +1188,8 @@ impl Game {
 
                 if tid == "SEED_LOCATION" {
                     self.make_final_mission(false);
-                    self.log("THE SEED IS FOUND: NOCTIS LABYRINTHUS ASSAULT AVAILABLE ON THE SITUATION MAP.", AMBER);
-                    self.toast("NOCTIS ASSAULT UNLOCKED");
+                    self.log("THE SEED IS FOUND: LUNAR FAR SIDE ASSAULT AVAILABLE ON THE SITUATION MAP.", AMBER);
+                    self.toast("FAR SIDE ASSAULT UNLOCKED");
                 } else if tid == "VERITY_DEEP" {
                     self.make_final_mission(true);
                     self.log("THE ROOT IS FOUND: VERITY DEEP ASSAULT AVAILABLE ON THE SITUATION MAP.", CYAN);
@@ -1653,7 +1653,7 @@ impl Game {
 
         self.ui.bold(r1.x + 22.0, y, 11.5, CYAN, "COMMAND SPECIFICATIONS:");
         y += 18.0;
-        self.ui.text(r1.x + 22.0, y, 10.5, TEXT, "• AIRCRAFT: Heron tiltrotor transport, Swift interceptor");
+        self.ui.text(r1.x + 22.0, y, 10.5, TEXT, "• AIRCRAFT: Heron twin-rotor transport, Swift interceptor");
         y += 16.0;
         self.ui.text(r1.x + 22.0, y, 10.5, TEXT, "• ARSENAL: Service rifles and machine guns now; cored and arc weapons later");
         y += 16.0;
@@ -1661,7 +1661,7 @@ impl Game {
         y += 16.0;
         self.ui.text(r1.x + 22.0, y, 10.5, TEXT, "• FUNDING: 16 Charter states ($6,000,000/mo to start)");
         y += 16.0;
-        self.ui.text(r1.x + 22.0, y, 10.5, TEXT, "• FINAL OBJECTIVE: The Seed, Noctis Labyrinthus, Mars");
+        self.ui.text(r1.x + 22.0, y, 10.5, TEXT, "• FINAL OBJECTIVE: The Seed, far side of the Moon");
 
         let btn_rect1 = Rect::new(r1.x + 22.0, r1.y + r1.h - 52.0, r1.w - 44.0, 38.0);
         if button(&self.ui, btn_rect1, "BEGIN LANDFALL [2027]", Btn::Normal, true) {
@@ -2144,7 +2144,7 @@ impl Game {
         let w = screen_width(); let h = screen_height();
         draw_rectangle(0.0, 0.0, w, h, Color { a: 0.88, ..BLACK });
         let title_text = if self.won {
-            if self.campaign_type == 1 { "THE DEEP IS SILENT" } else { "MARS IS SILENT" }
+            if self.campaign_type == 1 { "THE DEEP IS SILENT" } else { "THE MOON IS SILENT" }
         } else {
             "EARTH HAS FALLEN"
         };
@@ -2152,7 +2152,7 @@ impl Game {
             if self.campaign_type == 1 {
                 "The Root at Verity Deep is dead. The sea lanes are open again."
             } else {
-                "The Seed at Noctis Labyrinthus is dead. Nothing more is coming from Mars."
+                "The Seed on the far side is dead. Nothing more is coming from the Moon."
             }
         } else {
             "The Charter Assembly has dissolved. There is no one left to pay for the defence."
