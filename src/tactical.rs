@@ -185,6 +185,8 @@ pub struct Battle {
     pub gfx_ready: bool,
     /// Debug camera preset (`--view`).
     pub dbg_view: u8,
+    /// Friendly-fire hits and stray kills this battle (R11). Handed to `Game.last_incidents` at the end.
+    pub incidents: Vec<Incident>,
 }
 
 fn tile_idx(x: i32, y: i32) -> usize { (y * TW + x) as usize }
@@ -446,6 +448,33 @@ fn cover_penalty(light: i32, heavy: i32) -> i32 {
     -(COVER_LIGHT * light + COVER_HEAVY * heavy)
 }
 
+/// One thing on a line of fire that takes points off the shot.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CoverKind {
+    /// A square with any smoke. Light cover. Smoke stops nothing: a roll in its points is an ordinary stray.
+    Smoke,
+    /// Obstacle 1. Heavy cover.
+    Rock,
+    /// Obstacle 3 (low stone wall, parapet). Heavy cover.
+    Block,
+    /// Any other obstacle that does not block. Light cover.
+    Crystal,
+    /// A living unit of the shooter's own side (the unit's index). Heavy cover.
+    Friend(usize),
+}
+
+/// A cover thing and its square.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct CoverThing { pub kind: CoverKind, pub x: i32, pub y: i32 }
+
+/// Points one cover thing takes off a shot (the same numbers as `cover_penalty`).
+fn cover_points(kind: CoverKind) -> i32 {
+    match kind {
+        CoverKind::Smoke | CoverKind::Crystal => COVER_LIGHT,
+        CoverKind::Rock | CoverKind::Block | CoverKind::Friend(_) => COVER_HEAVY,
+    }
+}
+
 /// What one square on a line of fire holds.
 #[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
 struct LineCell {
@@ -457,14 +486,39 @@ struct LineCell {
     light: i32,
     /// Number of heavy covers in the square.
     heavy: i32,
+    /// The cover things in the square, in the order they are shared a missed roll (see `round_outcome`).
+    things: [Option<CoverKind>; 3],
 }
 
 /// The result of walking a line of fire.
-#[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Default, Debug, PartialEq, Eq)]
 struct LineOfFire {
     blocked: bool,
     light: i32,
     heavy: i32,
+    /// Every cover thing that counted, in order from the shooter outward.
+    cover: Vec<CoverThing>,
+}
+
+/// Steps square by square along a straight line from (x0,y0) to (x1,y1). Yields every square after
+/// the start, up to and including the end. Shared by `walk_line` (sight and cover) and `stray_squares`.
+struct LineSteps { x: i32, y: i32, x1: i32, y1: i32, dx: i32, dy: i32, sx: i32, sy: i32, err: i32, done: bool }
+impl LineSteps {
+    fn new(x0: i32, y0: i32, x1: i32, y1: i32) -> Self {
+        let dx = (x1 - x0).abs(); let dy = (y1 - y0).abs();
+        Self { x: x0, y: y0, x1, y1, dx, dy, sx: if x0 < x1 { 1 } else { -1 }, sy: if y0 < y1 { 1 } else { -1 }, err: dx - dy, done: x0 == x1 && y0 == y1 }
+    }
+}
+impl Iterator for LineSteps {
+    type Item = (i32, i32);
+    fn next(&mut self) -> Option<(i32, i32)> {
+        if self.done { return None; }
+        let e2 = 2 * self.err;
+        if e2 > -self.dy { self.err -= self.dy; self.x += self.sx; }
+        if e2 < self.dx { self.err += self.dx; self.y += self.sy; }
+        if self.x == self.x1 && self.y == self.y1 { self.done = true; }
+        Some((self.x, self.y))
+    }
 }
 
 /// Walks the line from (x0,y0) to (x1,y1) square by square. The first and last squares are never
@@ -472,29 +526,243 @@ struct LineOfFire {
 /// soldier can fight from behind a rock). `cell` describes one square.
 fn walk_line(x0: i32, y0: i32, x1: i32, y1: i32, cell: impl Fn(i32, i32) -> LineCell) -> LineOfFire {
     let mut out = LineOfFire::default();
-    let mut x = x0; let mut y = y0;
-    let dx = (x1 - x0).abs(); let dy = (y1 - y0).abs();
-    let sx = if x0 < x1 { 1 } else { -1 };
-    let sy = if y0 < y1 { 1 } else { -1 };
-    let mut err = dx - dy;
-    let mut guard = 0;
     let mut accumulated_smoke = 0i32;
     let mut first_after_start = true;
-    loop {
-        guard += 1; if guard > 80 { return out; }
+    for (x, y) in LineSteps::new(x0, y0, x1, y1).take(79) {
         if x == x1 && y == y1 { return out; }
-        if !(x == x0 && y == y0) {
-            let c = cell(x, y);
-            if c.blocks { out.blocked = true; return out; }
-            accumulated_smoke += c.smoke;
-            if accumulated_smoke >= 18 { out.blocked = true; return out; }
-            if !first_after_start { out.light += c.light; out.heavy += c.heavy; }
-            first_after_start = false;
+        let c = cell(x, y);
+        if c.blocks { out.blocked = true; return out; }
+        accumulated_smoke += c.smoke;
+        if accumulated_smoke >= 18 { out.blocked = true; return out; }
+        if !first_after_start {
+            out.light += c.light; out.heavy += c.heavy;
+            for kind in c.things.iter().flatten() { out.cover.push(CoverThing { kind: *kind, x, y }); }
         }
-        let e2 = 2 * err;
-        if e2 > -dy { err -= dy; x += sx; }
-        if e2 < dx { err += dx; y += sy; }
+        first_after_start = false;
     }
+    out
+}
+
+/// How one round came out, from its one roll (R5). `percent` is the final odds; `p0` the odds before
+/// cover. `points` are the cover things' points in order from the shooter outward.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum RoundCause {
+    /// roll < percent.
+    Hit,
+    /// percent <= roll < p0: the miss was caused by the cover thing at this index.
+    Cover(usize),
+    /// roll >= p0: an ordinary stray.
+    Stray,
+}
+
+/// Shares the points between `percent` and `p0` out between the cover things, in order from the
+/// shooter, each taking its own points, cut off at `p0`. The thing whose share holds the roll is struck.
+fn round_outcome(roll: i32, percent: i32, p0: i32, points: &[i32]) -> RoundCause {
+    if roll < percent { return RoundCause::Hit; }
+    if roll >= p0 { return RoundCause::Stray; }
+    let mut lo = percent;
+    for (i, p) in points.iter().enumerate() {
+        let hi = (lo + p).min(p0);
+        if roll < hi { return RoundCause::Cover(i); }
+        lo = hi;
+    }
+    RoundCause::Stray
+}
+
+// Stray rules (owner, 2026-11-13, ninth session). Starting numbers; the test bench tunes them.
+/// R4: chance a stray hits a living unit standing in a square it passes.
+const STRAY_HIT_STANDING: i32 = 50;
+/// R4: the same for a kneeling unit.
+const STRAY_HIT_KNEELING: i32 = 25;
+/// T1 (confirmed 2026-11-13): chance a stray strikes a rock or stone block it passes (the cover number reused).
+const STRAY_HIT_ROCK: i32 = COVER_HEAVY;
+/// T1 (confirmed 2026-11-13): chance a stray strikes a crystal it passes.
+const STRAY_HIT_CRYSTAL: i32 = COVER_LIGHT;
+/// R10: share of a death's morale loss when friendly fire is stopped by armour and does no harm.
+const FF_MORALE_UNHURT: i32 = 25;
+/// R10: share of a death's morale loss when friendly fire hurts but does not kill.
+const FF_MORALE_HURT: i32 = 50;
+
+/// R4: odds that a stray hits a unit in a square it passes.
+fn stray_unit_odds(kneeling: bool) -> i32 { if kneeling { STRAY_HIT_KNEELING } else { STRAY_HIT_STANDING } }
+
+/// Obstacles that stop every shot and all sight: tree 2, wall 4, our hull 10, enemy hull 12, power plant 13.
+fn obstacle_blocks(obstacle: u8) -> bool { matches!(obstacle, 2 | 4 | 10 | 12 | 13) }
+
+/// R7: small arms cannot break our craft's hull (10), the enemy hull (12) or the power plant (13).
+fn obstacle_shot_breakable(obstacle: u8) -> bool { obstacle != 0 && !matches!(obstacle, 10 | 12 | 13) }
+
+/// T1 (confirmed 2026-11-13): odds that a stray strikes scenery it passes that does not fully
+/// block. None when the square has no such scenery.
+fn stray_scenery_odds(obstacle: u8) -> Option<i32> {
+    match obstacle {
+        0 => None,
+        o if obstacle_blocks(o) => None,
+        1 | 3 => Some(STRAY_HIT_ROCK),
+        _ => Some(STRAY_HIT_CRYSTAL),
+    }
+}
+
+/// How far a missed round lands from the target, in squares. Today's scatter formula in metres
+/// (one square is `TILE` metres): it grows with how far the roll missed and with distance.
+fn stray_miss_squares(roll: i32, percent: i32, dist_squares: f32) -> f32 {
+    let dist_m = (dist_squares * TILE).max(1.0);
+    let dev = (roll - percent) + 50;
+    ((dev as f32 * (dist_m * 0.5)) / 200.0).clamp(0.45, 2.8) / TILE
+}
+
+/// The point a stray was thrown towards: `miss` squares from the target at `angle_deg` (0..=359).
+fn stray_aim(target: (f32, f32), angle_deg: i32, miss: f32) -> (f32, f32) {
+    let a = (angle_deg as f32).to_radians();
+    (target.0 + a.cos() * miss, target.1 + a.sin() * miss)
+}
+
+/// R2, R3: the squares a stray crosses, in order. It flies from the shooter's square through `aim`
+/// and on until it is `reach` squares from the shooter (rounded, as shot range is) or leaves the
+/// map. The shooter's square and `skip` (the target's square, T2) are left out.
+fn stray_squares(from: (i32, i32), aim: (f32, f32), reach: i32, skip: (i32, i32)) -> Vec<(i32, i32)> {
+    let (fx, fy) = (from.0 as f32, from.1 as f32);
+    let (mut dx, mut dy) = (aim.0 - fx, aim.1 - fy);
+    let len = (dx * dx + dy * dy).sqrt();
+    if len < 1e-3 || reach <= 0 { return Vec::new(); }
+    dx /= len; dy /= len;
+    let end = ((fx + dx * reach as f32).round() as i32, (fy + dy * reach as f32).round() as i32);
+    let mut out = Vec::new();
+    for (x, y) in LineSteps::new(from.0, from.1, end.0, end.1) {
+        if !in_bounds(x, y) { break; }
+        let d = ((((x - from.0).pow(2) + (y - from.1).pow(2)) as f32).sqrt()).round() as i32;
+        if d > reach { break; }
+        if (x, y) == skip { continue; }
+        out.push((x, y));
+    }
+    out
+}
+
+/// A death's morale loss to each living unit of the victim's side (unchanged arithmetic).
+fn death_morale_loss(victim_bravery: i32, victim_lead: i32) -> i32 {
+    ((victim_bravery * 200 / victim_lead.max(1)) * victim_lead) / 100
+}
+
+/// How badly a unit was hurt by a hit.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Harm {
+    /// Armour stopped it: no damage.
+    Unhurt,
+    /// Damaged but alive.
+    Hurt,
+    /// Killed or knocked out.
+    Killed,
+}
+
+/// R10: the morale loss friendly fire gives the victim's side, from the full death loss.
+fn friendly_fire_loss(full_death_loss: i32, harm: Harm) -> i32 {
+    match harm {
+        Harm::Unhurt => full_death_loss * FF_MORALE_UNHURT / 100,
+        Harm::Hurt => full_death_loss * FF_MORALE_HURT / 100,
+        Harm::Killed => full_death_loss,
+    }
+}
+
+/// Why a shot was not taken. Nothing is spent.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Refusal {
+    /// The weapon has no such fire mode.
+    NoMode { weapon: usize, mode: ShotMode },
+    NoLineOfFire,
+    NotEnoughTime,
+    Empty,
+}
+
+/// How one round ended.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum RoundOutcome {
+    /// Hit the target.
+    Hit,
+    /// The miss was caused by this cover thing, and it was struck (R5).
+    CoverHit { cover: CoverThing },
+    /// An ordinary stray (R2, R3). `angle` is the logged stray angle (0..=359), `miss` how far from
+    /// the target it was thrown (squares), `aim` that point, `reach` where it is spent (squares from
+    /// the shooter). `from_smoke` is true when the roll fell in smoke's points.
+    Stray { angle: i32, miss: f32, aim: (f32, f32), reach: i32, from_smoke: bool },
+    /// A miss with a weapon that has no comfortable range: no stray (T5, confirmed 2026-11-13).
+    NoStray,
+}
+
+/// What a round, or a stray, struck in the end.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Struck {
+    /// Nothing: the round was spent.
+    Nothing,
+    Unit(usize),
+    /// An obstacle (its kind number before the hit).
+    Scenery { kind: u8 },
+    /// Ground two or more levels up.
+    Ground,
+}
+
+/// What happened to an obstacle that took damage.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ObstacleChange {
+    /// Small arms cannot break it (R7): no damage.
+    Unbreakable,
+    Damaged,
+    /// A high wall fell to low cover.
+    Crumbled,
+    /// Gone (`was` is the kind it had).
+    Destroyed { was: u8 },
+}
+
+/// Which way a hit came, for the incident record.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum HitVia { Aimed, Cover, Stray }
+
+/// Everything a shot did, in order. The rules (`resolve_shot`) make these; the picture and sound
+/// (`play_shot`) only read them. A replay or a text bench can describe a shot from these alone.
+#[derive(Clone, Debug, PartialEq)]
+pub enum ShotEvent {
+    /// The shot was not taken.
+    Refused { shooter: usize, reason: Refusal },
+    /// The trigger was pulled: time units spent, `rounds` planned (Auto 3).
+    Fired { shooter: usize, target: usize, mode: ShotMode, weapon: usize, from: (i32, i32), at: (i32, i32), tu_spent: i32, rounds: u32 },
+    /// One round. `odds` is the final odds rolled against, `p0` the odds before cover, `roll` the
+    /// logged roll (0..=99). The tracer runs from the shooter's square to `end`, where it `struck`.
+    /// The details (rolls on the way, damage, deaths) follow as their own events.
+    Round { shooter: usize, target: usize, weapon: usize, n: u32, odds: i32, p0: i32, roll: i32, outcome: RoundOutcome, end: (i32, i32), struck: Struck },
+    /// A stray passed something and rolled to hit it (R4 for a unit, T1 for scenery). Logged.
+    PassRoll { shooter: usize, x: i32, y: i32, unit: Option<usize>, odds: i32, roll: i32, hit: bool },
+    /// A unit took a hit. `roll` is the damage roll, `damage` what got past armour, `location` the
+    /// armour facing (0 front, 1 left, 2 right, 3 rear), `stun` true when it went to stun, `wound` new wounds.
+    UnitHit { unit: usize, by: usize, via: HitVia, roll: i32, damage: i32, location: usize, stun: bool, wound: i32, friendly: bool },
+    /// Scenery took a hit (R5, R7).
+    SceneryHit { x: i32, y: i32, kind: u8, damage: i32, hp_left: i32, change: ObstacleChange },
+    /// R10: a side lost morale because one of its own was hit by its own side.
+    FriendlyMorale { victim: usize, harm: Harm, loss: i32 },
+    /// A unit died or was knocked out. `credited`: the killer got the kill (only when on the other side).
+    Died { unit: usize, killer: Option<usize>, stunned: bool, credited: bool },
+}
+
+/// Kind of friendly-fire or stray incident (R11). Nothing reads these yet.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum IncidentKind {
+    /// A unit hit by its own side.
+    FriendlyFire,
+    /// An enemy killed by a stray.
+    StrayKill,
+}
+
+/// One incident, kept so later rules (a bad trait for the shooter, lost trust) can be built (R11).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Incident {
+    pub kind: IncidentKind,
+    pub turn: u32,
+    pub shooter: usize,
+    pub victim: usize,
+    pub shooter_name: String,
+    pub victim_name: String,
+    /// Index in `Game.soldiers` when the unit is one of our soldiers.
+    pub shooter_soldier: Option<usize>,
+    pub victim_soldier: Option<usize>,
+    pub harm: Harm,
 }
 
 impl Battle {
@@ -678,6 +946,7 @@ impl Battle {
             view_level: 2, psi_open: false, psi_target: None, probed_alien: None,
             lvl_up_clicked: false, lvl_down_clicked: false, psi_clicked: false,
             uw_audio_timer: 0.0, gfx_ready: false, dbg_view: g.dbg_view,
+            incidents: Vec::new(),
         };
         // soldiers
         let mut k = 0;
@@ -788,18 +1057,20 @@ impl Battle {
         walk_line(x0, y0, x1, y1, |x, y| {
             let t = tile_at(self, x, y);
             let mut c = LineCell::default();
-            if t.obstacle == 4 || t.obstacle == 2 || t.obstacle == 10 || t.obstacle == 12 || t.obstacle == 13 { c.blocks = true; }
+            if obstacle_blocks(t.obstacle) { c.blocks = true; }
             if t.h >= 2 { c.blocks = true; }
             c.smoke = t.smoke as i32;
-            if t.smoke > 0 { c.light += 1; }
+            // Order within one square (obstacle, friend, smoke) is the lead's choice: to settle with the owner.
             match t.obstacle {
                 0 | 2 | 4 | 10 | 12 | 13 => {}
-                1 | 3 => c.heavy += 1,
-                _ => c.light += 1, // crystal
+                1 => { c.heavy += 1; c.things[0] = Some(CoverKind::Rock); }
+                3 => { c.heavy += 1; c.things[0] = Some(CoverKind::Block); }
+                _ => { c.light += 1; c.things[0] = Some(CoverKind::Crystal); }
             }
             if let Some(side) = shooter_side {
-                if let Some(u) = self.unit_at(x, y) { if self.units[u].side == side { c.heavy += 1; } }
+                if let Some(u) = self.unit_at(x, y) { if self.units[u].side == side { c.heavy += 1; c.things[1] = Some(CoverKind::Friend(u)); } }
             }
+            if t.smoke > 0 { c.light += 1; c.things[2] = Some(CoverKind::Smoke); }
             c
         })
     }
@@ -807,6 +1078,11 @@ impl Battle {
     /// Odds for this shooter firing at this target in this mode. The ONLY place shot odds are worked out.
     /// Pure: no dice, no sound, no change to the battle.
     pub fn shot_odds(&self, data: &GameData, shooter: usize, target: usize, mode: ShotMode) -> ShotOdds {
+        self.shot_detail(data, shooter, target, mode).0
+    }
+
+    /// `shot_odds` and the cover things behind its `cover` part, in order from the shooter outward.
+    fn shot_detail(&self, data: &GameData, shooter: usize, target: usize, mode: ShotMode) -> (ShotOdds, Vec<CoverThing>) {
         let (s, t) = (&self.units[shooter], &self.units[target]);
         let (sx, sy) = (s.x.round() as i32, s.y.round() as i32);
         let (tx, ty) = (t.x.round() as i32, t.y.round() as i32);
@@ -815,14 +1091,14 @@ impl Battle {
         let base = self.aim_odds(data, shooter, mode);
         if self.mode_accuracy(data, shooter, mode) <= 0 {
             // No such mode on this weapon. A weak shooter (base 0) still gets the other parts.
-            return ShotOdds { percent: 0, blocked, base: 0, height: 0, range: 0, cover: 0 };
+            return (ShotOdds { percent: 0, blocked, base: 0, height: 0, range: 0, cover: 0 }, Vec::new());
         }
         let (sh, th) = (tile_at(self, sx, sy).h, tile_at(self, tx, ty).h);
         let height = if sh > th { 10 } else if sh < th { -10 } else { 0 };
         let squares = (((tx - sx).pow(2) + (ty - sy).pow(2)) as f32).sqrt().round() as i32;
         let range = range_penalty(data.weapons[s.weapon].cat, squares);
         let cover = cover_penalty(line.light, line.heavy);
-        ShotOdds { percent: combine_odds(base, height, range, cover), blocked, base, height, range, cover }
+        (ShotOdds { percent: combine_odds(base, height, range, cover), blocked, base, height, range, cover }, line.cover)
     }
 
     /// The weapon's accuracy for this fire mode. 0 or less means the weapon has no such mode.
@@ -990,44 +1266,60 @@ impl Battle {
         }
     }
 
+    /// A death with its sound and picture, for callers outside the shot rules (fire, wounds,
+    /// explosions). The rule part is `kill_unit`.
     fn on_unit_death(&mut self, g: &mut Game, victim_idx: usize, killer_idx: Option<usize>) {
-        if victim_idx >= self.units.len() || !self.units[victim_idx].alive { return; }
-        let victim_side = self.units[victim_idx].side;
-        let victim_rank = self.units[victim_idx].rank;
-        let victim_bravery = self.units[victim_idx].bravery_mod;
-        let victim_lead = if victim_side == Side::Player {
-            match victim_rank { 2 => 120, 3 => 130, 5 => 150, 6 => 175, _ => 100 }
-        } else { 100 };
-        let victim_name = self.units[victim_idx].name.clone();
-        self.units[victim_idx].alive = false;
-        self.units[victim_idx].death_t = 0.0;
-        self.units[victim_idx].path.clear();
-        if victim_side == Side::Player {
-            g.audio.play_scream();
-            self.log(format!("{} IS KILLED IN ACTION.", victim_name), ui::RED);
-        } else if self.units[victim_idx].hp > 0 && self.units[victim_idx].stun >= self.units[victim_idx].hp {
-            if self.underwater { g.audio.play_uw_screech(); } else { g.audio.play_screech(); }
-            self.log(format!("{} IS STUNNED UNCONSCIOUS // CAPTIVE MARKED.", victim_name), ui::GREEN);
-        } else {
-            if self.underwater { g.audio.play_uw_screech(); } else { g.audio.play_screech(); }
-            self.log(format!("{} IS DOWN.", victim_name), ui::GREEN);
-        }
-        // morale: the victim's team loses, the killer's team gains
+        let mut ev = Vec::new();
+        self.kill_unit(victim_idx, killer_idx, &mut ev);
+        self.play_shot(g, &ev);
+        self.check_end();
+    }
+
+    /// The leadership a victim's death is weighed by (used by the death morale loss).
+    fn victim_lead(&self, idx: usize) -> i32 {
+        let u = &self.units[idx];
+        if u.side == Side::Player {
+            match u.rank { 2 => 120, 3 => 130, 5 => 150, 6 => 175, _ => 100 }
+        } else { 100 }
+    }
+
+    /// The full morale loss the victim's side takes when this unit dies.
+    fn unit_death_loss(&self, idx: usize) -> i32 {
+        death_morale_loss(self.units[idx].bravery_mod, self.victim_lead(idx))
+    }
+
+    /// Takes `loss` (at least 1) off every other living unit of `side`. The set a death's loss reaches.
+    fn side_morale_loss(&mut self, side: Side, except: usize, loss: i32) {
         for i in 0..self.units.len() {
-            if i == victim_idx || !self.units[i].alive { continue; }
-            if self.units[i].side == victim_side {
-                let loss = ((victim_bravery * 200 / victim_lead.max(1)) * victim_lead) / 100;
+            if i == except || !self.units[i].alive { continue; }
+            if self.units[i].side == side {
                 self.units[i].morale = (self.units[i].morale - loss.max(1)).clamp(0, 100);
             }
         }
+    }
+
+    /// Rule part of a death: the unit is out, its side loses morale. The killer gets the kill and the
+    /// morale gain only when it is on the other side (R9: a kill by a stray counts like any kill).
+    /// No sound, no picture, no end check.
+    fn kill_unit(&mut self, victim_idx: usize, killer_idx: Option<usize>, ev: &mut Vec<ShotEvent>) {
+        if victim_idx >= self.units.len() || !self.units[victim_idx].alive { return; }
+        let victim_side = self.units[victim_idx].side;
+        let stunned = victim_side != Side::Player && self.units[victim_idx].hp > 0 && self.units[victim_idx].stun >= self.units[victim_idx].hp;
+        let loss = self.unit_death_loss(victim_idx);
+        self.units[victim_idx].alive = false;
+        self.units[victim_idx].path.clear();
+        // morale: the victim's team loses, the killer's team gains
+        self.side_morale_loss(victim_side, victim_idx, loss);
+        let mut credited = false;
         if let Some(k) = killer_idx {
-            if k < self.units.len() && self.units[k].alive {
+            if k < self.units.len() && self.units[k].alive && self.units[k].side != victim_side {
                 let lead = self.team_leadership(self.units[k].side);
                 self.units[k].morale = (self.units[k].morale + (20 * lead / 100)).min(100);
                 self.units[k].kills = self.units[k].kills.saturating_add(1);
+                credited = true;
             }
         }
-        self.check_end();
+        ev.push(ShotEvent::Died { unit: victim_idx, killer: killer_idx, stunned, credited });
     }
 
     fn tick_smoke_and_fire(&mut self, g: &mut Game) {
@@ -1140,82 +1432,193 @@ impl Battle {
         }
     }
 
+    /// Fire: the rules (`resolve_shot`), then the picture and sound (`play_shot`), then sight and the
+    /// end check. True when any round hit the intended target.
     fn fire(&mut self, g: &mut Game, shooter_idx: usize, target_idx: usize, mode: ShotMode) -> bool {
-        if shooter_idx >= self.units.len() || target_idx >= self.units.len() { return false; }
-        if !self.units[shooter_idx].alive || !self.units[target_idx].alive { return false; }
-        let wd = g.data.weapons[self.units[shooter_idx].weapon].clone();
-        let it = g.data.item(wd.game, wd.item).clone();
-        let mi = mode.idx();
-        let wa = it.acc[mi] as i32;
-        if wa <= 0 { self.log(format!("{} HAS NO {} MODE.", wd.name, mode.label()), DIM); return false; }
-        if self.shot_odds(&g.data, shooter_idx, target_idx, mode).blocked { self.log("NO LINE OF FIRE.", DIM); return false; }
-        let cost = tu_cost(self.units[shooter_idx].max_tu as i32, it.tu[mi]);
-        let (tu, ammo) = (self.units[shooter_idx].tu, self.units[shooter_idx].ammo);
-        if tu < cost as f32 { self.log("NOT ENOUGH TIME UNITS.", DIM); return false; }
-        if !wd.infinite && ammo <= 0 { self.log("WEAPON IS EMPTY.", ui::RED); return false; }
-        self.units[shooter_idx].tu -= cost as f32;
-        let rounds = if mode == ShotMode::Auto { 3 } else { 1 };
-        let mut hit_any = false;
-        for _r in 0..rounds {
-            if !self.units[target_idx].alive { break; }
-            if !wd.infinite && self.units[shooter_idx].ammo <= 0 { break; }
-            let chance = self.shot_odds(&g.data, shooter_idx, target_idx, mode).percent;
-            if !wd.infinite { self.units[shooter_idx].ammo -= 1; }
-            self.shots_fired += 1;
-            let dtype = g.data.weapon_damage_type(&wd);
-            if self.underwater {
-                match dtype {
-                    3 => g.audio.play_uw_cav(),
-                    4 => g.audio.play_uw_pressure(),
-                    _ => g.audio.play_uw_rifle(),
-                }
-            } else {
-                match dtype {
-                    3 => g.audio.play_cored(),
-                    4 => g.audio.play_arc(),
-                    _ => g.audio.play_rifle(),
-                }
-            }
-            let a = self.muzzle_pos(shooter_idx);
-            let b = self.chest_pos(target_idx);
-
-            // Shot scatter: a miss deviates in three dimensions
-            let shooter_name = self.units[shooter_idx].name.clone();
-            let (is_hit, roll) = self.dice.check_roll(&shooter_name, "shot", chance);
-            let tracer_end = if is_hit {
-                b
-            } else {
-                let dist = ((b.x - a.x).powi(2) + (b.z - a.z).powi(2)).sqrt().max(1.0);
-                let dev = (roll - chance) + 50;
-                let scatter = ((dev as f32 * (dist * 0.5)) / 200.0).clamp(0.45, 2.8);
-                let scatter_ang = self.fx.unit() * std::f32::consts::TAU;
-                b + vec3(scatter_ang.cos() * scatter, self.fx.unit() - 0.35, scatter_ang.sin() * scatter)
-            };
-
-            self.effects.push(Effect::Tracer { a, b: tracer_end, color: Color::new(wd.tracer[0], wd.tracer[1], wd.tracer[2], 1.0), t: 0.0, life: 0.11 });
-            self.effects.push(Effect::Flash { p: a, t: 0.0, life: 0.09, color: Color::new(1.0, 0.85, 0.45, 1.0), size: 0.7 });
-            self.units[shooter_idx].muzzle = 0.09;
-            self.screen_flash = 0.55;
-            if is_hit {
-                self.hits += 1;
-                hit_any = true;
-                self.damage_unit(g, target_idx, shooter_idx, &wd, mode);
-                if !self.units[target_idx].alive { break; }
-            } else {
-                self.effects.push(Effect::Text { p: tracer_end + vec3(0.0, 0.25, 0.0), text: "MISS".into(), color: ui::DIM, t: 0.0, life: 0.7 });
-            }
-        }
-        self.units[shooter_idx].shot_flash = 0.10;
+        let events = self.resolve_shot(&g.data, shooter_idx, target_idx, mode);
+        self.play_shot(g, &events);
+        if !events.iter().any(|e| matches!(e, ShotEvent::Fired { .. })) { return false; }
+        let opened = events.iter().any(|e| matches!(e, ShotEvent::SceneryHit { change: ObstacleChange::Crumbled | ObstacleChange::Destroyed { .. }, .. }));
+        if opened { self.refresh_move_tiles(); }
         self.compute_visibility();
         self.check_end();
-        hit_any
+        events.iter().any(|e| matches!(e, ShotEvent::Round { outcome: RoundOutcome::Hit, .. }))
     }
 
-    fn damage_unit(&mut self, g: &mut Game, target_idx: usize, shooter_idx: usize, w: &WeaponDef, _mode: ShotMode) {
-        let base = g.data.weapon_damage(w);
-        let dtype = g.data.weapon_damage_type(w);
+    /// All the rules of one trigger pull, as events. Changes rule state (time units, ammo, health,
+    /// armour, morale, wounds, obstacles, counters, incidents) and draws only from `self.dice`.
+    /// Never touches `Game`, sound, effects, `fx` or anything only the picture uses.
+    pub fn resolve_shot(&mut self, data: &GameData, shooter: usize, target: usize, mode: ShotMode) -> Vec<ShotEvent> {
+        let mut ev = Vec::new();
+        if shooter >= self.units.len() || target >= self.units.len() { return ev; }
+        if !self.units[shooter].alive || !self.units[target].alive { return ev; }
+        let weapon = self.units[shooter].weapon;
+        let wd = data.weapons[weapon].clone();
+        let it = data.item(wd.game, wd.item).clone();
+        let mi = mode.idx();
+        let refuse = |reason| vec![ShotEvent::Refused { shooter, reason }];
+        if (it.acc[mi] as i32) <= 0 { return refuse(Refusal::NoMode { weapon, mode }); }
+        if self.shot_odds(data, shooter, target, mode).blocked { return refuse(Refusal::NoLineOfFire); }
+        let cost = tu_cost(self.units[shooter].max_tu as i32, it.tu[mi]);
+        let (tu, ammo) = (self.units[shooter].tu, self.units[shooter].ammo);
+        if tu < cost as f32 { return refuse(Refusal::NotEnoughTime); }
+        if !wd.infinite && ammo <= 0 { return refuse(Refusal::Empty); }
+        self.units[shooter].tu -= cost as f32;
+        let rounds = if mode == ShotMode::Auto { 3 } else { 1 };
+        let from = self.square_of(shooter);
+        let at = self.square_of(target);
+        ev.push(ShotEvent::Fired { shooter, target, mode, weapon, from, at, tu_spent: cost, rounds });
+        let name = self.units[shooter].name.clone();
+        for n in 0..rounds {
+            if !self.units[target].alive { break; }
+            if !wd.infinite && self.units[shooter].ammo <= 0 { break; }
+            let (odds, cover) = self.shot_detail(data, shooter, target, mode);
+            let percent = odds.percent;
+            let p0 = combine_odds(odds.base, odds.height, odds.range, 0);
+            if !wd.infinite { self.units[shooter].ammo -= 1; }
+            self.shots_fired += 1;
+            let (_, roll) = self.dice.check_roll(&name, "shot", percent);
+            let points: Vec<i32> = cover.iter().map(|c| cover_points(c.kind)).collect();
+            let mut sub = Vec::new();
+            let (outcome, end, struck) = match round_outcome(roll, percent, p0, &points) {
+                RoundCause::Hit => {
+                    self.hits += 1;
+                    self.hit_unit(data, target, shooter, &wd, HitVia::Aimed, &mut sub);
+                    (RoundOutcome::Hit, at, Struck::Unit(target))
+                }
+                RoundCause::Cover(i) => {
+                    let c = cover[i];
+                    match c.kind {
+                        // Smoke stops nothing: an ordinary stray (R5).
+                        CoverKind::Smoke => self.fly_stray(data, shooter, target, &wd, roll, percent, true, &mut sub),
+                        CoverKind::Friend(u) => {
+                            self.hit_unit(data, u, shooter, &wd, HitVia::Cover, &mut sub);
+                            (RoundOutcome::CoverHit { cover: c }, (c.x, c.y), Struck::Unit(u))
+                        }
+                        CoverKind::Rock | CoverKind::Block | CoverKind::Crystal => {
+                            let s = self.strike_scenery(data, shooter, c.x, c.y, &wd, &mut sub);
+                            (RoundOutcome::CoverHit { cover: c }, (c.x, c.y), s)
+                        }
+                    }
+                }
+                RoundCause::Stray => self.fly_stray(data, shooter, target, &wd, roll, percent, false, &mut sub),
+            };
+            ev.push(ShotEvent::Round { shooter, target, weapon, n, odds: percent, p0, roll, outcome, end, struck });
+            ev.extend(sub);
+        }
+        ev
+    }
+
+    fn square_of(&self, i: usize) -> (i32, i32) { (self.units[i].x.round() as i32, self.units[i].y.round() as i32) }
+
+    /// R2, R3, R4, T1, T2, T5: a missed round flies where its tracer is drawn. The side it goes to is
+    /// a logged "stray angle" on the battle dice. It flies from the shooter through the aim point to
+    /// the weapon's comfortable range, and stops at the first thing it strikes.
+    #[allow(clippy::too_many_arguments)]
+    fn fly_stray(&mut self, data: &GameData, shooter: usize, target: usize, wd: &WeaponDef, roll: i32, percent: i32, from_smoke: bool, sub: &mut Vec<ShotEvent>) -> (RoundOutcome, (i32, i32), Struck) {
+        let from = self.square_of(shooter);
+        let at = self.square_of(target);
+        // T5 (confirmed 2026-11-13): no comfortable range, no stray.
+        let Some(reach) = comfortable_range(wd.cat) else { return (RoundOutcome::NoStray, at, Struck::Nothing) };
+        let name = self.units[shooter].name.clone();
+        let dist = ((((at.0 - from.0).pow(2) + (at.1 - from.1).pow(2)) as f32).sqrt()).max(1.0);
+        let miss = stray_miss_squares(roll, percent, dist);
+        let angle = self.dice.range(&name, "stray angle", 0, 359);
+        let aim = stray_aim((at.0 as f32, at.1 as f32), angle, miss);
+        let outcome = RoundOutcome::Stray { angle, miss, aim, reach, from_smoke };
+        let squares = stray_squares(from, aim, reach, at);
+        let mut end = squares.last().copied().unwrap_or(at);
+        let mut struck = Struck::Nothing;
+        // R3: smoke adding to 18 or more fully blocks shots (as in `walk_line`), so it ends a stray.
+        let mut smoke_total = 0i32;
+        for &(x, y) in &squares {
+            let t = tile_at(self, x, y);
+            let (obstacle, h, smoke) = (t.obstacle, t.h, t.smoke as i32);
+            if obstacle_blocks(obstacle) {
+                end = (x, y);
+                struck = self.strike_scenery(data, shooter, x, y, wd, sub);
+                break;
+            }
+            if h >= 2 { end = (x, y); struck = Struck::Ground; break; }
+            smoke_total += smoke;
+            if smoke_total >= 18 { end = (x, y); break; }
+            if let Some(u) = self.unit_at(x, y) {
+                // T2 (confirmed 2026-11-13): never the target, never the shooter.
+                if u != shooter && u != target {
+                    let odds = stray_unit_odds(self.units[u].kneeling);
+                    let (hit, r) = self.dice.check_roll(&name, "stray hits unit", odds);
+                    sub.push(ShotEvent::PassRoll { shooter, x, y, unit: Some(u), odds, roll: r, hit });
+                    if hit {
+                        end = (x, y);
+                        struck = Struck::Unit(u);
+                        self.hit_unit(data, u, shooter, wd, HitVia::Stray, sub);
+                        break;
+                    }
+                }
+            }
+            if let Some(odds) = stray_scenery_odds(obstacle) {
+                let (hit, r) = self.dice.check_roll(&name, "stray hits scenery", odds);
+                sub.push(ShotEvent::PassRoll { shooter, x, y, unit: None, odds, roll: r, hit });
+                if hit {
+                    end = (x, y);
+                    struck = self.strike_scenery(data, shooter, x, y, wd, sub);
+                    break;
+                }
+            }
+        }
+        (outcome, end, struck)
+    }
+
+    /// R5, R7: a round strikes the obstacle in (x, y). It takes the same damage roll as an aimed hit
+    /// against its hit points; hulls and the power plant cannot be broken by small arms.
+    fn strike_scenery(&mut self, data: &GameData, shooter: usize, x: i32, y: i32, wd: &WeaponDef, sub: &mut Vec<ShotEvent>) -> Struck {
+        let idx = tile_idx(x, y);
+        let kind = self.tiles[idx].obstacle;
+        if !obstacle_shot_breakable(kind) {
+            sub.push(ShotEvent::SceneryHit { x, y, kind, damage: 0, hp_left: self.tiles[idx].obstacle_hp, change: ObstacleChange::Unbreakable });
+            return Struck::Scenery { kind };
+        }
+        let name = self.units[shooter].name.clone();
+        let damage = roll_damage(&mut self.dice, &name, "damage", data.weapon_damage(wd));
+        let change = self.damage_obstacle(idx, damage);
+        sub.push(ShotEvent::SceneryHit { x, y, kind, damage, hp_left: self.tiles[idx].obstacle_hp, change });
+        Struck::Scenery { kind }
+    }
+
+    /// Takes `damage` off an obstacle's hit points. A high wall at 40 or less falls to low cover; at
+    /// 0 or less the obstacle is cleared. Shared by shots and `explode`.
+    fn damage_obstacle(&mut self, idx: usize, damage: i32) -> ObstacleChange {
+        let t = &mut self.tiles[idx];
+        t.obstacle_hp -= damage;
+        if t.obstacle == 4 && t.obstacle_hp <= 40 && t.obstacle_hp > 0 {
+            t.obstacle = 3;
+            ObstacleChange::Crumbled
+        } else if t.obstacle_hp <= 0 {
+            let was = t.obstacle;
+            t.obstacle = 0;
+            ObstacleChange::Destroyed { was }
+        } else {
+            ObstacleChange::Damaged
+        }
+    }
+
+    /// Alien melee: a hit with sound and picture. The rule part is `hit_unit`.
+    fn damage_unit(&mut self, g: &mut Game, target_idx: usize, shooter_idx: usize, w: &WeaponDef) {
+        let mut ev = Vec::new();
+        self.hit_unit(&g.data, target_idx, shooter_idx, w, HitVia::Aimed, &mut ev);
+        self.play_shot(g, &ev);
+        self.check_end();
+    }
+
+    /// The one damage rule for every hit (aimed, cover, stray; R6, R8): one damage roll, the modifier
+    /// table, the armour facing, wounds, the victim's own morale, death. Friendly fire (R10, R11) and
+    /// stray kills (R11) are recorded here.
+    fn hit_unit(&mut self, data: &GameData, target_idx: usize, shooter_idx: usize, w: &WeaponDef, via: HitVia, ev: &mut Vec<ShotEvent>) {
+        if !self.units[target_idx].alive { return; }
+        let base = data.weapon_damage(w);
+        let dtype = data.weapon_damage_type(w);
         let shooter_name = self.units[shooter_idx].name.clone();
-        let roll = roll_damage(&mut self.dice, &shooter_name, "damage", base, dtype == 2);
+        let roll = roll_damage(&mut self.dice, &shooter_name, "damage", base);
         let class = self.units[target_idx].armor_class;
         let modified = (roll * damage_modifier(w.game, dtype, class)) / 100;
         // work out which armour facing took the hit
@@ -1233,20 +1636,137 @@ impl Battle {
         } else {
             self.units[target_idx].hp -= dmg;
         }
-        self.units[target_idx].hit_flash = 0.25;
         let lead = self.team_leadership(self.units[target_idx].side);
         let bm = self.units[target_idx].bravery_mod;
         let loss = ((bm * dmg) / 10) * 100 / lead.max(1);
         self.units[target_idx].morale = (self.units[target_idx].morale - loss).clamp(0, 100);
+        let mut wound = 0;
         if dmg > 0 && self.units[target_idx].hp > 0 && self.dice.range(&shooter_name, "wound", 0, 10) < dmg {
-            self.units[target_idx].wounds = (self.units[target_idx].wounds + self.dice.range(&shooter_name, "wound size", 0, 2) + 1).min(6);
+            let before = self.units[target_idx].wounds;
+            self.units[target_idx].wounds = (before + self.dice.range(&shooter_name, "wound size", 0, 2) + 1).min(6);
+            wound = self.units[target_idx].wounds - before;
         }
-        let hpdmg = if dtype == 5 { dmg } else { dmg };
-        if hpdmg > 0 {
-            self.effects.push(Effect::Text { p: self.chest_pos(target_idx), text: format!("-{}", hpdmg), color: ui::RED, t: 0.0, life: 0.8 });
+        let victim_side = self.units[target_idx].side;
+        let friendly = shooter_idx != target_idx && self.units[shooter_idx].side == victim_side;
+        ev.push(ShotEvent::UnitHit { unit: target_idx, by: shooter_idx, via, roll, damage: dmg, location: loc, stun: dtype == 5, wound, friendly });
+        let dies = self.units[target_idx].hp <= 0 || self.units[target_idx].stun >= self.units[target_idx].max_hp;
+        let harm = if dies { Harm::Killed } else if dmg > 0 { Harm::Hurt } else { Harm::Unhurt };
+        if friendly && !dies {
+            // R10 at 25 or 50 percent; a friendly kill takes the full death loss in `kill_unit`.
+            // T4 (confirmed 2026-11-13): the same units a death's loss reaches, no sight test.
+            let loss = friendly_fire_loss(self.unit_death_loss(target_idx), harm);
+            self.side_morale_loss(victim_side, target_idx, loss);
+            ev.push(ShotEvent::FriendlyMorale { victim: target_idx, harm, loss: loss.max(1) });
         }
-        if self.units[target_idx].hp <= 0 || self.units[target_idx].stun >= self.units[target_idx].max_hp {
-            self.on_unit_death(g, target_idx, Some(shooter_idx));
+        if dies { self.kill_unit(target_idx, Some(shooter_idx), ev); }
+        let kind = if friendly { Some(IncidentKind::FriendlyFire) }
+            else if dies && via == HitVia::Stray { Some(IncidentKind::StrayKill) }
+            else { None };
+        if let Some(kind) = kind {
+            let (s, v) = (&self.units[shooter_idx], &self.units[target_idx]);
+            let soldier = |u: &Unit| if u.side == Side::Player && !u.mind_controlled { Some(u.soldier_idx) } else { None };
+            self.incidents.push(Incident {
+                kind, turn: self.turn, shooter: shooter_idx, victim: target_idx,
+                shooter_name: s.name.clone(), victim_name: v.name.clone(),
+                shooter_soldier: soldier(s), victim_soldier: soldier(v), harm,
+            });
+        }
+    }
+
+    /// The picture and sound of a shot (or of any rule events). Reads events only: never draws from
+    /// `self.dice` and never changes rule state. `self.fx` is used only for debris.
+    fn play_shot(&mut self, g: &mut Game, events: &[ShotEvent]) {
+        let mut shooter_fired = None;
+        for e in events {
+            match *e {
+                ShotEvent::Refused { reason, .. } => match reason {
+                    Refusal::NoMode { weapon, mode } => self.log(format!("{} HAS NO {} MODE.", g.data.weapons[weapon].name, mode.label()), DIM),
+                    Refusal::NoLineOfFire => self.log("NO LINE OF FIRE.", DIM),
+                    Refusal::NotEnoughTime => self.log("NOT ENOUGH TIME UNITS.", DIM),
+                    Refusal::Empty => self.log("WEAPON IS EMPTY.", ui::RED),
+                },
+                ShotEvent::Fired { shooter, .. } => shooter_fired = Some(shooter),
+                ShotEvent::Round { shooter, target, weapon, outcome, end, struck, .. } => {
+                    let wd = &g.data.weapons[weapon];
+                    let dtype = g.data.weapon_damage_type(wd);
+                    if self.underwater {
+                        match dtype { 3 => g.audio.play_uw_cav(), 4 => g.audio.play_uw_pressure(), _ => g.audio.play_uw_rifle() }
+                    } else {
+                        match dtype { 3 => g.audio.play_cored(), 4 => g.audio.play_arc(), _ => g.audio.play_rifle() }
+                    }
+                    let a = self.muzzle_pos(shooter);
+                    // The tracer ends exactly where the rule says the round ended.
+                    let b = match struck {
+                        Struck::Unit(u) => self.chest_pos(u),
+                        Struck::Scenery { .. } | Struck::Ground => self.square_point(end, 0.9),
+                        Struck::Nothing if outcome == RoundOutcome::NoStray => self.chest_pos(target) + vec3(0.0, 0.6, 0.0),
+                        Struck::Nothing => self.square_point(end, 1.05),
+                    };
+                    let tc = wd.tracer;
+                    self.effects.push(Effect::Tracer { a, b, color: Color::new(tc[0], tc[1], tc[2], 1.0), t: 0.0, life: 0.11 });
+                    self.effects.push(Effect::Flash { p: a, t: 0.0, life: 0.09, color: Color::new(1.0, 0.85, 0.45, 1.0), size: 0.7 });
+                    self.units[shooter].muzzle = 0.09;
+                    self.screen_flash = 0.55;
+                    if !matches!(struck, Struck::Unit(_)) {
+                        self.effects.push(Effect::Text { p: b + vec3(0.0, 0.25, 0.0), text: "MISS".into(), color: ui::DIM, t: 0.0, life: 0.7 });
+                    }
+                }
+                ShotEvent::UnitHit { unit, damage, .. } => {
+                    self.units[unit].hit_flash = 0.25;
+                    if damage > 0 {
+                        self.effects.push(Effect::Text { p: self.chest_pos(unit), text: format!("-{}", damage), color: ui::RED, t: 0.0, life: 0.8 });
+                    }
+                }
+                ShotEvent::SceneryHit { x, y, change, .. } => match change {
+                    ObstacleChange::Crumbled => {
+                        self.log("WALL CRUMBLED INTO LOW COVER!", AMBER);
+                        g.audio.play_demolish();
+                        self.debris(x, y, None);
+                    }
+                    ObstacleChange::Destroyed { was } => {
+                        g.audio.play_demolish();
+                        if was == 4 { self.log("WALL BREACHED! SIGHTLINE OPENED.", CYAN); }
+                        self.debris(x, y, Some(was));
+                    }
+                    ObstacleChange::Damaged | ObstacleChange::Unbreakable => {}
+                },
+                ShotEvent::Died { unit, stunned, .. } => {
+                    self.units[unit].death_t = 0.0;
+                    let name = self.units[unit].name.clone();
+                    if self.units[unit].side == Side::Player {
+                        g.audio.play_scream();
+                        self.log(format!("{} IS KILLED IN ACTION.", name), ui::RED);
+                    } else {
+                        if self.underwater { g.audio.play_uw_screech(); } else { g.audio.play_screech(); }
+                        if stunned { self.log(format!("{} IS STUNNED UNCONSCIOUS // CAPTIVE MARKED.", name), ui::GREEN); }
+                        else { self.log(format!("{} IS DOWN.", name), ui::GREEN); }
+                    }
+                }
+                ShotEvent::PassRoll { .. } | ShotEvent::FriendlyMorale { .. } => {}
+            }
+        }
+        if let Some(s) = shooter_fired { self.units[s].shot_flash = 0.10; }
+    }
+
+    /// A point above the middle of a square, `lift` metres over its ground.
+    fn square_point(&self, sq: (i32, i32), lift: f32) -> Vec3 {
+        world_pos(sq.0 as f32, sq.1 as f32, tile_at(self, sq.0, sq.1).h) + vec3(0.0, lift, 0.0)
+    }
+
+    /// Flying bits when an obstacle breaks. `None` is a wall falling to low cover; `Some(was)` an
+    /// obstacle cleared. Picture only (uses `fx`).
+    fn debris(&mut self, x: i32, y: i32, was: Option<u8>) {
+        let h = tile_at(self, x, y).h;
+        match was {
+            None => for _ in 0..6 {
+                let v = vec3(self.fx.unit() * 6.0 - 3.0, self.fx.unit() * 5.0 + 2.0, self.fx.unit() * 6.0 - 3.0);
+                self.effects.push(Effect::Debris { p: world_pos(x as f32, y as f32, h) + vec3(0.0, 0.8, 0.0), v, color: Color::new(0.48, 0.45, 0.42, 1.0), t: 0.0, life: 0.85 });
+            },
+            Some(was) => for _ in 0..8 {
+                let v = vec3(self.fx.unit() * 8.0 - 4.0, self.fx.unit() * 6.0 + 2.5, self.fx.unit() * 8.0 - 4.0);
+                let color = if was == 2 { Color::new(0.25, 0.18, 0.12, 1.0) } else { Color::new(0.5, 0.48, 0.45, 1.0) };
+                self.effects.push(Effect::Debris { p: world_pos(x as f32, y as f32, h) + vec3(0.0, 0.5, 0.0), v, color, t: 0.0, life: 1.0 });
+            },
         }
     }
 
@@ -1362,6 +1882,8 @@ impl Battle {
         }
     }
 
+    // slice 5 seam: explosions still mix rules with sound and picture and take `g: &mut Game`.
+    // They share `damage_obstacle`, `debris` and `on_unit_death` (whose rule part is `kill_unit`).
     fn explode(&mut self, g: &mut Game, tx: i32, ty: i32, power: i32, dtype: u8, attacker: Option<usize>) {
         if !in_bounds(tx, ty) { return; }
         let center_h = tile_at(self, tx, ty).h;
@@ -1422,39 +1944,24 @@ impl Battle {
                     };
                     if tile_power >= armor {
                         let damage = ((tile_power - armor) * 2).max(15);
-                        self.tiles[idx].obstacle_hp -= damage;
-
-                        // High wall degrades to low cover (rubble) when damaged past half HP
-                        if self.tiles[idx].obstacle == 4 && self.tiles[idx].obstacle_hp <= 40 && self.tiles[idx].obstacle_hp > 0 {
-                            self.tiles[idx].obstacle = 3;
-                            self.log("WALL CRUMBLED INTO LOW COVER!", AMBER);
-                            g.audio.play_demolish();
-                            destroyed_any = true;
-                            for _ in 0..6 {
-                                let v = vec3(self.fx.unit() * 6.0 - 3.0, self.fx.unit() * 5.0 + 2.0, self.fx.unit() * 6.0 - 3.0);
-                                self.effects.push(Effect::Debris {
-                                    p: world_pos(x as f32, y as f32, self.tiles[idx].h) + vec3(0.0, 0.8, 0.0),
-                                    v, color: Color::new(0.48, 0.45, 0.42, 1.0), t: 0.0, life: 0.85,
-                                });
+                        match self.damage_obstacle(idx, damage) {
+                            ObstacleChange::Crumbled => {
+                                self.log("WALL CRUMBLED INTO LOW COVER!", AMBER);
+                                g.audio.play_demolish();
+                                destroyed_any = true;
+                                self.debris(x, y, None);
                             }
-                        } else if self.tiles[idx].obstacle_hp <= 0 {
-                            let was = self.tiles[idx].obstacle;
-                            self.tiles[idx].obstacle = 0;
-                            destroyed_any = true;
-                            g.audio.play_demolish();
-                            if was == 4 {
-                                self.log("WALL BREACHED! SIGHTLINE OPENED.", CYAN);
-                            } else if was == 2 {
-                                self.log("COVER DEMOLISHED BY BLAST.", TEXT);
+                            ObstacleChange::Destroyed { was } => {
+                                destroyed_any = true;
+                                g.audio.play_demolish();
+                                if was == 4 {
+                                    self.log("WALL BREACHED! SIGHTLINE OPENED.", CYAN);
+                                } else if was == 2 {
+                                    self.log("COVER DEMOLISHED BY BLAST.", TEXT);
+                                }
+                                self.debris(x, y, Some(was));
                             }
-                            for _ in 0..8 {
-                                let v = vec3(self.fx.unit() * 8.0 - 4.0, self.fx.unit() * 6.0 + 2.5, self.fx.unit() * 8.0 - 4.0);
-                                self.effects.push(Effect::Debris {
-                                    p: world_pos(x as f32, y as f32, self.tiles[idx].h) + vec3(0.0, 0.5, 0.0),
-                                    v, color: if was == 2 { Color::new(0.25, 0.18, 0.12, 1.0) } else { Color::new(0.5, 0.48, 0.45, 1.0) },
-                                    t: 0.0, life: 1.0,
-                                });
-                            }
+                            ObstacleChange::Damaged | ObstacleChange::Unbreakable => {}
                         }
                     }
                 }
@@ -1491,7 +1998,7 @@ impl Battle {
             if unit_pow <= 0 { continue; }
 
             if dtype == 5 {
-                let stun_roll = roll_damage(&mut self.dice, &blast_who, "blast stun", unit_pow / 2, false);
+                let stun_roll = roll_damage(&mut self.dice, &blast_who, "blast stun", unit_pow / 2);
                 self.units[i].stun += stun_roll;
                 self.effects.push(Effect::Text {
                     p: vec3(self.units[i].x * TILE, tile_at(self, self.units[i].x.round() as i32, self.units[i].y.round() as i32).h as f32 * 0.62 + 1.2, self.units[i].y * TILE),
@@ -1499,7 +2006,7 @@ impl Battle {
                     color: CYAN, t: 0.0, life: 0.7,
                 });
             } else {
-                let roll = roll_damage(&mut self.dice, &blast_who, "blast damage", unit_pow, dtype == 2);
+                let roll = roll_damage(&mut self.dice, &blast_who, "blast damage", unit_pow);
                 let class = self.units[i].armor_class;
                 let dmg = (roll * damage_modifier(0, dtype, class) / 100 - self.units[i].armor_cur[4] / 2).max(1);
                 self.units[i].hp -= dmg;
@@ -1605,7 +2112,7 @@ impl Battle {
             }
             if ak.melee > 25 && dist <= 1.7 {
                 let dummy = g.data.weapons[0].clone();
-                self.damage_unit(g, ti, i, &dummy, ShotMode::Aimed);
+                self.damage_unit(g, ti, i, &dummy);
                 return;
             }
             if dist > 1.6 && self.units[i].tu >= 12.0 && { let n = self.units[i].name.clone(); self.dice.check(&n, "alien moves closer", 40) } {
@@ -2084,6 +2591,7 @@ fn finalize(g: &mut Game, mut b: Battle) {
     let reward = b.mission.reward;
     let final_mission = b.mission.final_mission;
     g.last_roll_log = b.dice.take_log();
+    g.last_incidents = std::mem::take(&mut b.incidents);
     g.battle = None;
     g.finish_battle(victory, kills, lost, site, reward, final_mission, live_captured);
 }
@@ -4320,5 +4828,282 @@ mod odds_tests {
         assert_eq!(odds_text(42, ShotMode::Auto), "42% x3");
         assert_eq!(odds_text(42, ShotMode::Snap), "42%");
         assert_eq!(odds_text(42, ShotMode::Aimed), "42%");
+    }
+
+    // ---- Battle rules slice 1: shooting and damage (owner, 2026-11-13, ninth session) ----
+
+    #[test]
+    fn walk_reports_cover_in_order() {
+        let cell = |x: i32, y: i32| match (x, y) {
+            (3, 0) => LineCell { heavy: 1, things: [Some(CoverKind::Rock), None, None], ..Default::default() },
+            (5, 0) => LineCell { heavy: 1, light: 1, smoke: 2, things: [None, Some(CoverKind::Friend(7)), Some(CoverKind::Smoke)], ..Default::default() },
+            (1, 0) => LineCell { heavy: 1, things: [Some(CoverKind::Block), None, None], ..Default::default() },
+            _ => LineCell::default(),
+        };
+        let r = walk_line(0, 0, 9, 0, cell);
+        assert_eq!(r.cover, vec![
+            CoverThing { kind: CoverKind::Rock, x: 3, y: 0 },
+            CoverThing { kind: CoverKind::Friend(7), x: 5, y: 0 },
+            CoverThing { kind: CoverKind::Smoke, x: 5, y: 0 },
+        ]); // the block in the first square gives no cover
+        assert_eq!((r.light, r.heavy), (1, 2));
+    }
+
+    #[test]
+    fn outcome_split_edges() {
+        // percent 40, p0 75, a rock (25) then smoke (10).
+        let pts = [25, 10];
+        assert_eq!(round_outcome(39, 40, 75, &pts), RoundCause::Hit);
+        assert_eq!(round_outcome(40, 40, 75, &pts), RoundCause::Cover(0)); // roll == percent
+        assert_eq!(round_outcome(64, 40, 75, &pts), RoundCause::Cover(0));
+        assert_eq!(round_outcome(65, 40, 75, &pts), RoundCause::Cover(1));
+        assert_eq!(round_outcome(74, 40, 75, &pts), RoundCause::Cover(1)); // roll == p0 - 1
+        assert_eq!(round_outcome(75, 40, 75, &pts), RoundCause::Stray); // roll == p0
+        assert_eq!(round_outcome(99, 40, 75, &pts), RoundCause::Stray);
+        // Cover larger than p0: odds 0, p0 20, two friends (25 each). The first takes all of it.
+        assert_eq!(round_outcome(0, 0, 20, &[25, 25]), RoundCause::Cover(0));
+        assert_eq!(round_outcome(19, 0, 20, &[25, 25]), RoundCause::Cover(0));
+        assert_eq!(round_outcome(20, 0, 20, &[25, 25]), RoundCause::Stray);
+        // Cut off at p0 between things: percent 10, p0 40, three rocks: shares 10..35, 35..40, none.
+        assert_eq!(round_outcome(34, 10, 40, &[25, 25, 25]), RoundCause::Cover(0));
+        assert_eq!(round_outcome(35, 10, 40, &[25, 25, 25]), RoundCause::Cover(1));
+        assert_eq!(round_outcome(39, 10, 40, &[25, 25, 25]), RoundCause::Cover(1));
+        // No cover: every miss is a stray.
+        assert_eq!(round_outcome(59, 60, 60, &[]), RoundCause::Hit);
+        assert_eq!(round_outcome(60, 60, 60, &[]), RoundCause::Stray);
+        // Odds 100 always hit, odds 0 with no cover always stray.
+        assert_eq!(round_outcome(99, 100, 100, &[]), RoundCause::Hit);
+        assert_eq!(round_outcome(0, 0, 0, &[]), RoundCause::Stray);
+    }
+
+    #[test]
+    fn stray_walk_stops_at_reach_and_skips_ends() {
+        // Straight east from (2,12), aimed through the target at (6,12), pistol reach 8.
+        let sq = stray_squares((2, 12), (6.0, 12.0), 8, (6, 12));
+        assert_eq!(sq, vec![(3, 12), (4, 12), (5, 12), (7, 12), (8, 12), (9, 12), (10, 12)]);
+        assert!(!sq.contains(&(2, 12)) && !sq.contains(&(6, 12)));
+        // Every square is within reach (rounded straight-line distance), on a slant too.
+        for (aim, reach) in [((9.3, 15.1), 16), ((4.0, 3.0), 8), ((20.0, 20.0), 14)] {
+            let sq = stray_squares((5, 5), aim, reach, (99, 99));
+            assert!(!sq.is_empty());
+            for &(x, y) in &sq {
+                assert!(((((x - 5).pow(2) + (y - 5).pow(2)) as f32).sqrt().round() as i32) <= reach);
+                assert!(in_bounds(x, y));
+            }
+        }
+        // Clipped at the map edge.
+        let sq = stray_squares((2, 12), (0.0, 12.0), 16, (99, 99));
+        assert_eq!(sq, vec![(1, 12), (0, 12)]);
+        // No direction, no reach: nothing.
+        assert!(stray_squares((2, 12), (2.0, 12.0), 16, (99, 99)).is_empty());
+        assert!(stray_squares((2, 12), (6.0, 12.0), 0, (99, 99)).is_empty());
+    }
+
+    #[test]
+    fn stray_numbers() {
+        assert_eq!(stray_unit_odds(false), 50);
+        assert_eq!(stray_unit_odds(true), 25);
+        assert_eq!(stray_scenery_odds(1), Some(25));
+        assert_eq!(stray_scenery_odds(3), Some(25));
+        assert_eq!(stray_scenery_odds(5), Some(10));
+        for o in [0, 2, 4, 10, 12, 13] { assert_eq!(stray_scenery_odds(o), None); }
+        for o in [1, 2, 3, 4, 5] { assert!(obstacle_shot_breakable(o)); }
+        for o in [0, 10, 12, 13] { assert!(!obstacle_shot_breakable(o)); }
+        // A near miss lands closer than a bad miss.
+        assert!(stray_miss_squares(41, 40, 10.0) < stray_miss_squares(99, 40, 10.0));
+        let a = stray_aim((10.0, 10.0), 0, 1.0);
+        assert!((a.0 - 11.0).abs() < 1e-4 && (a.1 - 10.0).abs() < 1e-4);
+        let a = stray_aim((10.0, 10.0), 90, 2.0);
+        assert!((a.0 - 10.0).abs() < 1e-4 && (a.1 - 12.0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn damage_roll_is_50_to_150_percent() {
+        let mut d = Dice::from_seed(11);
+        let (mut lo, mut hi) = (i32::MAX, i32::MIN);
+        for _ in 0..5000 {
+            let r = roll_damage(&mut d, "t", "damage", 40);
+            lo = lo.min(r); hi = hi.max(r);
+        }
+        assert_eq!((lo, hi), (20, 60));
+        let n = d.log().len();
+        roll_damage(&mut d, "t", "damage", 40);
+        assert_eq!(d.log().len(), n + 1); // one logged roll
+        assert_eq!(roll_damage(&mut d, "t", "damage", 0), 0);
+    }
+
+    #[test]
+    fn friendly_fire_morale_fractions() {
+        assert_eq!(death_morale_loss(5, 100), 10);
+        assert_eq!(friendly_fire_loss(40, Harm::Unhurt), 10);
+        assert_eq!(friendly_fire_loss(40, Harm::Hurt), 20);
+        assert_eq!(friendly_fire_loss(40, Harm::Killed), 40);
+    }
+
+    // ---- A small battle with no window ----
+
+    fn unit(side: Side, x: i32, y: i32, weapon: usize) -> Unit {
+        Unit {
+            side, x: x as f32, y: y as f32, facing: 0.0, hp: 1000, max_hp: 1000, tu: 100.0, max_tu: 100.0,
+            acc: 60, reactions: 50, armor: 0, armor_class: 1, armor_cur: [0; 5], morale: 100, bravery_mod: 5,
+            psi_strength: 0, psi_skill: 0, stun: 0, weapon, ammo: 30, spare: 0, kneeling: false, alive: true,
+            path: Vec::new(), anim_phase: 0.0, muzzle: 0.0, hit_flash: 0.0, death_t: 0.0, name: format!("U{}{}", x, y),
+            rank: 0, look: Look::random(&mut Rng::new(1)), alien_kind: 0, grenades: 0, smoke_grenades: 0, medkits: 0,
+            wounds: 0, soldier_idx: 0, kills: 0, shot_flash: 0.0, moved_this_turn: 0.0, reaction_used: false, mind_controlled: false,
+        }
+    }
+
+    fn open_battle(seed: u64, units: Vec<Unit>) -> Battle {
+        let tiles = (0..TW * TH).map(|_| Tile { h: 0, kind: 0, obstacle: 0, obstacle_hp: 0, smoke: 0, fire: 0, scorched: false, visible: false, explored: false }).collect();
+        let mission = MissionSpec {
+            name: "TEST".into(), lat: 0.0, lon: 0.0, underwater: false, raid: false, biome: 0, aliens: vec![], tier: 1,
+            site: None, reward: 0, final_mission: false, month: Month::May, minute_of_day: 600,
+        };
+        Battle {
+            dice: Dice::from_seed(seed), fx: Rng::new(1), tiles, units, selected: 0, mode: ShotMode::Snap, phase: Phase::Player,
+            turn: 1, hover: (0, 0), cam_yaw: 0.0, cam_zoom: 1.0, cam_pan: Vec2::ZERO, effects: Vec::new(), log: Vec::new(),
+            mission, underwater: false, biome: 0, weather: 0, weather_desc: String::new(), sun_dir: Vec3::Y, sun_col: Color::new(1.0, 1.0, 1.0, 1.0),
+            ambient: 0.3, fog_col: Color::new(1.0, 1.0, 1.0, 1.0), time: 0.0, alien_timer: 0.0, alien_step: 0, end_timer: 0.0, shots_fired: 0, hits: 0,
+            reaction_shots: 0, pending_reaction: None, lmb_press: 0.0, rmb_press: 0.0, input_armed: false, hud_health: false,
+            hud_ammo: false, hud_objective: false, selftest: false, target_alien: None, show_help: false, last_click: 0.0,
+            move_tiles: Vec::new(), screen_flash: 0.0, victory_applied: false, end_turn_clicked: false, fire_clicked: false,
+            reload_clicked: false, kneel_clicked: false, grenade_clicked: false, smoke_clicked: false, medkit_clicked: false,
+            inventory_open: false, inventory_selected_slot: 0, inventory_clicked: false, view_level: 2, psi_open: false,
+            psi_target: None, probed_alien: None, lvl_up_clicked: false, lvl_down_clicked: false, psi_clicked: false,
+            uw_audio_timer: 0.0, gfx_ready: false, dbg_view: 0, incidents: Vec::new(),
+        }
+    }
+
+    fn rifle(data: &GameData) -> usize { data.weapons.iter().position(|w| w.name == "SERVICE RIFLE").unwrap() }
+
+    #[test]
+    fn friendly_fire_morale_and_no_credit() {
+        let data = GameData::load();
+        let w = rifle(&data);
+        let wd = data.weapons[w].clone();
+        // 0 shooter, 1 victim, 2 bystander, 3 an alien so the battle is not over.
+        let mk = |data_armour: i32, hp: i32| {
+            let mut v = unit(Side::Player, 6, 5, w); v.armor_cur = [data_armour; 5]; v.hp = hp; v.max_hp = hp.max(1);
+            open_battle(3, vec![unit(Side::Player, 2, 5, w), v, unit(Side::Player, 2, 9, w), unit(Side::Alien, 20, 5, w)])
+        };
+        // Armour stops it: 25 percent of the death loss (10) = 2.
+        let mut b = mk(9999, 1000);
+        let mut ev = Vec::new();
+        b.hit_unit(&data, 1, 0, &wd, HitVia::Stray, &mut ev);
+        assert!(ev.contains(&ShotEvent::FriendlyMorale { victim: 1, harm: Harm::Unhurt, loss: 2 }));
+        assert_eq!((b.units[0].morale, b.units[2].morale), (98, 98));
+        assert_eq!(b.units[3].morale, 100);
+        assert_eq!(b.incidents.len(), 1);
+        assert_eq!((b.incidents[0].kind, b.incidents[0].harm), (IncidentKind::FriendlyFire, Harm::Unhurt));
+        // Hurt but alive: 50 percent = 5.
+        let mut b = mk(0, 1000);
+        let mut ev = Vec::new();
+        b.hit_unit(&data, 1, 0, &wd, HitVia::Cover, &mut ev);
+        assert!(ev.contains(&ShotEvent::FriendlyMorale { victim: 1, harm: Harm::Hurt, loss: 5 }));
+        assert_eq!(b.units[2].morale, 95);
+        // Killed: the full death loss, no kill, no killer's morale gain.
+        let mut b = mk(0, 1);
+        let mut ev = Vec::new();
+        b.hit_unit(&data, 1, 0, &wd, HitVia::Stray, &mut ev);
+        assert!(!b.units[1].alive);
+        assert!(ev.contains(&ShotEvent::Died { unit: 1, killer: Some(0), stunned: false, credited: false }));
+        assert_eq!(b.units[0].kills, 0);
+        assert_eq!((b.units[0].morale, b.units[2].morale), (90, 90));
+        assert_eq!(b.incidents[0].harm, Harm::Killed);
+    }
+
+    #[test]
+    fn stray_kill_gives_full_credit() {
+        let data = GameData::load();
+        let w = rifle(&data);
+        let wd = data.weapons[w].clone();
+        let mut a = unit(Side::Alien, 8, 5, w); a.hp = 1; a.max_hp = 1;
+        let mut b = open_battle(4, vec![unit(Side::Player, 2, 5, w), a, unit(Side::Alien, 20, 20, w)]);
+        let mut ev = Vec::new();
+        b.hit_unit(&data, 1, 0, &wd, HitVia::Stray, &mut ev);
+        assert!(ev.contains(&ShotEvent::Died { unit: 1, killer: Some(0), stunned: false, credited: true }));
+        assert_eq!(b.units[0].kills, 1);
+        assert_eq!(b.incidents.len(), 1);
+        assert_eq!(b.incidents[0].kind, IncidentKind::StrayKill);
+    }
+
+    #[test]
+    fn shots_follow_the_one_roll_and_the_tracer_line() {
+        let data = GameData::load();
+        let w = rifle(&data);
+        // Shooter (2,12); a friend at (5,12) in the line; a rock at (7,12); the target at (10,12);
+        // a bystander alien beyond the target at (13,12).
+        let mut friend = unit(Side::Player, 5, 12, w); friend.armor_cur = [9999; 5];
+        let mut target = unit(Side::Alien, 10, 12, w); target.armor_cur = [9999; 5];
+        let mut beyond = unit(Side::Alien, 13, 12, w); beyond.armor_cur = [9999; 5];
+        let mut shooter = unit(Side::Player, 2, 12, w); shooter.acc = 140;
+        let mut b = open_battle(77, vec![shooter, friend, target, beyond]);
+        let rock = tile_idx(7, 12);
+        let (mut hits, mut covers, mut strays) = (0, 0, 0);
+        for _ in 0..600 {
+            b.tiles[rock].obstacle = 1; b.tiles[rock].obstacle_hp = 1_000_000;
+            b.units[0].tu = 100.0; b.units[0].ammo = 30;
+            let ev = b.resolve_shot(&data, 0, 2, ShotMode::Snap);
+            assert!(matches!(ev[0], ShotEvent::Fired { .. }));
+            for e in &ev {
+                if let ShotEvent::Round { odds, p0, roll, outcome, end, struck, .. } = *e {
+                    assert!(in_bounds(end.0, end.1));
+                    assert_ne!(struck, Struck::Unit(0)); // never the shooter
+                    if roll < odds {
+                        hits += 1;
+                        assert_eq!((outcome, struck), (RoundOutcome::Hit, Struck::Unit(2)));
+                    } else if roll < p0 {
+                        covers += 1;
+                        // Friend first (25 points), then the rock (25 points).
+                        if roll < odds + 25 { assert_eq!((end, struck), ((5, 12), Struck::Unit(1))); }
+                        else { assert_eq!((end, struck), ((7, 12), Struck::Scenery { kind: 1 })); }
+                    } else {
+                        strays += 1;
+                        let RoundOutcome::Stray { aim, reach, .. } = outcome else { panic!("expected a stray") };
+                        assert_ne!(struck, Struck::Unit(2)); // a stray never hits its own target
+                        assert_eq!(reach, 16);
+                        // The picture and the rule are the same line.
+                        assert!(stray_squares((2, 12), aim, reach, (10, 12)).contains(&end));
+                    }
+                }
+            }
+        }
+        assert!(hits > 0 && covers > 0 && strays > 0, "hits {} covers {} strays {}", hits, covers, strays);
+        assert!(b.incidents.iter().any(|i| i.kind == IncidentKind::FriendlyFire && i.victim == 1));
+    }
+
+    #[test]
+    fn refusals_spend_nothing() {
+        let data = GameData::load();
+        let w = rifle(&data);
+        let mut b = open_battle(5, vec![unit(Side::Player, 2, 12, w), unit(Side::Alien, 10, 12, w)]);
+        b.units[0].tu = 0.0;
+        let n = b.dice.log().len();
+        assert_eq!(b.resolve_shot(&data, 0, 1, ShotMode::Snap), vec![ShotEvent::Refused { shooter: 0, reason: Refusal::NotEnoughTime }]);
+        b.units[0].tu = 100.0; b.units[0].ammo = 0;
+        assert_eq!(b.resolve_shot(&data, 0, 1, ShotMode::Snap), vec![ShotEvent::Refused { shooter: 0, reason: Refusal::Empty }]);
+        b.units[0].ammo = 5;
+        b.tiles[tile_idx(6, 12)].obstacle = 4;
+        assert_eq!(b.resolve_shot(&data, 0, 1, ShotMode::Snap), vec![ShotEvent::Refused { shooter: 0, reason: Refusal::NoLineOfFire }]);
+        assert_eq!((b.units[0].tu, b.units[0].ammo, b.dice.log().len()), (100.0, 5, n));
+    }
+
+    #[test]
+    fn stray_breaks_a_tree() {
+        let data = GameData::load();
+        let w = rifle(&data);
+        let wd = data.weapons[w].clone();
+        let mut b = open_battle(6, vec![unit(Side::Player, 2, 12, w), unit(Side::Alien, 10, 12, w)]);
+        let t = tile_idx(4, 12);
+        b.tiles[t].obstacle = 2; b.tiles[t].obstacle_hp = 1;
+        let mut ev = Vec::new();
+        assert_eq!(b.strike_scenery(&data, 0, 4, 12, &wd, &mut ev), Struck::Scenery { kind: 2 });
+        assert_eq!(b.tiles[t].obstacle, 0);
+        assert!(matches!(ev[0], ShotEvent::SceneryHit { change: ObstacleChange::Destroyed { was: 2 }, .. }));
+        // The hull cannot be broken by small arms.
+        b.tiles[t].obstacle = 10; b.tiles[t].obstacle_hp = 1;
+        let mut ev = Vec::new();
+        b.strike_scenery(&data, 0, 4, 12, &wd, &mut ev);
+        assert_eq!((b.tiles[t].obstacle, b.tiles[t].obstacle_hp), (10, 1));
     }
 }

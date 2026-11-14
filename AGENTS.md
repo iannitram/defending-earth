@@ -27,7 +27,9 @@ first game and designs it together with the assistant.
 - **The sea campaign is deferred.** Keep what exists consistent; do not
   design it further.
 - **Who does what.** Design decisions are made by the most capable model
-  (Fable). Actions (writing code, editing docs, commits, pushes, batch
+  (Fable). All design and animation jobs (the look, models, pictures,
+  motion) are also done by Fable itself, never by a sub-agent. Other
+  actions (writing code, editing docs, commits, pushes, batch
   jobs) are handed to a sub-agent on the smallest model that can
   reasonably do them. `docs/ROADMAP.md` lists the level for each kind of
   work.

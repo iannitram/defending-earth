@@ -899,6 +899,9 @@ settle.
   line. A friend can never be hit by the shot; a miss just misses.
   *Changed later in the eighth session: friendly fire is now a thing, so a
   friend can be hit by a stray shot. See "Eighth session, later part".*
+  *Changed again in the ninth session (rule R5): the friend still lowers
+  the odds by 25, and the friend IS hit when the roll lands in their 25
+  points. See "Ninth session".*
 - What blocks a shot fully today still blocks it fully: trees, walls,
   hulls, the power plant, ground two levels up, thick smoke. Unchanged.
 
@@ -959,18 +962,133 @@ not written here is to settle.
 - Whether it is also written on service records was not chosen: to settle.
 
 **To settle**
-- How a stray shot's path is worked out, and what it can hit.
-- The odds.
-- Which bad traits.
-- The size of the morale hit.
+- How a stray shot's path is worked out, and what it can hit. *Settled in
+  the ninth session (R2 to R5, with T1 to T3 to confirm).*
+- The odds. *Settled in the ninth session (R4, R5, T1).*
+- Which bad traits. *Still open: see the ninth session.*
+- The size of the morale hit. *Settled in the ninth session (R10).*
 - Whether a friend in the line still also lowers the odds by 25 once stray
   shots exist. Today's code does that and the friend cannot be hit. This
-  stays until the stray-shot rule is built.
-- Whether friendly fire is written on service records (see part 4).
+  stays until the stray-shot rule is built. *Settled in the ninth session
+  (R5): the 25 stays, and the friend is hit when the roll lands in their 25
+  points.*
+- Whether friendly fire is written on service records (see part 4). *The
+  ninth session (R11) says the game keeps a record of each incident. Whether
+  it also shows on service records is still open.*
 
 *Emergent stories: shielding and friendly fire give players tales of their
 own (the soldier who took the shot for a friend; the grudge after a bad
 miss). Both are the owner's choices; nothing was added unasked.*
+
+### Ninth session (2026-11-13): stray shots, friendly fire and damage
+
+The owner decided how a miss behaves and how damage is rolled. All numbers
+are starting numbers; the test bench tunes them. Anything not written here
+keeps today's behaviour and is to settle with the owner. Rules R1 to R11
+are built in slice 1 of the battle rules (package 0). R12 is design only.
+
+**R1. Friendly fire is real**
+- Any miss can hit anyone or anything near its path: a friend, a refugee,
+  an alien or scenery.
+- The screen shows no warning.
+- Soldiers and aliens use the same rule.
+
+**R2. The stray path**
+- A missed shot flies where its tracer is drawn. A near miss passes close
+  to the target. A bad miss goes wide.
+- It carries on past the target until it meets something or is spent.
+- The picture and the rule are the same line.
+
+**R3. The stray reach**
+- A stray is spent at the weapon's comfortable range, measured from the
+  shooter: Pistol 8, Rifle 16, Cannon 14, Heavy 14, Launcher 18.
+- Things that fully block shots stop it sooner.
+
+**R4. People in a stray's path**
+- Passing through a square with a living unit in it: hit 50 in 100 if the
+  unit is standing, 25 in 100 if kneeling.
+- If it does not hit, it flies on.
+- Each such roll is logged.
+
+**R5. Cover hits**
+- If a shot misses because of something in the way (the roll lands in the
+  points that thing took away), that thing is hit.
+- A rock, stone block or crystal takes the damage and can break.
+- A friend in the line is hit. This changes the eighth session's "a friend
+  can never be hit": the friend still lowers the odds by 25, and is hit when
+  the roll lands in those 25 points.
+- Smoke stops nothing. A roll in smoke's points is an ordinary stray.
+
+**R6. Stray damage**
+- Full damage, the same damage roll as an aimed hit.
+
+**R7. Scenery can be shot apart**
+- Shots that strike scenery can destroy it: rocks, blocks, crystals, trees
+  and walls.
+- Our craft's hull, the enemy hull and the enemy power plant cannot be
+  broken by small arms.
+
+**R8. The damage roll**
+- 50 to 150 percent of the weapon's power for every hit. Explosives already
+  work this way.
+- It replaces the old 0 to 200 percent.
+
+**R9. Credit for a stray kill**
+- A kill by a stray gives the shooter full credit, like any kill (when the
+  victim is an enemy).
+
+**R10. Morale after friendly fire**
+- Friendly fire means a unit hit by its own side. The loss is applied to
+  that side at once, the same way a death's morale loss is applied today.
+- 25 percent of a death's loss if the victim's armour stopped it and they
+  are not hurt.
+- 50 percent if the victim is hurt but alive.
+- The full normal death loss if the victim is killed.
+- The same rule for aliens hit by aliens.
+
+**R11. Later effects (decided, NOT built now)**
+- The shooter may gain a bad trait.
+- The victim may lose trust in the shooter.
+- The game must keep a record of each incident, so these can be built
+  later. The record is built now; the effects are not.
+
+**R12. The luck ribbon (docs only)**
+- A luck ribbon joins the ten as an eleventh ribbon.
+- It grows from stray kills, hits made at very low odds, and living through
+  shots that should have hit.
+- Five levels, like the others.
+- What it gives the soldier: to settle. Its name: to settle.
+
+**To confirm** (the assistant's reading of the owner's answers; built as
+written and marked "to confirm" in the code)
+- T1. A stray passing a square with scenery that does not fully block
+  strikes a rock or stone block 25 in 100, and a crystal 10 in 100 (the
+  cover numbers reused as chances). Otherwise it flies on. Confirmed 2026-11-13.
+- T2. A stray never hits the unit it was aimed at (it missed), and never
+  the shooter. Confirmed 2026-11-13.
+- T3. If trees or walls have no hit points in the map data today, they get
+  starting hit points in named constants: tree 60, wall 80, so R7 can work.
+  Checked at build time: trees already have 40 hit points and walls 80, so
+  T3's constants were not needed.
+- T4. R10 uses the same set of units that a death's morale loss reaches
+  today. No sight test is added. Confirmed 2026-11-13 for now; a sight
+  test may come later for deaths and friendly fire together.
+- T5. Weapons with no comfortable range (grenade, melee, heal kinds)
+  produce no stray. Confirmed 2026-11-13.
+
+**Decided 2026-11-13 (new):** blasts that hurt your own side are written
+to the incident record when explosives are rebuilt (slice 5).
+
+**To settle**
+- Which bad traits the shooter may gain (R11).
+- How trust is lost: how the bond is damaged, and when it becomes a grudge
+  (R11).
+- The luck ribbon's name and what it gives (R12).
+- Whether the hit points of trees (40) and walls (80) are right.
+
+*Emergent stories: a stray that fells a friend, or a lucky one that fells a
+distant enemy, are tales players tell. The luck ribbon (R12) is the owner's
+choice; nothing was added unasked.*
 
 ## Sea campaign: deferred (2026-11-13)
 

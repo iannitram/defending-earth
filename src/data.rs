@@ -593,12 +593,12 @@ pub fn hit_chance(fa: i32, weapon_acc: i32, kneeling: bool, health: i32, max_hea
 /// Percent-TU cost uses the soldier's BASE time units (not current), floored.
 pub fn tu_cost(base_tu: i32, percent: u8) -> i32 { (base_tu * percent as i32) / 100 }
 
-/// Damage roll: 0 to 200 percent of the weapon's power.
-/// Blast (damage type 2) rolls 50 to 150 percent instead. Callers apply the
-/// modifier table and subtract location armour.
-pub fn roll_damage(dice: &mut Dice, who: &str, what: &'static str, base: i32, explosive: bool) -> i32 {
+/// Damage roll: one logged roll, 50 to 150 percent of the weapon's power, for
+/// every kind of hit (owner, 2026-11-13, R8; it replaced 0 to 200 percent for
+/// non-explosives). Callers apply the modifier table and subtract location armour.
+pub fn roll_damage(dice: &mut Dice, who: &str, what: &'static str, base: i32) -> i32 {
     if base <= 0 { return 0; }
-    if explosive { dice.range(who, what, 0, base) + base / 2 } else { dice.range(who, what, 0, base * 2) }
+    dice.range(who, what, 0, base) + base / 2
 }
 
 /// Damage modifier in percent on land: rows are damage types 0..7, columns are armour classes 0..13.

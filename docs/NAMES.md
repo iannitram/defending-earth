@@ -441,6 +441,7 @@ are a working screen spelling. `LORE.md` writes them in plain words.
 | Name | Kind | What it is |
 |---|---|---|
 | ribbon | Term (name to settle) | What a soldier earns by doing one kind of thing again and again. Ten to start: rifle, shotgun, knife, explosives, medic, scout, overwatch, Reach, survivor, creatures. Five levels each. Ribbons replace jobs: there are no classes. Names and designs of each ribbon are to settle |
+| luck ribbon | Term (working name, to settle) | The eleventh ribbon, added in the ninth session. It grows from stray kills, hits made at very low odds, and living through shots that should have hit. Five levels. What it gives the soldier is to settle |
 | ribbon board | Term (name to settle) | The board on the dress uniform where a soldier's ribbons are worn. A higher level replaces the lower one |
 | citation | Term (name to settle) | A hidden ability a soldier earns from a mix of ribbons. It stays hidden until one of the player's soldiers earns it, then shows in a book of citations (name to settle) with how it was earned, and stays known in every later campaign |
 | RANGER | Citation | Rifle plus scout. Sees further, and gets one overwatch shot each turn that costs no time units. Exact effects to settle |

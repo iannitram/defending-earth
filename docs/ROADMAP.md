@@ -284,15 +284,17 @@ checked by building it and running the self-test.
 | Shaders, lighting, weather, effects in `gfx.rs` | Fable | Small errors look almost right |
 | Screenshot rounds and the harsh art-director judging | Fable | The standing brief depends on it |
 | Animation system design (bone maths, blending between motions) | Fable | Wrong maths gives bent limbs that are hard to trace |
-| Animation system and model loader, written to a finished design | Opus | Clear target, checked by a test model |
+| Animation system and model loader, written to a finished design | Fable | Bone and blending mistakes show as bent limbs, seen only by eye |
 | Blender export script, file format reader and writer | Opus | Exact but checkable: export, load, compare |
 | Game rules, new mechanics, enemy behaviour, save slot | Opus | Logic that the self-test and unit tests can check |
-| Finding bugs in rules or drawing code | Opus, Fable if it stays unfound | Start cheaper |
-| Wiring a finished model or motion into the game (tables, names, which motion plays when) | Sonnet | Repeated, pattern-following work |
-| Menus and screens that only lay out text and boxes | Sonnet | Simple and easy to check by screenshot |
+| Rule bugs | Opus, Fable if it stays unfound | Start cheaper |
+| Drawing, lighting and motion bugs | Fable | Small errors look almost right and are seen only by eye |
+| Which motion plays when, and the timing of blends between motions | Fable | Judged by watching it move |
+| Table rows and names for a finished model or motion | Sonnet | Repeated, pattern-following work |
+| Menus and screens that only lay out text and boxes | Fable for the layout, Sonnet builds it | Simple and easy to check by screenshot |
 | Debug flags, self-test cases, small refactors, renames | Sonnet | Mechanical |
 | Keeping `STATUS.md`, `CODE_MAP.md`, `NAMES.md` in step with the code | Sonnet, checked by Opus | Reading and comparing |
-| Batch jobs: baking many textures, exporting many models with one proven script | Sonnet | The script is already proven by Fable |
+| Batch jobs: baking many textures, exporting many models with one proven script | Fable | Fable runs the proven script and looks at every result; a bad bake is only caught by eye |
 
 Added 2026-11-13 for the game systems track. Same convention, new rows:
 
@@ -304,7 +306,8 @@ Added 2026-11-13 for the game systems track. Same convention, new rows:
 | Lunar maps and dark-side lighting | Fable | Judged by eye |
 | Records, loot, trait and fear rules, creature behaviour, base rules, mission framework, low gravity | Opus | Logic the self-test can check |
 | Splitting the simulation from the drawing (for 3.0) | Opus | Large but checkable: results must not change |
-| Table rows (weapons, items, modules), the Slag column, the soldier file screen, new self-test cases, removing the Trestle | Sonnet, checked by Opus | Pattern-following work |
+| Table rows (weapons, items, modules), the Slag column, new self-test cases, removing the Trestle | Sonnet, checked by Opus | Pattern-following work |
+| The soldier file screen | Fable for the layout, Sonnet builds it, checked by Opus | A screen that lays out boxes and text |
 | Keeping `MECHANICS.md`, `mechanics.json` and `NAMES.md` in step after each package | Sonnet, checked by Opus | Reading and comparing |
 
 Added later on 2026-11-13, after the third lore session:
@@ -312,9 +315,10 @@ Added later on 2026-11-13, after the third lore session:
 | Work | Model | Why |
 |---|---|---|
 | The six portrait looks, scars and earned-trait marks | Fable | Judged by eye |
-| Building the head from slider values (10b); the photo step (10c) | Opus | Exact work with geometry and files. Sixth session (2026-11-13): replaces drawing overlays on a player's picture and the picture crop |
+| Building the head from slider values (10b) | Fable | A face that is slightly wrong is caught only by eye. Sixth session (2026-11-13): replaces drawing overlays on a player's picture |
+| The photo step (10c) | Opus | Exact work with geometry and files. Sixth session (2026-11-13): replaces the picture crop |
 | Soldier pool storage on disk and how pool soldiers arrive in a campaign | Opus | The game's first player file; a mistake here loses or leaks someone's soldiers |
-| The soldier pool screen and its name box | Sonnet, checked by Opus | A screen that lays out boxes and text |
+| The soldier pool screen and its name box | Fable for the layout, Sonnet builds it, checked by Opus | A screen that lays out boxes and text |
 | Sides (wild, civilian), ways to lose a soldier alive, mission goals | Opus | Rules that touch how every battle ends |
 | The base-interior map builder | Opus for the map and rules, Fable for the look | Checkable layout first, then judged by eye |
 | How much each Tender weakens the Seed (the curve) | Fable for the curve, Opus for the rule | Feel first, then a plain number rule |
@@ -328,17 +332,14 @@ Added later on 2026-11-13, for package 0, the test bench:
 | Separating the rules from the drawing, so the same rule code runs with no window | Opus | Large but checkable: results must not change |
 | The proper save system (the file, its version, what is stored) | Opus | A mistake here loses or corrupts a campaign |
 | The three scripted players (careless, average, careful), the report writers, the command-line options | Sonnet, checked by Opus | Pattern-following work with a clear target |
-| The IRON MAN and FIXED DICE options on the new-campaign page | Sonnet, checked by Opus | Menu wiring on top of the save system |
+| The IRON MAN and FIXED DICE options on the new-campaign page | Fable for the layout, Sonnet builds it, checked by Opus | Menu wiring on top of the save system |
 | The scale sheet, its size checks and the size chart | Fable for the design, Sonnet for the check scripts | Sizes and cheats are judged by eye; the checks are mechanical |
 
-**Working rule (decided 2026-11-13).** Design decisions are made by Fable.
-Actions go to a sub-agent on the smallest model that can reasonably do
-them. Actions means writing code, editing documents, commits, pushes and
-batch jobs.
+**Working rule (decided 2026-11-13, amended the same day).** Design decisions are made by Fable. All design and animation jobs are done by Fable itself, not by a sub-agent: the look, models, textures, pictures, motion, and judging any of them. Other actions go to a sub-agent on the smallest model that can reasonably do them: rule code, editing documents, commits, pushes and mechanical batch jobs.
 
-Rule of thumb per phase: Fable makes the first of each kind (first tree,
-first creature, first motion) and judges all results; Opus builds the
-systems; Sonnet repeats a proven recipe across the rest of the list.
+Rule of thumb per phase: Fable makes everything that is judged by eye (every model, texture, motion, picture and screen layout) and judges all results; Opus builds the rule systems and file handling; Sonnet does table rows, wiring to a finished layout, documents and checks.
+
+Changed 2026-11-13 after the amendment: moved to Fable: the animation system and model loader, which motion plays when, batch bakes and exports, portrait overlays, the head builder (10b), drawing and motion bugs, and screen layouts. Rule code stays with Opus and Sonnet.
 
 Debug controls added along the way (typed after the program name, before
 `--demo`; full notes in `CODE_MAP.md`):
@@ -608,17 +609,17 @@ the open questions" in `LORE.md`). What changed:
 
 | # | Package | Needs first | Pairs with graphics phase | Size | Model |
 |---|---|---|---|---|---|
-| 0 | The test bench: battles and campaigns with no window, repeatable dice, scripted players, event report, dice log, agent play, proper save system, IRON MAN and FIXED DICE | nothing | none; phase 3 may come first or run alongside | medium to large (an estimate: the tangle of rules and drawing is not measured yet) | Fable for the split and report format, Opus for separating rules from drawing, Sonnet for scripted players, reports and menu options |
+| 0 | The test bench: battles and campaigns with no window, repeatable dice, scripted players, event report, dice log, agent play, proper save system, IRON MAN and FIXED DICE | nothing | none; phase 3 may come first or run alongside | medium to large (an estimate: the tangle of rules and drawing is not measured yet) | Fable for the split and report format, Opus for separating rules from drawing, Sonnet for scripted players, reports and menu options to Fable's layout |
 | 1 | Groundwork: honest records, ways to lose a soldier alive, Trestle removal, a behaviour hook per creature, the wild and civilian sides | 0 | 3 (no art needed) | 3 medium, 1 small | Opus; Sonnet for the Trestle, checked by Opus |
 | 2 | SHOTGUN, KNIFE, SLAG, real loot | 1 | 6; Glow pools with 3 | 2 medium, 1 small to medium, 1 small | Opus for rules, Sonnet for table rows |
-| 3 | Soldier strengths, fears, earned traits, six-stage portraits, ribbons (3f) and footprints (3g) | 1 | 4 | large | Fable for the sheets, the six looks and the ribbon and citation design, Opus for rules and overlays, Sonnet for the file screen |
+| 3 | Soldier strengths, fears, earned traits, six-stage portraits, ribbons (3f) and footprints (3g) | 1 | 4 | large | Fable for the sheets, the six looks and the ribbon and citation design, Opus for rules, Fable for overlays, Sonnet for the file screen to Fable's layout |
 | 4 | Creature rules, one kind at a time, with wild Mauls and Cinders | 1; Slag from 2 | 5; taker fluid and Cinder fires with 3 | large (7 medium parts, the Maul part larger) | Fable for sheets, Opus for rules, Sonnet for self-test cases |
-| 5 | MESS HALL and hunger, SCRUB ROOM, REFUGEE QUARTERS, infection and sabotage; 5b the base-interior map | real loot from 2; 1a | 7 | medium, plus 5b large | Opus for rules and the map, Sonnet for rows and screens, Fable for icons and the interior look |
+| 5 | MESS HALL and hunger, SCRUB ROOM, REFUGEE QUARTERS, infection and sabotage; 5b the base-interior map | real loot from 2; 1a | 7 | medium, plus 5b large | Opus for rules and the map, Sonnet for rows and screens to Fable's layout, Fable for icons and the interior look |
 | 6 | Freed aliens ("refugees") as soldiers, with harnesses | 1, 3 and 5 | 4 and 5 | large | Opus, with Fable for species sheets |
 | 7 | Five signposts and the human worker | 1 (all parts); civilians from 4; 5b for "The open door" | 8 | medium to large for the framework, medium for the worker, small per signpost | Opus for the framework and rules, Fable for scripts, lines and sound |
 | 8 | The Moon finale, with no pass mark | 6, 7, and graphics phase 3 | 9 | large | Fable for ending, maps and the curve, Opus for rules |
 | 9 | Multiplayer: join or be wiped out | records from 1, 3 and 6 | none (version 3.0) | large | Opus for the split, Fable for the design |
-| 10 | The soldier pool: 10a storage, screen, typing and arrival; 10b the hand-driven character designer; 10c the photo step | 10a nothing; 10b needs 10a, 1a and 3e; 10c needs 10b | 4 | 2 medium, and 10c to measure | Opus for storage, arrival and the head builder, Fable for the slider list, Sonnet for the screen |
+| 10 | The soldier pool: 10a storage, screen, typing and arrival; 10b the hand-driven character designer; 10c the photo step | 10a nothing; 10b needs 10a, 1a and 3e; 10c needs 10b | 4 | 2 medium, and 10c to measure | Opus for storage and arrival, Fable for the head builder and the slider list, Sonnet for the screen to Fable's layout |
 
 **Order:** 0, then 1 and 10a, then 2, 3, 10b, 4, 5, 6, 7, 8, 9. Part 10c (the photo step) comes after 10b.
 - Package 0 comes before every other systems package. Graphics phase 3 may
@@ -697,7 +698,7 @@ bench ("set with the test bench, then checked by playing").
 
 **Models.** Fable designs the split and the report format. Opus does the
 separation of rules from drawing. Sonnet writes the scripted players, the
-reports and the menu options. The save system is Opus work, as the save slot
+reports and the menu options, to Fable's layout. The save system is Opus work, as the save slot
 already is in the model table.
 
 **To settle.** The report file format and the exact command-line options.
@@ -730,14 +731,19 @@ package 0:
    session, see `LORE.md`). Not built: the ROLL LOG screen, the seed on the
    new-campaign page, saves, IRON MAN MODE and FIXED DICE.
 2. Battle rules, built in slices. Each slice leaves the game running:
-   - Slice 1: shooting and damage. Stray shots and friendly fire are built
-     in this slice (decided in the later part of the eighth session, see
-     `LORE.md`). Today's code still has "a miss just misses", and a friend
-     in the line cannot be hit.
+   - Slice 1: shooting and damage. **Built 2026-11-13, not yet committed.**
+     The shot rules return events and need no window. It covers stray
+     shots (the missed shot flies on along its tracer), cover hits,
+     scenery damage (rocks, blocks, crystals, trees, walls), morale after
+     friendly fire, a record of each friendly-fire incident, and the new
+     damage roll of 50 to 150 percent. Decided in the eighth session's
+     later part and the ninth session, see `LORE.md`. Items marked "to
+     confirm" there are built as written.
    - Slice 2: movement and overwatch.
    - Slice 3: morale.
    - Slice 4: alien moves.
-   - Slice 5: Reach and explosives.
+   - Slice 5: Reach and explosives. Blasts that hurt your own side are
+     written to the incident record.
 3. Campaign state, then campaign actions (hire, build, research, make, buy,
    sell).
    Decision G (eighth session): the same seed gives the same campaign
@@ -937,7 +943,7 @@ thing is present, so a soldier may serve for years before it shows.
 - Each earned trait also leaves a mark on the portrait (3e).
 
 **3e. Portraits in six stages, with event marks.** Medium. Fable for the
-six looks, Opus for drawing the overlays, Sonnet for the five places the
+six looks and the overlays, Sonnet for the five places the
 portrait is shown.
 - **Six stages**, from new recruit to the thousand-yard stare. The stage
   comes from the mission count. How many missions each stage takes is set
@@ -959,14 +965,17 @@ portrait is shown.
 
 **3f. Ribbons and citations.** Medium to large. Fable for the ribbon and
 citation design, Opus for the counting and the rules, Sonnet for the file
-screen and the book of citations. Needs 1a and 3d. Added in the sixth
+screen and the book of citations, to Fable's layout. Needs 1a and 3d. Added in the sixth
 session (2026-11-13). Pairs with graphics phase 4 for the ribbon designs.
 - **Ribbons replace jobs.** There are no classes and no fixed path. A
   soldier grows by what they do, again and again.
-- **Ten ribbons to start:** rifle, shotgun, knife, explosives, medic,
+- **Eleven ribbons:** ten to start, and a luck ribbon added in the ninth
+  session. The ten are rifle, shotgun, knife, explosives, medic,
   scout (spotting enemies first), overwatch (reaction shots), Reach,
   survivor (living through heavy damage gives a defence bonus over time)
-  and creatures. Ribbon names and designs are to settle.
+  and creatures. The luck ribbon grows from stray kills, hits made at very
+  low odds, and living through shots that should have hit. Its name and
+  what it gives are to settle. Ribbon names and designs are to settle.
 - **Five levels each.** A higher level replaces the lower one on the
   ribbon board on the dress uniform.
 - **Creature ribbons.** Kills for beasts and machines. Captures for people
@@ -1005,6 +1014,10 @@ session (2026-11-13). Pairs with graphics phase 4 for the ribbon designs.
   was earned, and stays known in every later campaign.
 - **To settle:** how ribbons and citations relate to the earned traits in
   3d.
+- **Friendly-fire after-effects (planned, ninth session).** The shooter
+  may gain a bad trait, and the victim may lose trust in the shooter.
+  These read the incident record that package 0, slice 1 keeps. Which bad
+  traits and how trust is lost are to settle.
 - Self-test: ribbon counting reads the events and rolls no dice, so it
   should not shift the main dice. The citations' free shots touch time
   units and reaction fire, so check them when they are built.
@@ -1137,7 +1150,7 @@ that resting really happens. Refugee Quarters is only useful once package
 6 is in.
 
 **5a. The three modules, hunger and sabotage.** Medium. Opus for the
-rules, Sonnet for the rows and screens, Fable for the icons.
+rules, Sonnet for the rows and screens to Fable's layout, Fable for the icons.
 - Adds three modules. The module list grows from 17 to 20.
 - Each module type gets a capacity: meals for the Mess Hall, scrubbing for
   the Scrub Room, beds for the Refugee Quarters.
@@ -1367,7 +1380,7 @@ laid over it. The old 10b (picture import and crop) is gone. The new 10b
 and 10c are below.
 
 **10a. Storage, screen, typing and arrival.** Medium. Opus for storage and
-arrival, Sonnet for the screen. Needs nothing, so it can be built first.
+arrival, Sonnet for the screen to Fable's layout. Needs nothing, so it can be built first.
 - **What a pool soldier is.** A name, a look, and a "start with me" tick.
   The designer's fields (10b) are added to it later. Until 10b is built, a
   pool soldier uses the game's drawn face and the existing look form.
@@ -1408,8 +1421,8 @@ arrival, Sonnet for the screen. Needs nothing, so it can be built first.
   - Nothing from the pool is ever written into the project folder.
 - Self-test: safe, because the pool is off there.
 
-**10b. The hand-driven character designer.** Medium. Opus for the head
-builder, Fable for the slider list, Sonnet for the screen. Needs 10a, 1a
+**10b. The hand-driven character designer.** Medium. Fable for the head
+builder and the slider list, Sonnet for the screen to Fable's layout. Needs 10a, 1a
 and 3e. Built before 10c.
 - **The face:** a detailed face with many sliders. The slider list is to
   settle.
@@ -1560,8 +1573,9 @@ saves; see `LORE.md`):*
 
 *Added 2026-11-13 with the sixth session (the character designer and ribbons;
 see `LORE.md`):*
-35. Ribbon names and designs: ten ribbons, five levels each (packages 3f and
-    graphics phase 4).
+35. Ribbon names and designs: eleven ribbons since the ninth session (ten
+    plus the luck ribbon), five levels each (packages 3f and graphics
+    phase 4).
 36. More hidden abilities, and the exact effects of RANGER, BREACHER,
     GUARDIAN and GHOST (package 3f, set with the test bench).
 37. Footprints: who reads them (soldiers, aliens or both), how long they
@@ -1595,14 +1609,45 @@ seed; see `LORE.md`):*
 
 *Added 2026-11-13 with the later part of the eighth session (shielding and
 friendly fire; see `LORE.md`):*
-48. How a stray shot's path is worked out, and what it can hit.
-49. The odds of a stray shot hitting something.
-50. Which bad traits a shooter may gain after friendly fire.
-51. The size of the squad's morale hit after friendly fire.
-52. Whether a friend in the line still lowers the odds by 25 once stray
-    shots exist. Today's code does, and the friend cannot be hit; this stays
-    until the stray-shot rule is built.
-53. Whether friendly fire is also written on service records.
+48. ~~How a stray shot's path is worked out, and what it can hit.~~
+    Settled in the ninth session (R2, R3, R4, R5; see `LORE.md`). Scenery
+    on the path is number 54.
+49. ~~The odds of a stray shot hitting something.~~ Settled in the ninth
+    session (R4: 50 in 100 standing, 25 in 100 kneeling; R5: a cover hit
+    when the roll lands in the cover's points). Scenery odds are number 54.
+50. Which bad traits a shooter may gain after friendly fire. Still open
+    (R11; planned in package 3f).
+51. ~~The size of the squad's morale hit after friendly fire.~~ Settled in
+    the ninth session (R10: 25 percent, 50 percent or the full death loss).
+52. ~~Whether a friend in the line still lowers the odds by 25 once stray
+    shots exist.~~ Settled in the ninth session (R5): it does, and the
+    friend is hit when the roll lands in their 25 points.
+53. Whether friendly fire is also written on service records. The game now
+    keeps an incident record (R11); whether it shows on service records is
+    still open.
+
+*Added 2026-11-13 with the ninth session (stray shots, friendly fire and
+damage; see `LORE.md`). Numbers 54 to 58 are the assistant's readings, to
+confirm with the owner. They are built as written and marked "to confirm"
+in the code:*
+54. ~~T1: a stray passing scenery that does not fully block strikes a rock or
+    stone block 25 in 100 and a crystal 10 in 100.~~ Settled in the ninth
+    session (confirmed 2026-11-13).
+55. ~~T2: a stray never hits the unit it was aimed at and never the shooter.~~
+    Settled in the ninth session (confirmed 2026-11-13).
+56. T3: starting hit points for trees (60) and walls (80), if the map data
+    has none.
+57. ~~T4: friendly-fire morale reaches the same units a death's morale loss
+    reaches today, with no sight test.~~ Settled in the ninth session
+    (confirmed 2026-11-13, for now; a sight test may come later).
+58. ~~T5: grenade, melee and heal kinds produce no stray.~~ Settled in the
+    ninth session (confirmed 2026-11-13).
+
+*To settle from the ninth session:*
+59. How trust is lost after friendly fire: how the bond is damaged, and when
+    it becomes a grudge (package 3f).
+60. The luck ribbon's name (package 3f, NAMES.md).
+61. What the luck ribbon gives the soldier (package 3f).
 
 ## Ideas (unsorted; we sort these into versions together)
 

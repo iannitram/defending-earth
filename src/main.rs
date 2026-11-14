@@ -368,6 +368,8 @@ pub struct Game {
     pub battles_started: u32,
     /// The roll log of the last finished battle, kept for a debrief screen (not built yet).
     pub last_roll_log: Vec<Roll>,
+    /// Friendly-fire hits and stray kills of the last finished battle (R11). Nothing reads it yet.
+    pub last_incidents: Vec<tactical::Incident>,
     pub ui: Ui,
     pub audio: audio::SoundEffects,
     pub globe: Globe,
@@ -475,7 +477,7 @@ impl Game {
         globe.pitch = 0.18;
         globe.zoom = 1.0;
         let mut g = Self {
-            data, campaign_seed: 0, dice: Dice::from_seed(0), fx: Rng::new(0), battles_started: 0, last_roll_log: Vec::new(), ui, audio, globe,
+            data, campaign_seed: 0, dice: Dice::from_seed(0), fx: Rng::new(0), battles_started: 0, last_roll_log: Vec::new(), last_incidents: Vec::new(), ui, audio, globe,
             screen: Screen::Title,
             date: Date::new(),
             speed: 1, paused: true,
@@ -546,6 +548,7 @@ impl Game {
         self.dice = Dice::from_seed(self.campaign_seed);
         self.battles_started = 0;
         self.last_roll_log.clear();
+        self.last_incidents.clear();
         self.pending_final = false;
         self.first_campaign_done = false;
         self.last_month = Month::Jan;

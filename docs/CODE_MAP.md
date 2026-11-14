@@ -109,7 +109,7 @@ Defending Earth/
 | `main.rs` | 2508 | `Game` struct (all campaign state, plus the `dbg_*` debug settings), `Screen` enum, `Base`, `Site`, `Ufo`, `MissionSpec`; `Game::update` (1318) and `Game::draw` (1534, one big match on screen, situation map drawn here); daily/monthly ticks; argument parsing and main loop (2288–2456), which starts by setting the draw buffer size; `window_conf` (1920×1080, 4× MSAA, no vsync). |
 | `dice.rs` | 177 | Rule dice. `Dice` logs every draw (`Roll`: who, what, odds, number, passed). `check` is a percent check on 0..=99. `range` and `index` are logged picks. `generator` hands out a plain `Rng` for building things (map, weather, faces, names) and logs one draw for it. `for_battle(campaign_seed, battle_number)` gives each battle its own dice. Has unit tests. A battle replays only from the same campaign seed, battle number, mission spec and roster: the campaign dice are drawn on clock and click timing, so the roster itself can differ between runs with the same `--seed`. |
 | `data.rs` | 1257 | Tables and rules: `Rng` (seeded), item tables (surface/water), `WeaponDef`, `GameData::load` (decodes `earth_data.png` into land/biome/coast maps), `world_index` (318, turns latitude and longitude into a place in those maps; used by `terrain_at`, `coast_at`, `is_water`), soldiers (`Look`, `Stats`, `Soldier`, name lists), armour, `Month`/`Date` (starts 2027-01-01; `minute` is minute of day, UTC), hit chance, damage tables, facilities, craft, research, workshop, nations, borders, promotions. |
-| `tactical.rs` | 4169 | The battle: simulation AND drawing in one file. See below. |
+| `tactical.rs` | 5109 | The battle: simulation AND drawing in one file. See below. |
 | `base.rs` | 1984 | Base screens (soldiers, facilities, research, workshop, market, fleet, finances, launch) and the soldier editor. 2D, uses `ui.rs`. |
 | `dogfight.rs` | 798 | Interception minigame. |
 | `globe.rs` | 463 | Situation-map globe: one full-screen GLSL 100 shader (ray-sphere), `Globe::project`, `screen_to_latlon`, zoom animation. Sun comes from `Globe.sun`, set every frame in `Game::draw` from the campaign clock (`sky::globe_sun_dir`); city lights from `assets/earth_lights.png`, brighter places switching on first as night deepens. A shader that fails to compile prints `globe shader failed` and falls back to a flat disc. |
@@ -150,24 +150,27 @@ Simulation (keep behaviour identical; `--self-test` guards it):
   apart only by that name. The old-style sun/ambient/fog values it returns
   are no longer used for lighting; `scene_light` and `gfx::light_at` do
   that.
-- 377–1753 `impl Battle`: map generation, movement, line of sight, shooting,
+- 380–766: shot odds, line of fire, and the shot rules' free functions and
+  event types (see "Shot odds" and "Shot rules" below).
+- 768–2428 `impl Battle`: map generation, movement, line of sight, shooting,
   reaction fire, alien turn, inventory, and the Reach attacks. `Battle::new`
-  (517) applies the debug flags `--site`, `--biome`, `--clock`, `--seed`,
+  (908) applies the debug flags `--site`, `--biome`, `--clock`, `--seed`,
   `--weather`.
-- Inside it, the ones the planned work touches most: 383 `gen_map`, 630
-  `compute_visibility`, 650 `los` (line of sight), 689 `walk_cost`, 810
-  `check_unit_panic`, 825 `on_unit_death`, 865 `tick_smoke_and_fire`, 920
-  `start_player_turn`, 975 `fire`, 1088 `check_end`, 1200 `explode`, 1354
-  `throw_grenade`, 1400 `update_ai` (the enemy turn), 1502
-  `opportunity_fire` (reaction fire), 1550 `handle_input`, 1697
+- Inside it, the ones the planned work touches most: 774 `gen_map`, 1029
+  `compute_visibility`, 1050 `los` (line of sight), 1133 `walk_cost`, 1254
+  `check_unit_panic`, 1271 `on_unit_death` (1304 `kill_unit` is its rule
+  part), 1325 `tick_smoke_and_fire`, 1380 `start_player_turn`, 1437 `fire`
+  (1451 `resolve_shot`, 1678 `play_shot`), 1773 `check_end`, 1887 `explode`,
+  2027 `throw_grenade`, 2073 `update_ai` (the enemy turn), 2177
+  `opportunity_fire` (reaction fire), 2225 `handle_input`, 2372
   `update_selftest`.
-- Reach on screen is "psi" in the code. The three attacks are 1127
-  `execute_psi_probe` (shown as REACH READ), 1143 `execute_psi_panic` (REACH
-  ROUT) and 1172 `execute_psi_control` (REACH TAKE). The battle button reads
-  "REACH"; the key is still P (1592).
-- 1767 `alien_def`: the creature table. One row per creature kind, 0–10 on
+- Reach on screen is "psi" in the code. The three attacks are 1812
+  `execute_psi_probe` (shown as REACH READ), 1828 `execute_psi_panic` (REACH
+  ROUT) and 1857 `execute_psi_control` (REACH TAKE). The battle button reads
+  "REACH"; the key is still P (2267).
+- 2442 `alien_def`: the creature table. One row per creature kind, 0–10 on
   land and 0–8 under water.
-- 1826 `start`, 1832 `start_selftest`, 1859 `update`, 1893 `finalize`.
+- 2501 `start`, 2507 `start_selftest`, 2534 `update`, 2568 `finalize`.
 
 Drawing as of phase 2 (2026-11-13). The second list further down
 describes the old code and is kept for the function names; what changed:
@@ -372,7 +375,7 @@ is in `LORE.md`. Where this section goes further, it says "suggested" or
 ### How things stand today
 
 - **There is no save game.** Nothing is written to disk except the
-  self-test result (`tactical.rs` 1746–1747), screenshots (`main.rs`
+  self-test result (`tactical.rs` 2422), screenshots (`main.rs`
   2450–2451) and the `--dump-map` picture (`main.rs` 2413). So nothing here
   can break a save. Keep every new record small and plain (numbers and
   short lists), so the planned save slot and version 3.0 can store it. The
@@ -380,8 +383,8 @@ is in `LORE.md`. Where this section goes further, it says "suggested" or
 - **Nothing takes typed text.** The soldier editor (`base.rs` 1807–1958)
   only has "RANDOMIZE NAME" (1847).
 - **A soldier can only be lost by dying.** Stun at or above full health
-  counts as death (`tactical.rs` 1083–1084), and `finalize` marks every
-  fallen soldier dead (1911). There is no withdraw action. The enemy's
+  counts as death (`hit_unit`, `tactical.rs` 1652, then `kill_unit`
+  1304–1323), and `finalize` marks every fallen soldier dead (2586). There is no withdraw action. The enemy's
   Reach can only rout a soldier, never take one (`tactical.rs` 1424–1436).
   Nobody is abducted. So "a soldier the Registrar has read" cannot happen
   yet.
@@ -403,7 +406,7 @@ is in `LORE.md`. Where this section goes further, it says "suggested" or
 - **Loot is flat.** Every land win gives +25 Spine and +10 Glow (`main.rs`
   965–966) and a generic "ALIEN CORPSE" (958). Nothing is read from the
   battlefield.
-- **All enemies behave the same.** `update_ai` (`tactical.rs` 1400–1467)
+- **All enemies behave the same.** `update_ai` (`tactical.rs` 2073–2142)
   runs one routine for every creature kind.
 - **There are two sides only.** `Side` is `Player` or `Alien` (`tactical.rs`
   15). There are no civilians and no wild creatures. The side also decides
@@ -413,7 +416,7 @@ is in `LORE.md`. Where this section goes further, it says "suggested" or
   tested below 50 (812).
 - **Tiles hold no pool.** `Tile` (`tactical.rs` 18–28) has smoke and fire.
 - **A mission has no kind and no gravity.** See `MissionSpec` (`main.rs`
-  341–355). `gen_map` (`tactical.rs` 383) always builds the same sort of
+  341–355). `gen_map` (`tactical.rs` 774) always builds the same sort of
   layout with one height layer.
 - **Land maps have no water tiles.** Every tile gets the mission's biome as
   its `kind`. The extra walking cost for kind 9 (`walk_cost`, `tactical.rs`
@@ -430,7 +433,7 @@ things without any error message.
 |---|---|---|
 | Land items `SURFACE_ITEMS` | `data.rs` 71–123 | 80 numbered slots (`item_table`, 58). A slot number never changes. Free land slots: 6, 7, 10, 11, 14, 15, 21, 27, 29–33, 40–49, 74–79. |
 | Corpse and live items | same table | Corpse = slot 50 + creature kind. Live captive = slot 61 + creature kind. |
-| Creature kinds | `alien_def`, `tactical.rs` 1767 | Land kinds 0–10. The number is stored in `Site.aliens` and `CapturedAlienSpec.kind`. Never renumber. The human worker (package 7) would be kind 11, added at the end. Its corpse and captive slots would then be 61 and 72. Both are taken: 61 is kind 0's live captive and 72 is SPINE. So the worker needs slots of its own, or none. |
+| Creature kinds | `alien_def`, `tactical.rs` 2442 | Land kinds 0–10. The number is stored in `Site.aliens` and `CapturedAlienSpec.kind`. Never renumber. The human worker (package 7) would be kind 11, added at the end. Its corpse and captive slots would then be 61 and 72. Both are taken: 61 is kind 0's live captive and 72 is SPINE. So the worker needs slots of its own, or none. |
 | Weapon list | `data.rs` 241–281 | A list that can grow, found by name. Soldiers store a position in it, so add new rows at the very end (after the two NATURAL WEAPON rows). Position 0 is the fallback when a name is not found. |
 | Damage table `DAMAGE_MODS` | `data.rs` 604–622 | 8 damage types down, 14 armour classes across. Keep every column. |
 | Armour `ARMORS` | `data.rs` 480–487 | Exactly 6. 0–2 land, 3–5 dive. The three refugee harnesses (package 6) go at the end and change the count. |
@@ -438,7 +441,7 @@ things without any error message.
 | Research `RESEARCH_SURFACE` | `data.rs` 843–864 | Exactly 20. Same rule. Ids are keys. |
 | Workshop `WORKSHOP_BLUEPRINTS` | `data.rs` 903–919 | Exactly 14 (8 land, 6 sea). Same rule. The three harnesses add three rows. |
 | Player files | none yet | The soldier pool lives in the player's data folder, outside the repository. Its names and slider values must never be committed. See package 10. |
-| Self-test dice | `tactical.rs` 1697–1752, 1832–1857 | It uses soldier 0, a snap shot and one Tender (kind 0). Any new dice roll on that path changes its result. The 2026-11-13 dice split changed the self-test's map and rolls once, on purpose. The self-test was run after the split and all three steps passed. Shot range and cover (same day) can change its shot odds if the Tender is far or behind cover; re-run it and compare. |
+| Self-test dice | `tactical.rs` 2372–2427, 2507–2532 | It uses soldier 0, a snap shot and one Tender (kind 0). Any new dice roll on that path changes its result. The 2026-11-13 dice split changed the self-test's map and rolls once, on purpose. The self-test was run after the split and all three steps passed. Shot range and cover (same day) can change its shot odds if the Tender is far or behind cover; re-run it and compare. The shot rules slice (same day) adds rolls on every miss (stray angle, rolls for things a stray passes) and changes the damage roll to 50 to 150 percent, so the self-test's hits and rolls change. It has not been re-run since. |
 
 Who does what follows the roadmap table: Fable does design, lore and art.
 Opus does rules and behaviour. Sonnet does table wiring, menus and keeping
@@ -462,27 +465,28 @@ Not built. What follows was checked by searching `src/` on 2026-11-13.
   small fixed-seed generators for sounds (`audio.rs`) and face details
   (`ui.rs`). `roll_damage` (`data.rs`) now takes `&mut Dice`.
 - **Save and load.** No save or load of game state exists. The only files
-  the code writes are the self-test result (`tactical.rs` 1746–1747) and
+  the code writes are the self-test result (`tactical.rs` 2422) and
   screenshots and the world-map picture (`main.rs` 2413, 2450–2451).
   `serde` and `serde_json` are in `Cargo.toml`. The `load` functions found
   load fonts, sounds and shaders, not saves.
-- **Rules and drawing.** Battle methods take `g: &mut Game`, and `Game`
-  also holds the interface and sound (`main.rs` 462). Whether the rules can
-  be cut free of the window is not measured yet; that measuring is part of
-  the work.
+- **Rules and drawing.** Shooting and damage are cut free of the window
+  (2026-11-13, see "Shot rules" below): `resolve_shot`, `hit_unit`,
+  `kill_unit` and their helpers take `&GameData`, not `Game`, and are tested
+  with no window. Other battle methods still take `g: &mut Game`, and `Game`
+  also holds the interface and sound (`main.rs` 462).
 
 **What the review found.** Line numbers are as of 2026-11-13.
 - (Fixed 2026-11-13) The one dice stream and visual dice on the rule stream
   were split; see Random numbers above.
 - (Fixed 2026-11-13) Shown odds differed from rolled odds. See "Shot odds"
   below.
-- About 30 battle rules take the whole `Game` (`src/tactical.rs` 810-1750).
-- The alien turn runs on frame time (`src/tactical.rs` 1400-1467).
+- About 25 battle rules still take the whole `Game` (`src/tactical.rs` 1254-2428). Shooting and damage no longer do (2026-11-13): `resolve_shot` and everything it calls take `&GameData`. Still on `Game`: `fire`, `play_shot`, `on_unit_death` and `damage_unit` (thin wrappers that add sound and picture), `explode` and the grenades (slice 5 seam), movement, the alien turn, the Reach attacks, input and the self-test.
+- The alien turn runs on frame time (`src/tactical.rs` 2073-2142).
 - `Game` holds about 90 fields, of which roughly 25 are campaign state
   (`src/main.rs` 357-450).
 - Campaign actions sit inside button clicks in the `src/base.rs` draw
   functions.
-- The battle result passes as seven values (`src/tactical.rs` 1893-1920,
+- The battle result passes as seven values (`src/tactical.rs` 2568-2600,
   `src/main.rs` 906).
 
 ### Shot odds (built 2026-11-13; range and cover added 2026-11-13)
@@ -516,9 +520,12 @@ One rule gives the number shown and the number rolled. It lives in
   no cover. The first square still blocks as before.
 - Enemy and neutral units on the line have no effect (to settle with the
   owner).
-- The decided rule is now that a miss can hit things near its path (`LORE.md`,
-  eighth session, later part). The code does not do this yet: a miss just
-  misses, and a friend in the line cannot be hit.
+- `line_of_fire` also lists the cover things in order from the shooter
+  outward (`LineOfFire.cover`: kind and square; a friend carries its unit
+  index). Within one square the order is obstacle, friend, smoke (to settle
+  with the owner). `shot_detail` returns the odds and that list;
+  `shot_odds` is `shot_detail(..).0`.
+- A miss can hit things near its path. See "Shot rules" below.
 - `fire` refuses a blocked shot (log line NO LINE OF FIRE.) before it spends
   time units, then rolls `dice.check_roll(.., "shot", percent)` each round.
   Aliens and reaction fire check `los` before calling it.
@@ -527,8 +534,117 @@ One rule gives the number shown and the number rolled. It lives in
   pointer, then "N%" (Auto: "N% x3") and the cost.
 - Unit tests are in the `odds_tests` module at the end of `tactical.rs`. They
   cover the range and cover arithmetic, the clamp, and `walk_line` with
-  closures. Not tested without a window: `line_of_fire` reading real tiles and
-  units, and `shot_odds` itself (`Battle::new` needs a `Game`).
+  closures. The shot rules tests (below) also run `line_of_fire` and
+  `shot_detail` on real tiles and units, through a small battle built in the
+  test (`open_battle`) with `GameData::load()` and no window.
+
+### Shot rules (slice 1 of the battle rules, built 2026-11-13)
+
+The owner's decisions of the ninth session (R1 to R12, `LORE.md`). Numbers
+are starting numbers; the test bench tunes them. Items marked "to confirm"
+are the lead's reading and wait for the owner (T1 to T5).
+
+The seam:
+- `fire(g, shooter, target, mode)` is now three steps: `resolve_shot`
+  (rules), `play_shot` (picture and sound), then sight and the end check.
+  It returns true when any round hit the intended target, as before. It
+  also refreshes the reachable squares when a shot broke scenery.
+- `resolve_shot(&GameData, shooter, target, mode) -> Vec<ShotEvent>` holds
+  all the rules. It changes rule state (time units, ammo, health, armour,
+  morale, wounds, obstacles, counters, incidents) and draws only from
+  `Battle.dice`. It never touches `Game`, sound, `effects`, `fx`, the battle
+  log or screen flashes.
+- `play_shot(g, &[ShotEvent])` makes the sound, tracers, flashes, floating
+  numbers and log lines from the events. It never rolls rule dice and never
+  changes rule state. It uses `fx` only for debris. It also plays the
+  events of `kill_unit` and `hit_unit` for other callers.
+- `ShotEvent` (`Refused`, `Fired`, `Round`, `PassRoll`, `UnitHit`,
+  `SceneryHit`, `FriendlyMorale`, `Died`) holds everything the picture needs.
+  A `Round` carries its odds, `p0` (odds before cover), roll, outcome, the
+  square the tracer ends on, and what it struck. The details follow it as
+  their own events, so a replay or a text bench can describe a shot from
+  events alone.
+- Rule parts with sound split off: `kill_unit` (rule part of
+  `on_unit_death`) and `hit_unit` (rule part of `damage_unit`, which is now
+  only alien melee). `on_unit_death(g, ..)` and `damage_unit(g, ..)` are
+  thin wrappers: rule, play, end check.
+- Slice 5 seam: `explode` still mixes rules with sound and picture. It now
+  shares `damage_obstacle`, `debris` and `on_unit_death`.
+
+One roll per round (R5): `p0 = combine_odds(base, height, range, 0)` and
+`percent` the final odds. `round_outcome(roll, percent, p0, points)`:
+- roll < percent: a hit.
+- percent <= roll < p0: the cover caused the miss. That band is shared out
+  between the cover things in order from the shooter, each taking its own
+  points (10 or 25), cut off at p0. The thing whose share holds the roll is
+  struck: a rock, stone block or crystal takes the damage roll; a friend
+  takes a full hit. Smoke stops nothing: a roll in its share is an ordinary
+  stray.
+- roll >= p0: an ordinary stray.
+
+Strays (R2, R3, R4, T1, T2, T5), in `fly_stray`:
+- The miss distance is today's scatter formula, in squares
+  (`stray_miss_squares`). The side comes from a logged "stray angle" roll,
+  0 to 359, on the battle dice. The aim point is `stray_aim`.
+- `stray_squares` walks from the shooter through the aim point to the
+  weapon's comfortable range (pistol 8, rifle 16, cannon 14, heavy 14,
+  launcher 18), clipped to the map. It leaves out the shooter's and the
+  target's squares. It steps with `LineSteps`, the same stepping `walk_line`
+  uses.
+- On the way: a full blocker (tree, wall, hulls, power plant) stops it and
+  is struck. Ground two levels up stops it. A living unit: "stray hits unit"
+  roll, 50 standing, 25 kneeling (R4). A rock or stone block 25, a crystal
+  10 (T1, to confirm). Each roll is logged and is a `PassRoll` event.
+- Every square on the way is rolled for, the first square after the
+  shooter too (R4). The cover rule's first-square exemption does not apply
+  to strays.
+- Never the target, never the shooter (T2, to confirm). Weapons with no
+  comfortable range make no stray (T5, to confirm): the round ends at the
+  target's square and strikes nothing.
+- The tracer ends on the square the rule says the round ended: a struck
+  unit's chest, a struck square, or the last square of a spent stray.
+- Smoke in a square is not struck (R5). But smoke adding up to 18 or more
+  along the stray's squares, counted from the shooter, fully blocks it, as
+  in `walk_line` (R3). The stray ends there and strikes nothing.
+
+Damage (R6, R7, R8): `hit_unit` is the one damage rule for aimed hits,
+cover hits on a friend, strays and alien melee. `roll_damage` (`data.rs`)
+is one logged roll, 50 to 150 percent of the weapon's power, for every hit,
+explosions too. Scenery struck takes the same roll off its hit points
+(`strike_scenery`, `damage_obstacle`): a wall at 40 or less falls to low
+cover, at 0 or less any obstacle is cleared, as in `explode`. Hulls and the
+power plant cannot be broken by shots (`obstacle_shot_breakable`). Trees
+(40) and walls (80) already had hit points in `gen_map`, so T3 needed no new
+numbers.
+
+Kills and morale (R9, R10):
+- `kill_unit` gives the kill and the killer's morale gain only when the
+  killer is on the other side. A stray kill of an enemy counts in full.
+- `death_morale_loss` is the death arithmetic, unchanged. A unit hit by its
+  own side and alive: its side loses `friendly_fire_loss` of it, 25 percent
+  if unhurt, 50 percent if hurt (constants `FF_MORALE_*`). Killed: the full
+  death loss, through `kill_unit`. Same set of units as a death (T4, to
+  confirm): every other living unit of that side, no sight test. Aliens the
+  same.
+
+Incidents (R11): `Battle.incidents` keeps every friendly-fire hit (shooter,
+victim, names, soldier numbers, turn, unhurt/hurt/killed) and every stray
+kill of an enemy. `finalize` moves them to `Game.last_incidents`, beside
+`last_roll_log`. Nothing reads them yet.
+
+Other behaviour that changed with it:
+- Grenades and launcher blasts also stop giving a kill for one's own side.
+- Every hit, not just blasts, rolls 50 to 150 percent; incendiary and stun
+  blasts too.
+- The log lines of a death and the shot refusals now come from
+  `play_shot`; the words are unchanged.
+
+Tests (`odds_tests`, no window): the outcome split at its edges, the stray
+walk (reach, map edge, skipped squares), the stray numbers, the damage range,
+the morale fractions, friendly-fire morale and no credit, stray kill credit,
+refusals spending nothing, a stray breaking a tree and not a hull, and 600
+shots checking that the one roll and the tracer line agree. Not tested: the
+picture and sound (`play_shot`) and the self-test, which need a window.
 
 ### Package 1. Groundwork: honest records, and removing the Trestle
 
@@ -540,13 +656,13 @@ depends on 1a.
   times wounded, times panicked, friends lost, kills by creature kind.
 - `MissionSpec` (`main.rs` 341–355) gains `kind` (normal, signpost, moon)
   and `gravity`. It is built by hand in three places: `main.rs` 755,
-  `main.rs` 2376 and `start_selftest` (`tactical.rs` 1833). Each needs the
+  `main.rs` 2376 and `start_selftest` (`tactical.rs` 2507). Each needs the
   new fields.
 - `Game` (`main.rs` 357–450) gains a `story_flags` list and a
   `lost_soldiers` list (abducted, mind-taken, left on the field). Each
   `LostSoldier` keeps name, look, stats, rank and `pool_id` (package 10),
   so the human worker can be built from it.
-- `finalize` (`tactical.rs` 1893–1920) writes back who fought, who was
+- `finalize` (`tactical.rs` 2568–2600) writes back who fought, who was
   wounded, who was left behind, and corpses per creature kind.
 - `finish_battle` (`main.rs` 906–1031) adds 1 to `missions` and sets
   `wounded_days` from wounds.
@@ -561,10 +677,11 @@ can ever be "read".
 
 - A withdraw action: the squad leaves, and whoever is not aboard stays.
 - A soldier can be unconscious without being dead. Today stun at or above
-  full health calls `on_unit_death` (`tactical.rs` 1083–1084).
+  full health kills the unit (`hit_unit`, `tactical.rs` 1652, then
+  `kill_unit` 1304–1323).
 - An enemy Reach take, or an abduction. Today the enemy only routs
   (`tactical.rs` 1424–1436).
-- `finalize` (`tactical.rs` 1893) writes "left on the field" and "taken"
+- `finalize` (`tactical.rs` 2568) writes "left on the field" and "taken"
   into `lost_soldiers`, not `dead`.
 - Limits: none. Self-test: must give the same result file.
 - Needs 1a.
@@ -588,7 +705,7 @@ can ever be "read".
 - A hook is one place in the code where each creature's own rule plugs in.
 - `Unit` (`tactical.rs` 31–83) gains a small status block: dazed, marked,
   melt, buried, fullness, turns working.
-- Split `update_ai` (1400–1467) so it calls one function per creature
+- Split `update_ai` (2073–2142) so it calls one function per creature
   kind. At first every kind keeps today's behaviour.
 - Replace the stand-in weapon at line 1440 (`g.data.weapons[0]`, the
   service pistol) with the creature's own natural weapon.
@@ -604,7 +721,7 @@ phase 3.
 - Item slot 6 (gun) and slot 7 (shells) in `SURFACE_ITEMS`. One new
   `add(...)` row at the end of the weapon list. Add to the starting stock
   in `Base::new` (`main.rs` 167–177).
-- Rule in `fire` (`tactical.rs` 975–1048): several pellets, strong close
+- Rule in `resolve_shot` (`tactical.rs` 1451–1510): several pellets, strong close
   up, weak far away. Either a pellet count on `WeaponDef` (`data.rs`
   187–198) or a new `Cat::Shotgun` (`data.rs` 184). The pellet count is the
   smaller change. A new `Cat` would also touch `best_weapon` (`main.rs`
@@ -690,7 +807,7 @@ count is always 0.
 - Effect: not decided. `LORE.md` says a fear "bites" where the thing is
   present, not what the bite is. Suggested: a morale hit at the start of
   the soldier's turn while the thing is present, fed into
-  `check_unit_panic` (`tactical.rs` 810–823).
+  `check_unit_panic` (`tactical.rs` 1254–1269).
 - Things to watch:
   - Morale climbs 15 every turn (`tactical.rs` 934) and panic is only
     tested below 50 (812). The fear's hit must be bigger than 15 a turn, or
@@ -702,9 +819,9 @@ count is always 0.
 **3c. Where the trait rules hook in**
 - STEADY: `hit_chance` (`data.rs` 581–590), where wounds cut accuracy. It is the helper behind `ShotOdds.base`.
 - BRAVE, COLD, EMPATH, LONER, SUPERSTITIOUS: the team morale loss in
-  `on_unit_death` (`tactical.rs` 848–854) and `check_unit_panic`.
-- PROTECTIVE and RECKLESS: `opportunity_fire` (`tactical.rs` 1502–1531) and
-  `start_player_turn` (920–944).
+  `on_unit_death` and `kill_unit` (`tactical.rs` 1271–1323) and `check_unit_panic`.
+- PROTECTIVE and RECKLESS: `opportunity_fire` (`tactical.rs` 2177–2223) and
+  `start_player_turn` (1380–1404).
 - EMPATH "can tell a copy from a real person": used by the late human
   worker in package 7.
 - Hidden until shown: the first time a trigger fires, set the `seen` flag
@@ -777,17 +894,17 @@ add both in one step.
   `Side::Player` unit back to that soldier (1908–1913). So a taken enemy
   that dies while on our side would mark soldier 0 dead. Fix this here.
 - Every place that tests the side must be re-read:
-  - `update_ai` (1400–1467) only moves `Side::Alien` and only hunts
+  - `update_ai` (2073–2142) only moves `Side::Alien` and only hunts
     `Side::Player`. A wild unit hunts whoever is nearest.
-  - `check_end` (1088–1099), through `alive_aliens` (628): do living wild
+  - `check_end` (1773–1784), through `alive_aliens` (1027): do living wild
     units stop the battle from ending? Not decided (open question 12).
   - The right-click target test (1642) allows `Side::Alien` only.
-  - `finalize` counts kills and captives by `Side::Alien` (1895, 1899).
+  - `finalize` counts kills and captives by `Side::Alien` (2570, 2574).
   - The two helpers at 625–628.
   - The drawing choice (2447–2448) picks soldier or alien shape by side.
     It must pick by what the unit is.
 - Reaction fire already works for any number of sides. It tests "not my
-  side" (`opportunity_fire`, 1511).
+  side" (`opportunity_fire`, 2186).
 - Turn order: `Phase` (`tactical.rs` 12) has no wild turn. The simplest
   rule is that wild units act at the end of the enemy turn.
 - Self-test: must give the same result file. No wild unit or civilian is
@@ -797,10 +914,10 @@ add both in one step.
 
 - **Bloat (kind 9).** Bursts into a thick cloud when shot or when it
   reaches a target. The cloud blocks sight (the Kite's too) and chokes.
-  - Reuse the smoke part of `explode` (`tactical.rs` 1200–1352), called
-    from `on_unit_death` (825–863). Sight already fails once smoke along
+  - Reuse the smoke part of `explode` (`tactical.rs` 1887–2025), called
+    from `on_unit_death` (1271–1290). Sight already fails once smoke along
     the line adds up to 18 (`los`, 665–666).
-  - Choking is new: stun each turn in `tick_smoke_and_fire` (865–918).
+  - Choking is new: stun each turn in `tick_smoke_and_fire` (1325–1378).
     Tag the cloud so ordinary smoke grenades do not choke.
 - **Kite (kind 1).** Marks a soldier; its shot dazes.
   - Dazed: half time units and no reaction fire for one turn. Touches
@@ -832,8 +949,8 @@ add both in one step.
     the Maul's side becomes `Wild`, and so does its `home_side`. It then
     attacks whoever is nearest, the enemy included.
   - How the player hits the spike is not decided (open question 11).
-    `fire` (975) aims at a whole unit. `damage_unit` already works out
-    which facing was hit (1057–1062). So the cheap rule would be "hits
+    `fire` (1437) aims at a whole unit. Facing is worked out in
+    `hit_unit` (1624–1631). So the cheap rule would be "hits
     from behind damage the spike". A called shot needs a new button and a new
     aim mode.
   - Its corpse gives Slag by fullness (ties to 2c and 2d). The numbers are
@@ -864,7 +981,7 @@ add both in one step.
     and still. The two must never look related.
 - **Brooder, the taker (kind 5).** A hovering machine that spits fluid.
   - `Tile` (`tactical.rs` 18–28) gains a `pool` amount. `Battle::new`
-    (`tactical.rs` 517–623) places civilians on missions that suit them.
+    (`tactical.rs` 908–1025) places civilians on missions that suit them.
     The civilian side comes from 4a.
   - A civilian melts in one spit and then runs at soldiers. Soldiers take
     several, because armour soaks it up.
@@ -966,7 +1083,7 @@ for the icons and the look of the base interior.
 
 **5b. The battle inside the base** (new; large, Opus, Fable for the look)
 
-- There is no map of the inside of a base. `gen_map` (`tactical.rs` 383)
+- There is no map of the inside of a base. `gen_map` (`tactical.rs` 774)
   only makes outdoor maps. So this needs a second map builder. It turns
   the 6×6 base grid (`Base.grid`, `main.rs` 105) into rooms and corridors,
   one room per module.
@@ -1023,7 +1140,7 @@ sheets. Needs packages 1a, 3, 4a and 5.
     decided.
   - **Lash.** The best marksman. Its first shot at any new target costs
     extra time. `Unit` gains a short list of targets already pardoned, and
-    `fire` (975) adds the extra cost when the target is not on it.
+    `fire` (1437) adds the extra cost when the target is not on it.
 - **Harnesses** (third session). No refugee can wear human armour. The
   workshop makes each kind its own harness.
   - Three new rows in `ARMORS` (`data.rs` 480–487). It is exactly 6 today,

@@ -29,6 +29,8 @@ See `ROADMAP.md`.
 
 **2026-11-13 (after the eighth session):** friendly fire and shielding were decided and are not built. A miss can now hit anyone or anything near its path, with no warning on screen; the shooter may gain a bad trait, the victim may lose trust, and the squad takes a morale hit. Shielding counts toward GUARDIAN and bonds. This changes two earlier decisions (`LORE.md`, "Eighth session, later part"). No code has changed.
 
+**2026-11-13 (ninth session):** slice 1 of the battle rules is built: the shot rules return events and need no window. It has stray shots, cover hits, scenery damage, friendly-fire morale and the 50 to 150 percent damage roll. 33 unit tests pass and the self-test passes all three steps. Not committed yet. See `LORE.md`, "Ninth session".
+
 ## Third lore session (2026-11-13)
 
 - **Held and written down.** The decisions are in `LORE.md` under "Third
