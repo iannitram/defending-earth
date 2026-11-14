@@ -388,10 +388,15 @@ for them on screen. When one is built, move it into its table above.
 | MESS HALL | Base module | Feeds the soldiers, and later the refugees |
 | SCRUB ROOM | Base module | Cleans the Registrar's hidden copy out of what we build from enemy parts |
 | REFUGEE QUARTERS | Base module | Where freed aliens live |
+| OVERWATCH | Battle command | Planned, not yet in the game. A button that puts a unit on guard. It takes reaction shots in the other side's turn, each paid from its remaining time units. Aliens use the same rule |
 | SHOTGUN | Soldier weapon | Starting weapon for close range. It should go at the end of the weapon list, so no row number moves |
 | KNIFE | Soldier weapon | Starting blade for close range. Also to be added at the end |
 | refugees | People | Freed aliens who can serve as soldiers: Regent, Tender, Lash. `LORE.md` also calls them "defectors"; it means the same people |
 | BRAVE, COLD, EMPATH, PROTECTIVE, RECKLESS, STEADY, SUPERSTITIOUS, LONER | Soldier traits (strengths) | The eight starter traits. All eight are strengths, each with its own built-in catch. Every recruit gets one strength and one fear, both hidden until something in battle shows them |
+| FIXED DICE | New-campaign option | The save keeps where the dice are, so reloading and repeating an action gives the same result. Locked for the whole campaign |
+| IRON MAN MODE | New-campaign option | One save slot, saved by the game after every decision. A finished campaign's save is kept to look at, not to play on. Locked for the whole campaign |
+| SEED | New-campaign page | The number every roll of the campaign starts from. Shown on the page; the player can type one in |
+| ROLL LOG | Debrief | The list of every rule roll in the battle (who, what, odds, result). Shown only after the battle |
 
 ### Soldiers: strengths and fears (third session, 2026-11-13)
 
@@ -409,7 +414,7 @@ something in battle shows them.
 | THE GLOW | Fear (land) | Afraid of Glow, the enemy's shining fluid |
 | WATER | Fear (sea only) | Afraid of water. Does nothing on land, so it stays asleep until the sea campaign exists |
 | SHARKS | Fear (sea only) | Afraid of sharks. Sea only, the same as WATER |
-| portrait stages | Term | The six steps a soldier's close-up face goes through, from new recruit to the thousand-yard stare. Events add marks on top: scars from wounds, and changes that come with earned traits |
+| portrait stages | Term | The six steps a soldier's close-up face goes through (applied to the soldier's built head since the sixth session), from new recruit to the thousand-yard stare. Events add marks on top: scars from wounds, and changes that come with earned traits |
 
 The older spellings AFRAID OF WATER and AFRAID OF SHARKS are replaced by
 WATER and SHARKS. `LORE.md` writes the six fears in plain words ("the dark,
@@ -421,10 +426,25 @@ designed yet.
 
 | Name | Kind | What it is |
 |---|---|---|
-| SOLDIER POOL ("the pool"; `LORE.md` says "the soldier pool", the capitals are a working screen spelling) | Start-page screen | A page reached from the game's starting screen. The player makes soldiers there once, with a name, a look and a picture. They are then pulled at random into every campaign started afterwards |
+| SOLDIER POOL ("the pool"; `LORE.md` says "the soldier pool", the capitals are a working screen spelling) | Start-page screen | A page reached from the game's starting screen. The player makes soldiers there once, in a character designer (sixth session, 2026-11-13; it replaces "a look and a picture"). A photo is optional. They are then pulled at random into every campaign started afterwards |
 | pool soldier | Term | A soldier made in the pool. Mixed at random into the recruits offered during a campaign. Its strength and fear are dealt fresh in every campaign and hidden like anyone else's |
 | "start with me" | Tick box on the pool page | Guarantees that pool soldier a place in the starting squad |
-| pool picture | Term | One picture per pool soldier. The game lays the six portrait stages over it: lighting, grime, darker eyes, scars from wounds. Pool pictures and names stay on the player's machine. They are never put in the public repository (the project's shared online folder) |
+| pool picture | Term | Replaced in the sixth session (2026-11-13): a pool soldier no longer has a stored picture. Its 3D head is built from saved slider values and the portrait is a picture of that head. The six portrait stages and event marks apply to the head. Any photo is read once and thrown away. Names and slider values stay on the player's machine. They are never put in the public repository (the project's shared online folder) |
+
+### Ribbons and citations (sixth session, 2026-11-13)
+
+Ribbon and citation names beyond the four below are to settle. The capitals
+are a working screen spelling. `LORE.md` writes them in plain words.
+
+| Name | Kind | What it is |
+|---|---|---|
+| ribbon | Term (name to settle) | What a soldier earns by doing one kind of thing again and again. Ten to start: rifle, shotgun, knife, explosives, medic, scout, overwatch, Reach, survivor, creatures. Five levels each. Ribbons replace jobs: there are no classes. Names and designs of each ribbon are to settle |
+| ribbon board | Term (name to settle) | The board on the dress uniform where a soldier's ribbons are worn. A higher level replaces the lower one |
+| citation | Term (name to settle) | A hidden ability a soldier earns from a mix of ribbons. It stays hidden until one of the player's soldiers earns it, then shows in a book of citations (name to settle) with how it was earned, and stays known in every later campaign |
+| RANGER | Citation | Rifle plus scout. Sees further, and gets one overwatch shot each turn that costs no time units. Exact effects to settle |
+| BREACHER | Citation | Shotgun plus explosives. The first shot after going through a door or a blown wall costs no time units. Exact effects to settle. Shares a word with BREACHER MISSILE, BREACHER TORPEDO and BREACHER BATTERY; to settle whether that is a clash |
+| GUARDIAN | Citation | Medic plus overwatch. A free reaction shot at anything that attacks a soldier they healed this battle. Exact effects to settle |
+| GHOST | Citation | Knife plus scout. Enemies that have not spotted them cannot take reaction shots at them, and they leave no footprints. Exact effects to settle |
 
 ### Creatures (third session)
 
@@ -474,7 +494,7 @@ spelling.
 | scrubbing | Term | Cleaning the Registrar's copy out of what we build. Done in the SCRUB ROOM. It costs power and resources |
 
 The exact numbers for hunger and infection are left for later. They will be
-set by playing once the systems exist.
+set with the test bench, then checked by playing, once the systems exist.
 
 ### Changes to names already in the tables above
 

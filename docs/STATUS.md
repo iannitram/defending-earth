@@ -17,6 +17,12 @@ reports) is now package 0, the first systems package, and the scale sheet
 (one sheet of real-world sizes) opens graphics phase 4. Neither is built.
 See `ROADMAP.md`.
 
+**2026-11-13:** an architecture review ran and six rule fixes were decided (see `LORE.md`, "Fourth session"). No code has changed.
+
+**2026-11-13:** the architecture review's designs for dice, shot odds, battle rules and saves are decided and recorded (`LORE.md`, "Fifth session"); an animation list is proposed in the roadmap; no code has changed.
+
+**2026-11-13:** a sixth lore session decided the character designer for the soldier pool (hand-driven sliders first, optional photo later, no photo stored), ribbons with hidden citations, and footprints (`LORE.md`, "Sixth session"). This replaces the one-picture-per-soldier plan. No code has changed.
+
 ## Third lore session (2026-11-13)
 
 - **Held and written down.** The decisions are in `LORE.md` under "Third
@@ -70,13 +76,16 @@ See `ROADMAP.md`.
     (infection risk first runs high).
 - **New: the soldier pool** (the user's idea).
   - A page reached from the game's starting screen. The player creates
-    soldiers there once, with pictures.
+    soldiers there once, with pictures. (Sixth session: made with a
+    character designer, photo optional and not stored.)
   - Pool soldiers are mixed at random into the recruits of every campaign
     started afterwards. A "start with me" tick guarantees a place in the
     starting squad.
-  - The player makes the name, look and picture. The strength and the fear
+  - The player makes the name, look and picture (sixth session: the name
+    and the designer's sliders). The strength and the fear
     are dealt fresh in every campaign and hidden like anyone else's.
   - One picture per soldier. The game lays the six portrait stages over it.
+    *Changed 2026-11-13 (sixth session): the portrait is now a picture of a 3D head built from slider values, and the stages apply to that head. A photo is optional and not stored.*
   - Pool pictures and names stay on the player's machine. They are never
     put in the public repository.
   - It is not covered by packages 1 to 9 of the game systems track, so it
@@ -91,9 +100,9 @@ See `ROADMAP.md`.
     whenever the game is started with `--demo`, `--screenshot`,
     `--self-test` or `--ai-test`.
 - **Still open after the third session** (each is the user's call):
-  - *Numbers, left for play.* `LORE.md` says these are set by playing once
-    the systems exist: Slag from a full or an empty Maul, how fast it eats,
-    and the hunger and infection figures.
+  - *Numbers, left for play.* `LORE.md` says these are set with the test
+    bench, then checked by playing, once the systems exist: Slag from a full
+    or an empty Maul, how fast it eats, and the hunger and infection figures.
   - *Not yet given a number or a list:* what each strength is worth; how
     many missions each portrait stage takes; how many batches of human
     worker there are; how many Gorgers a refugee needs; what scrubbing
@@ -116,14 +125,16 @@ See `ROADMAP.md`.
   2. Do living wild units (a wild Maul, Cinders) stop a battle from ending?
   3. What does a Cinder that survives a battle do between battles?
   4. A copy wears the face of the soldier it was read from. May a copy wear
-     a pool soldier's real photo? And may a pool picture ever be shown in
+     a pool soldier's real photo? (Sixth session: no picture is stored,
+     only slider values.) And may a pool picture ever be shown in
      another player's game? (`ART_BIBLE.md` says a soldier's record can
      later be shown in another player's game. `LORE.md` says pool pictures
      stay on the player's machine.)
   5. Does the fear of the Glow react to a soldier's own cored weapon (its
      core is filled with Glow)?
   6. Pool pictures: the game can read PNG files today but not JPG, which
-     is what phone photos are. Add JPG, or accept PNG only?
+     is what phone photos are. Add JPG, or accept PNG only? (Sixth
+     session: a photo is now optional and read once; still to settle.)
   7. Does a freed Tender count for the ending if it is alive at base, or
      only if it is aboard the transport to the Moon?
 - **Documents not yet in step.** `LORE.md` keeps its older "Still to

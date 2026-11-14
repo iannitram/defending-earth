@@ -1,8 +1,8 @@
 # Defending Earth — Lore
 
 Decisions made together, in the order we settled them. Anything not written
-here is still open. Creature names from the 0.9 name map are placeholders
-until each one is decided here.
+here is still open. Creature names from the 0.9 name map were placeholders
+until each one was decided here. They are now final.
 
 ## The enemy: the Registrar
 
@@ -378,7 +378,8 @@ come out of its remains. They set fires and eat, and grow if left.
 
 People: Regent, Tender, Lash. Animals: Gorger, Kite, Bloat, Maul, Cinder.
 Machines: the taker (field reader) and the builder (Lathe). Later: the
-human worker. All names are still placeholders.
+human worker. Creature names are final (see below). The taker and the
+human worker are still placeholders.
 
 ### Decided in the second session (2026-11-13)
 
@@ -550,11 +551,14 @@ changing portraits.
 ### The soldier pool (the user's idea)
 
 A page reached from the game's starting screen where the player creates
-soldiers once, with pictures. Soldiers from the pool are pulled at random
-into every campaign started afterwards, so the player and their friends
+soldiers once, with pictures. (Sixth session: made with a character
+designer instead, and a photo is optional.) Soldiers from the pool are
+pulled at random into every campaign started afterwards, so the player and their friends
 can turn up in any game without being made again.
 
-- **Traits are dealt fresh.** The player makes the name, look and picture.
+- **Traits are dealt fresh.** The player makes the name, look and picture
+  (sixth session: the name, nickname, background, favoured role and a
+  character designer's sliders, with no stored picture).
   The strength and the fear are random in every campaign and hidden like
   anyone else's.
 - **Arrival.** Pool soldiers are mixed at random into the recruits offered
@@ -562,8 +566,13 @@ can turn up in any game without being made again.
   soldier a place in the starting squad.
 - **Portraits.** One picture per soldier. The game lays the six stages
   over it: lighting, grime, darker eyes, scars from wounds.
+  *Changed in the sixth session (2026-11-13): the portrait is now a
+  picture of a 3D head built from the soldier's slider values, and the
+  stages and marks apply to that head. See "Character designer" below.*
 - **Privacy.** Pool pictures and names stay on the player's machine. They
-  are never put in the public repository.
+  are never put in the public repository. (Under the sixth session no
+  photo is kept, only slider values. Slider values and names still stay on
+  the player's machine.)
 
 ### More signpost missions
 
@@ -583,7 +592,8 @@ can turn up in any game without being made again.
 ### Left for later
 
 Exact numbers (Slag from a full or empty Maul, how fast it eats, hunger
-and infection figures) are set by playing once the systems exist. What a
+and infection figures) are set with the test bench, then checked by playing,
+once the systems exist. What a
 joined multiplayer player controls is still open.
 
 ### Infection inside the base
@@ -598,6 +608,219 @@ pushes the risk back down.
 - **Dead Gorgers are fine.** Gorger corpses stock the mess for refugees.
 - **Hunger.** Unfed soldiers lose morale and recover more slowly. Unfed
   refugees weaken, then leave. Nobody starves to death on screen.
+
+### Fourth session (2026-11-13): rule fixes found in the code review
+
+A read-only code review found six places where the rules were not what was
+intended. The owner decided:
+
+- **Dark and sight.** Darkness cuts how far humans can see. Aliens see
+  normally in the dark. Light (flashlights, flares, fire) makes squares
+  visible to humans. Refugees fighting on the player's side keep alien
+  sight and see in the dark. Today the code has no such rule: night only
+  changes the picture. Distances are set with the test bench, then checked
+  by playing.
+- **Overwatch.** A unit takes reaction shots only if it was put on
+  OVERWATCH before its side ended the turn. The same rule holds for
+  soldiers and aliens: the alien side chooses which aliens go on
+  overwatch. Choosing it costs nothing extra; each reaction shot is paid
+  from the time units the unit has left. Today aliens always react and
+  soldiers never do.
+- **Movement highlight.** The squares shown as reachable use the same rule
+  as the path really walked (eight directions, diagonals allowed).
+- **Close attacks.** Each creature that fights up close has its own attack
+  numbers. It no longer borrows the first row of the weapon table. The
+  planned knife uses the same close-attack rule.
+- **Enemy craft shots.** Enemy craft hit as often as their accuracy number
+  says, not a flat 60 percent.
+- **Reach roll.** Reach uses one roll for soldiers and aliens alike.
+- All numbers are set with the test bench, then checked by playing.
+
+Also to settle:
+- How the alien side decides who goes on overwatch.
+- How far humans see in the dark.
+- Whether weather also cuts sight.
+
+### Fifth session (2026-11-13): dice, shot odds, battle rules and saves
+
+An architecture review of the code was held with the owner. These designs
+are decided. Nothing is built. All amounts are set with the test bench,
+then checked by playing.
+
+**Dice**
+- There are three kinds of dice. The campaign has its own. Each battle gets
+  its own, started from the campaign seed and the battle's number. Visual
+  things (debris, tracer wobble) use separate dice that are never logged.
+  So a battle replays the same whatever else happened.
+- Every campaign starts from a seed. The new-campaign page shows it and
+  lets the player type one in.
+- FIXED DICE: the save file keeps where the dice are. Reload and do the
+  same thing: same result. Do something else first and the result may
+  differ.
+- Every rule roll is recorded with a label (who, what, odds, result). The
+  test bench reads this log. The player sees the roll log only after the
+  battle, on the debrief.
+
+**Shot odds**
+- One rule gives both the number shown and the number rolled. No hidden
+  limits: 100 always hits, 0 always misses. (Today the roll adds plus or
+  minus 10 for height and clamps to 5 to 95, and the three screens that
+  show odds do neither.)
+- The odds use: the weapon's own range (distance matters per weapon), what
+  is between shooter and target, the soldier's stats and traits, and the
+  kind of aim. Height stays in. (Today distance does not change the odds
+  at all.)
+- Things in the way (low wall, smoke, a tree, another unit) each lower the
+  odds. A fully blocked line cannot be shot at. A missed shot just misses;
+  it does not fly on and hit something else.
+- The aiming screen shows one final number, with no breakdown. Auto fire
+  shows the per-round odds times three, for example "38% x3".
+
+**Battle rules**
+- Both sides send the same commands (move, fire, overwatch, end turn and
+  so on). The alien side is just another player. This lets the test bench
+  put a scripted player on either side and lets a person play the aliens
+  later.
+- The rules take a mission, a squad and a seed, accept commands, and give
+  back events (a plain record of what happened). Sound, effects, the screen
+  log and the bench report all read the events.
+- Built in slices, each leaving the game running: shooting and damage; then
+  movement and overwatch; then morale; then alien moves; then Reach and
+  explosives.
+- A finished battle hands the campaign one outcome record.
+- Battle replays: planned for, not built now. The event list is designed so
+  a finished battle can be played back, possibly with a cinematic camera.
+  To settle: what the cinematic view is.
+- *Designer's call, agreed by the owner:* the rules resolve each action at
+  once and the picture plays it back at its own speed, so frame rate cannot
+  change an outcome.
+
+**Saves**
+- Normal play: save at any moment, many slots, plus an autosave at the
+  start of each turn.
+- IRON MAN MODE: one save slot, saved by the game after every decision.
+  When the campaign ends, won or lost, the save is kept as a finished
+  record that can be looked at but not played on.
+- IRON MAN MODE and FIXED DICE are chosen on the new-campaign page, next to
+  the seed, and are locked for the whole campaign.
+- Each save records the game version. Until version 1.0 there is no
+  promise: an old save that no longer fits is refused with a clear message,
+  never loaded half-broken. From 1.0 on, old saves are upgraded.
+- *Designer's call, agreed by the owner:* campaign state (only what a save
+  holds) is separated from window, sound, screen and debug things.
+- *Designer's call, agreed by the owner:* campaign actions (hire, build,
+  research, make, buy, sell) move out of the drawing code into one place.
+- *Designer's call, agreed by the owner:* things are found by id, not by
+  position in a list.
+
+Also to settle:
+- What the cinematic replay view is.
+- How many save slots there are.
+- Which things in the way lower the odds, and by how much.
+
+### Sixth session (2026-11-13): the character designer and ribbons
+
+The owner decided how soldiers are made on the soldier pool page, and how
+soldiers specialise. Nothing is built. All amounts are set with the test
+bench, then checked by playing.
+
+**Character designer**
+- The designer is driven by hand: a detailed face (many sliders) and a
+  simple body (build, height within a small range, skin, hair style and
+  colour, and a voice).
+- A photo is optional. It sets the face sliders for the player, in fine
+  detail. The photo is read once and thrown away. Only slider values are
+  saved. Nothing private is stored.
+- A soldier can be made with no photo at all.
+- The soldier's 3D head is built from the slider values. The close-up
+  portrait is a picture of that head.
+- This replaces the earlier rule "one picture per soldier, with the six
+  stages laid over it" (third session, "The soldier pool"). Wear, the six
+  portrait stages and event marks now apply to the head and its portrait.
+- The player also sets: name, nickname, a short background (a line or two,
+  flavour only), and a favoured role. The favoured role gives a head start
+  on one ribbon. It changes no stats. Traits stay random and hidden each
+  campaign (already decided).
+- A pool soldier who dies in a campaign stays in the pool for future
+  campaigns. Each campaign starts them clean: no ribbons carry over. The
+  pool page keeps their full service record: every ribbon and citation
+  ever earned, campaigns served, times fallen.
+- Build order: the hand-driven sliders first, the photo step second.
+- Research note (facts from a web check on 2026-11-13, to re-check before
+  use):
+  - MPFB2 is an open slider-driven human maker for Blender. Its add-on
+    code is GPL-3.0 and its assets are CC0. It is the best open base.
+  - No open photo-to-slider tool was found. That mapping is ours to
+    write: find face landmarks in the photo, then set sliders to match.
+  - The MediaPipe face landmarker has Apache-2.0 code. The licence of its
+    model file is NOT yet checked.
+  - The FLAME 2023 Open head model is CC BY 4.0. Every other FLAME version
+    is academic only.
+  - Traps: most well-known photo-to-3D-head research code depends on
+    non-commercial face data (Basel Face Model, Surrey model, older
+    FLAME), and several face model weight files are non-commercial.
+  - The head is built once from slider values when a soldier loads, so the
+    engine needs nothing per frame.
+
+**Ribbons (how soldiers specialise)**
+- Ribbons replace jobs. There are no classes and no fixed path. A soldier
+  grows by what they do, again and again.
+- Ribbons are worn on the dress uniform, on a ribbon board. Each ribbon
+  has five levels. A higher level replaces the lower one on the board, so
+  each level needs its own design.
+- Ten ribbons to start:
+  - rifle
+  - shotgun
+  - knife
+  - explosives
+  - medic
+  - scout (spotting enemies first)
+  - overwatch (reaction shots)
+  - Reach
+  - survivor (living through heavy damage gives a defence bonus over time)
+  - creatures
+- Creature ribbons: kills for beasts and machines. Captures for people
+  (Tender, Lash, Regent): taking them alive earns the ribbon. Saving
+  citizens on missions also earns a ribbon. Reason: living freed Tenders
+  make the finale easier, so the ribbons reward what the story wants.
+- Ribbon names and designs are to settle.
+- Only uses that matter count (healing a real wound, hitting an enemy, a
+  grenade that hurts something), with less gained for repeating within one
+  battle.
+- Reaching the top level should take the whole campaign, not the first
+  three months. The target numbers for each level are set with the test
+  bench, then checked by playing.
+- **Hidden abilities (citations).** A mix of ribbons unlocks a special
+  ability the player can stumble into. The owner accepted these four as "a
+  good starting point". Exact effects are to settle with the test bench.
+  - RANGER (rifle plus scout): sees further, and gets one overwatch shot
+    each turn that costs no time units.
+  - BREACHER (shotgun plus explosives): the first shot after going through
+    a door or a blown wall costs no time units.
+  - GUARDIAN (medic plus overwatch): a free reaction shot at anything that
+    attacks a soldier they healed this battle.
+  - GHOST (knife plus scout): enemies that have not spotted them cannot
+    take reaction shots at them, and they leave no footprints.
+- More hidden abilities are wanted. Which ones is to settle.
+- A hidden ability stays hidden until one of the player's soldiers earns
+  it. Then it appears in a book of citations with how it was earned, and
+  stays known in every later campaign.
+
+**Footprints**
+- Units leave footprints that show in bad weather: snow, rain and the
+  like. A GHOST leaves none.
+- To settle: who can read tracks (soldiers, aliens or both), how long they
+  last, which weather and ground count.
+
+Also to settle:
+- Ribbon names and designs.
+- More hidden abilities, and the exact effects of the four above.
+- How ribbons and citations relate to the earned traits already decided
+  (shell shock, competence and the rest).
+- The face slider list.
+- The licence of the face landmark model file.
+- Who reads footprints, how long they last, which weather and ground
+  count.
 
 ## Sea campaign: deferred (2026-11-13)
 

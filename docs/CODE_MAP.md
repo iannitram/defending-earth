@@ -467,6 +467,22 @@ Not built. What follows was checked by searching `src/` on 2026-11-13.
   be cut free of the window is not measured yet; that measuring is part of
   the work.
 
+**What the review found.** Line numbers are as of 2026-11-13.
+- One clock-seeded dice stream at `src/main.rs` 493, with about 47 call
+  sites.
+- Visual dice sit on the rule stream at `src/tactical.rs` 1025-1028, 1269,
+  1286.
+- Shown odds differ from rolled odds: `src/data.rs` 581-590 against
+  `src/tactical.rs` 994-999 and the screens at 3204, 3516, 3626.
+- About 30 battle rules take the whole `Game` (`src/tactical.rs` 810-1750).
+- The alien turn runs on frame time (`src/tactical.rs` 1400-1467).
+- `Game` holds about 90 fields, of which roughly 25 are campaign state
+  (`src/main.rs` 357-450).
+- Campaign actions sit inside button clicks in the `src/base.rs` draw
+  functions.
+- The battle result passes as seven values (`src/tactical.rs` 1893-1920,
+  `src/main.rs` 906).
+
 ### Package 1. Groundwork: honest records, and removing the Trestle
 
 Goes with graphics phase 3 (lights). No art needed. Everything else

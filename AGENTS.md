@@ -31,6 +31,10 @@ first game and designs it together with the assistant.
   jobs) are handed to a sub-agent on the smallest model that can
   reasonably do them. `docs/ROADMAP.md` lists the level for each kind of
   work.
+- **Look for emergent stories.** The heart of this game is players
+  finding their own stories on missions. When designing or reviewing any
+  system, point out where it could give players such stories, and raise it
+  with the owner as a question. Do not add it unasked.
 - **Commit or push only when asked.**
 - **The repository is public.** Never commit pictures or names of real
   people, soldier-pool data, personal details, keys or passwords.

@@ -75,8 +75,12 @@ frame-time check):
 4. Soldiers: appearance generator, visible kit and history, wounds, burning.
    Added 2026-11-13: close-up portraits that change with service, in six
    stages, with marks from events (scars, earned traits). The same six
-   stages are laid over a player's own picture from the soldier pool
-   (package 10). The soldier pool screen is designed here too. **Before
+   stages apply to the head and portrait of a soldier made in the soldier
+   pool's character designer (package 10; sixth session, 2026-11-13: this
+   replaces laying them over a player's own picture). The soldier pool
+   screen is designed here too. Also here: ribbon designs (ten ribbons,
+   five levels each), the ribbon board and the dress uniform (package 3f),
+   and the head built from sliders. **Before
    any character or vehicle is modelled, the scale sheet is made** (see
    "The scale sheet" under the design and animation catalogue). Nothing in
    phases 4 to 9 is modelled until it exists and its one open number is
@@ -134,8 +138,12 @@ start from there.
 | Group | What must be designed | How many today | Phase |
 |---|---|---|---|
 | Soldiers | Body builds, faces, skin, hair; the appearance generator | 1 generator, many results | 4 |
-| Soldier portraits | The close-up face at six stages of service, from new and jittery to the thousand-yard stare. On top of the stage come event marks: one scar for each time wounded, and a change for each earned trait. Two versions of every stage and mark: drawn into the game's own faces, and as overlays (see-through layers: light, grime, darker eyes, scars) laid over a player's picture from the soldier pool. Also the file entry for a strength or fear not yet seen ("UNKNOWN") | 6 stages, plus scars and about one mark per earned trait | 4 |
-| Soldier pool screen | The page reached from the start screen: the list of pool soldiers, the look form, a box to type a name, the picture import and crop step with a guide oval for the face, and the "start with me" tick | 1 screen with a crop step | 4 |
+| Soldier portraits | The close-up face at six stages of service, from new and jittery to the thousand-yard stare. On top of the stage come event marks: one scar for each time wounded, and a change for each earned trait. Changed in the sixth session (2026-11-13): the portrait is a picture of the soldier's 3D head (see the head row below), so each stage and mark is made for the head, not laid over a player's picture. The earlier plan of two versions (the game's own drawn faces, and overlays over a player's picture) is replaced. Also the file entry for a strength or fear not yet seen ("UNKNOWN") | 6 stages, plus scars and about one mark per earned trait | 4 |
+| Soldier pool screen | The page reached from the start screen: the list of pool soldiers, the character designer (face sliders, body, hair, voice), boxes to type a name, nickname and short background, the favoured-role choice, the "start with me" tick, the service record (every ribbon and citation ever earned, campaigns served, times fallen), and later the optional photo step. Sixth session (2026-11-13): replaces the picture import and crop step | 1 screen, with a photo step added later | 4 |
+| The head built from sliders | A 3D head built once from a soldier's slider values when the soldier loads. The detailed face sliders, plus a simple body: build, height in a small range, skin, hair style and colour. The portrait is a picture of this head. The face slider list is to settle. Research note in package 10 | 1 head builder, many results | 4 |
+| Ribbons | Ten ribbons (rifle, shotgun, knife, explosives, medic, scout, overwatch, Reach, survivor, creatures), five levels each. A higher level replaces the lower one on the board, so each level needs its own design. Names and designs are to settle | 10 ribbons times 5 levels, 50 designs | 4 |
+| The dress uniform and ribbon board | The dress uniform, and the ribbon board on it where a soldier's ribbons are worn. To settle: how it looks, and where the player sees it (the soldier's file, the pool page) | 1 uniform, 1 board | 4 |
+| The book of citations | The page where a hidden ability appears once one of the player's soldiers earns it, with how it was earned. To settle: its look | 1 screen | 4 |
 | Soldier armour | Every armour, in its design step, worn and damaged. The first step looks present-day. New: three refugee harnesses (next row) | 6 today, then 9 | 4 and 6 |
 | Freed aliens as soldiers ("refugees") | Regent, Tender and Lash with the control hardware removed, in our squad: markings and portrait. None can wear human armour, so each kind gets its own workshop-made harness, shaped to its body. The Regent uses Reach and cannot use human weapons. The Tender is small and frail. The Lash is a marksman; which weapons a freed Lash or Tender carries is to settle | 3 species, 3 harnesses | 4 and 5 |
 | Land creatures | Every kind, plus its corpse or wreck and its captive form. People: Regent, Tender, Lash. Animals: Gorger, Kite, Bloat, Maul, Cinder. Machines: see the next row. The Maul has the Registrar's control spike driven into its molten core, and a wild look once the spike is gone. The Cinder is a glowing cube-shaped rock, rough, rounded, orange and tumbling, almost cute, in several sizes as it grows. It must never be confused with the Registrar's cubes, which are black, exact and still. The Gorger needs its buried signs: shifting ground and dust. The Trestle gets no design: it is to be removed (package 1b) and its table slot will stay empty | 11 in the code today, then 10 | 5 |
@@ -165,7 +173,7 @@ Motions each group needs:
 | Group | Motions |
 |---|---|
 | Soldiers | Stand, walk, run, crouch walk, kneel, go prone, turn; aim, fire (single, burst, auto), reload, throw, use item, heal another; climb, drop, open door; hit reactions by body part, stagger, panic, burning; fall dead in several ways, lie wounded, be carried; idle fidgets. Each weapon class changes the carry, aim and reload. New: pump and fire the shotgun, draw the knife and strike; fear reactions (flinch, freeze, back away), one set for each land fear: the dark, fire, tight spaces and the Glow; lie unconscious, be dragged clear, withdraw to the craft; struggle when an early human worker clings on; use the handheld radar; low-gravity versions of walk, jump, throw and fall for the Moon |
-| Soldier portraits | Small face motions for each of the six service stages: quick eyes and fidgets when new, stillness and a fixed stare when worn. A player's picture does not move; only its overlays change |
+| Soldier portraits | Small face motions for each of the six service stages: quick eyes and fidgets when new, stillness and a fixed stare when worn. Since the sixth session the portrait is a picture of the soldier's 3D head, so these motions are to settle against that |
 | Land creatures | For every kind: idle, move in its own way (walk, slither with a real body wave, glide, hover, drift, crawl), turn, attack (each kind of attack), take a hit, die, lie dead; the electrical flicker that stops at death. Special acts by kind: Regent reaches a soldier; Kite circles, marks, fires its daze shot; Bloat drifts and bursts; Regent hesitates and is recycled ("The split vote"); Gorger lies buried with the ground shifting above it, erupts, drags down; Maul blasts magma, eats bodies and kit, loses its spike and goes wild; Cinder breaks off a Maul, rolls and tumbles as a cube, sets fires, eats, swells a size at a time |
 | The two machines | Shape-changing between forms: plates slide, turn and fold through each other, exact and silent, never like a living thing. Taker: travel, scout, open, spit, melt a body or wreck into a pool. Builder: travel, open, repair, raise cover, build a taker over several turns. Both: core exposed while working; shut down and fall apart |
 | Freed aliens as soldiers | Their creature motions, changed for our side: wearing a harness, following orders. The Regent reaches, with no human weapon in hand. The Tender stops and senses Reach and machines. The Lash asks pardon before its first shot at each target. Tenders gather, vote and merge in the ending |
@@ -190,6 +198,54 @@ model:
 - **The model pipeline.** One agreed file format out of Blender, one loader
   in the game, one script that bakes textures and writes both. Every later
   model goes through it.
+
+#### Animation list (proposed, to settle with the owner)
+
+Added 2026-11-13 at the owner's request. **This whole list is proposed. The
+owner has not agreed it.** It is drawn from rules already decided. It feeds
+graphics phase 4 (soldiers; the animation system is built at its start),
+phase 5 (creatures and refugees) and phase 8 (the human worker). It sits
+beside the "Motions each group needs" table above, which is the older and
+wider list. Entries with no support in `LORE.md` or `NAMES.md` say "to
+settle".
+
+*Soldiers, moving*
+- Walk, run, injured run, panicked run.
+- Moving while mind-taken (a Husk). To settle: how a taken soldier moves
+  and whether it is a separate set.
+- Kneel down and stand up. Going up or down a level (climb, drop).
+
+*Soldiers, acting*
+- Snap shot, aimed shot, auto burst, shotgun shot, knife attack, reload.
+- Throw: grenade and smoke grenade. Throwing a flare is to settle (flares
+  are named only as a light).
+- Use a TRAUMA KIT. Go on OVERWATCH. Reaction shot.
+
+*Soldiers, states*
+- Idle, idle wounded.
+- Panic. To settle: whether it looks frozen or cowering.
+- Stunned (the lore has stun weapons; how a stunned soldier falls is to
+  settle). Death (shot, fire, blast).
+- A fear biting: the dark, fire, tight spaces, the Glow.
+- A hidden trait showing itself.
+
+*Refugees*
+- Regent using Reach, Tender scouting, Lash aiming and firing (the Lash asks
+  pardon before its first shot at each target).
+
+*Creatures* (every kind in the land roster: Regent, Tender, Lash, Gorger,
+Kite, Bloat, Maul, Cinder, the taker, the builder)
+- For each: idle, move, attack, hit, death.
+- Special ones the lore already states: a buried Gorger showing signs and
+  coming up; the Maul going wild when its control spike is destroyed;
+  Cinders rolling, breaking off a Maul and growing; the taker spitting
+  Glow.
+
+*Human worker*
+- One set per batch stage as it improves (number of batches to settle).
+
+*Replay*
+- Cinematic camera moves. To settle: what the cinematic view is.
 
 #### The scale sheet (decided 2026-11-13 by the user and the lead)
 
@@ -256,7 +312,7 @@ Added later on 2026-11-13, after the third lore session:
 | Work | Model | Why |
 |---|---|---|
 | The six portrait looks, scars and earned-trait marks | Fable | Judged by eye |
-| Drawing the overlays on a player's picture; picture import and crop | Opus | Exact work with files and pixels, checkable with a test picture |
+| Building the head from slider values (10b); the photo step (10c) | Opus | Exact work with geometry and files. Sixth session (2026-11-13): replaces drawing overlays on a player's picture and the picture crop |
 | Soldier pool storage on disk and how pool soldiers arrive in a campaign | Opus | The game's first player file; a mistake here loses or leaks someone's soldiers |
 | The soldier pool screen and its name box | Sonnet, checked by Opus | A screen that lays out boxes and text |
 | Sides (wild, civilian), ways to lose a soldier alive, mission goals | Opus | Rules that touch how every battle ends |
@@ -272,7 +328,7 @@ Added later on 2026-11-13, for package 0, the test bench:
 | Separating the rules from the drawing, so the same rule code runs with no window | Opus | Large but checkable: results must not change |
 | The proper save system (the file, its version, what is stored) | Opus | A mistake here loses or corrupts a campaign |
 | The three scripted players (careless, average, careful), the report writers, the command-line options | Sonnet, checked by Opus | Pattern-following work with a clear target |
-| The IRON MAN and FIXED DICE menu options | Sonnet, checked by Opus | Menu wiring on top of the save system |
+| The IRON MAN and FIXED DICE options on the new-campaign page | Sonnet, checked by Opus | Menu wiring on top of the save system |
 | The scale sheet, its size checks and the size chart | Fable for the design, Sonnet for the check scripts | Sizes and cheats are judged by eye; the checks are mechanical |
 
 **Working rule (decided 2026-11-13).** Design decisions are made by Fable.
@@ -446,10 +502,11 @@ Three more, found while planning the third-session decisions:
   offered a choice, to join the Registrar's side and keep playing or to be
   wiped out. What a joined player controls is still open. See package 9 of
   the game systems track.
-- Still open for 3.0: what happens to a soldier-pool picture when that
-  soldier crosses into another player's game. Pool pictures are private
-  (package 10), so the safe starting answer is that the picture never
-  leaves the player's machine.
+- Still open for 3.0: what happens to a soldier-pool soldier (name and
+  slider values) when that soldier crosses into another player's game.
+  Pool data is private (package 10), so the safe starting answer is that
+  it never leaves the player's machine. (Sixth session: there is no
+  stored picture any more, only slider values.)
 
 Groundwork that should start early so 3.0 is not a rewrite:
 - Soldier, wound and history records stay small, self-contained and easy
@@ -504,8 +561,9 @@ the open questions" in `LORE.md`). What changed:
   a stored result. If the result changes by accident, a rule was broken.
 - **Test bench:** a way to run battles and whole campaigns from the command
   line, with no window, and print reports. A test tool, not a second game.
-- **Seed:** the one number that decides every roll. The same seed replays the
-  same battle exactly.
+- **Seed:** the one number a campaign starts from. Each battle's dice start
+  from it and the battle's number, so the same seed replays the same battle
+  exactly.
 - **Dice:** the game's random numbers. They are "seeded": the same starting
   number always gives the same rolls, so a battle can be replayed exactly.
 - **Slot:** a numbered place in a fixed table. Slots are never renumbered,
@@ -553,24 +611,27 @@ the open questions" in `LORE.md`). What changed:
 | 0 | The test bench: battles and campaigns with no window, repeatable dice, scripted players, event report, dice log, agent play, proper save system, IRON MAN and FIXED DICE | nothing | none; phase 3 may come first or run alongside | medium to large (an estimate: the tangle of rules and drawing is not measured yet) | Fable for the split and report format, Opus for separating rules from drawing, Sonnet for scripted players, reports and menu options |
 | 1 | Groundwork: honest records, ways to lose a soldier alive, Trestle removal, a behaviour hook per creature, the wild and civilian sides | 0 | 3 (no art needed) | 3 medium, 1 small | Opus; Sonnet for the Trestle, checked by Opus |
 | 2 | SHOTGUN, KNIFE, SLAG, real loot | 1 | 6; Glow pools with 3 | 2 medium, 1 small to medium, 1 small | Opus for rules, Sonnet for table rows |
-| 3 | Soldier strengths, fears, earned traits, six-stage portraits | 1 | 4 | large | Fable for the sheets and the six looks, Opus for rules and overlays, Sonnet for the file screen |
+| 3 | Soldier strengths, fears, earned traits, six-stage portraits, ribbons (3f) and footprints (3g) | 1 | 4 | large | Fable for the sheets, the six looks and the ribbon and citation design, Opus for rules and overlays, Sonnet for the file screen |
 | 4 | Creature rules, one kind at a time, with wild Mauls and Cinders | 1; Slag from 2 | 5; taker fluid and Cinder fires with 3 | large (7 medium parts, the Maul part larger) | Fable for sheets, Opus for rules, Sonnet for self-test cases |
 | 5 | MESS HALL and hunger, SCRUB ROOM, REFUGEE QUARTERS, infection and sabotage; 5b the base-interior map | real loot from 2; 1a | 7 | medium, plus 5b large | Opus for rules and the map, Sonnet for rows and screens, Fable for icons and the interior look |
 | 6 | Freed aliens ("refugees") as soldiers, with harnesses | 1, 3 and 5 | 4 and 5 | large | Opus, with Fable for species sheets |
 | 7 | Five signposts and the human worker | 1 (all parts); civilians from 4; 5b for "The open door" | 8 | medium to large for the framework, medium for the worker, small per signpost | Opus for the framework and rules, Fable for scripts, lines and sound |
 | 8 | The Moon finale, with no pass mark | 6, 7, and graphics phase 3 | 9 | large | Fable for ending, maps and the curve, Opus for rules |
 | 9 | Multiplayer: join or be wiped out | records from 1, 3 and 6 | none (version 3.0) | large | Opus for the split, Fable for the design |
-| 10 | The soldier pool: 10a storage, screen, typing and arrival; 10b picture import and crop | 10a nothing; 10b needs 1a and 3e | 4 | 2 medium | Opus for storage, arrival and pictures, Sonnet for the screen |
+| 10 | The soldier pool: 10a storage, screen, typing and arrival; 10b the hand-driven character designer; 10c the photo step | 10a nothing; 10b needs 10a, 1a and 3e; 10c needs 10b | 4 | 2 medium, and 10c to measure | Opus for storage, arrival and the head builder, Fable for the slider list, Sonnet for the screen |
 
-**Order:** 0, then 1 and 10a, then 2, 3, 10b, 4, 5, 6, 7, 8, 9.
+**Order:** 0, then 1 and 10a, then 2, 3, 10b, 4, 5, 6, 7, 8, 9. Part 10c (the photo step) comes after 10b.
 - Package 0 comes before every other systems package. Graphics phase 3 may
   come first or run alongside it.
 - Package 10a needs nothing, so it can be built beside package 1, once
   package 0 is in.
   The player can then make their soldiers, without pictures, straight away.
 - Packages 2 and 3 can be worked on at the same time once 1 is in.
-- Package 10b (pictures) follows 3e, because the six stages are what get
-  laid over a picture.
+- Package 10b (the hand-driven designer) follows 3e, because the six
+  stages and marks apply to the head it builds. Package 10c (the photo
+  step) comes last, after 10b.
+- Package 3f (ribbons) needs 3d and 1a, because it counts what soldiers
+  do. Its level targets come from the test bench (package 0).
 - Package 5 can start as soon as real loot (part of package 2) is in. Part
   5b can wait until just before package 7.
 
@@ -591,29 +652,38 @@ use the exact same rule code as the real game, never a copy.** This is the
 same split that versions 3.0 and 4.0 and package 9 need.
 
 **The parts.**
-- **Repeatable dice.** One seed number decides every roll, so the same seed
-  replays the same battle exactly.
+- **Repeatable dice.** Every campaign starts from a seed. The campaign has
+  its own dice, and each battle has its own, started from the campaign seed
+  and the battle's number. Visual things use separate dice that are never
+  logged. So the same seed replays the same battle exactly.
 - **Scripted players, built in, at three skill levels:** careless, average,
   careful. They play thousands of battles or campaigns in minutes, with no AI
   cost. This is where the statistics come from: win rates, losses, money over
   time, and how many freed Tenders are alive at the end.
 - **Event report.** Every signpost, trait trigger, fear and other event is
   listed with how often it fired. Anything at zero is broken or unreachable.
-- **Dice log.** Every roll is logged with its odds and its result. The bench
-  compares the chance shown to the player with what actually happened over
-  thousands of tries, and flags any gap. If the screen says 100 percent, it
+- **Dice log.** Every rule roll is logged with a label (who, what, odds,
+  result). The player sees this roll log only after the battle, on the
+  debrief. The bench compares the chance shown to the player with what
+  actually happened over thousands of tries, and flags any gap. If the screen says 100 percent, it
   must mean 100 percent.
 - **Agent play.** A text mode where the game describes the situation, an AI
   agent types an order, and the game reports the result. A few campaigns
   played this way find exploits a scripted player never tries. A person can
   type into it too.
 - **A proper save system.** It needs the same save and seed work, so it is
-  built here.
-- **IRON MAN MODE.** A menu option. One save per campaign, written
-  automatically, no going back.
-- **FIXED DICE.** A menu option. The seed is stored in the save, so reloading
-  and repeating an action gives the same result. This stops reloading to fish
-  for a better roll.
+  built here. Normal play: save at any moment, many slots, plus an autosave
+  at the start of each turn. Each save records the game version. Until 1.0 an
+  old save that no longer fits is refused with a clear message; from 1.0 on,
+  old saves are upgraded. Details in `LORE.md`, "Fifth session".
+- **IRON MAN MODE.** Chosen on the new-campaign page, next to the seed, and
+  locked for the whole campaign. One save slot, saved by the game after every
+  decision. When the campaign ends, won or lost, the save is kept as a
+  finished record that can be looked at but not played on.
+- **FIXED DICE.** Chosen on the new-campaign page and locked for the whole
+  campaign. The save keeps where the dice are, so reloading and doing the
+  same thing gives the same result. Doing something else first may give a
+  different result. This stops reloading to fish for a better roll.
 
 **How it is used.** Sub-agents read the reports, change one number, re-run
 with the same seeds, and compare. Several can test different changes at once.
@@ -631,9 +701,41 @@ reports and the menu options. The save system is Opus work, as the save slot
 already is in the model table.
 
 **To settle.** The report file format and the exact command-line options.
-Which numbers the bench changes first. Nothing else here is open.
+Which numbers the bench changes first. The open questions from the fifth
+session are numbers 31 to 34 in "Still to decide with the user".
 
 **Self-test:** the separation must leave the stored result exactly the same.
+
+**Rule fixes decided in the fourth session.** A code review found six rules
+that were not what was intended. They are made once the rules can run in
+the test bench, and their numbers are set there, then checked by playing.
+Details are in `LORE.md` under "Fourth session (2026-11-13): rule fixes
+found in the code review".
+- Dark and sight: darkness cuts human sight, light restores it, aliens and
+  refugees see in the dark.
+- Overwatch: reaction shots only for units put on OVERWATCH, the same for
+  soldiers and aliens.
+- Movement highlight: reachable squares use the real walking rule.
+- Close attacks: each close-fighting creature has its own attack numbers.
+- Enemy craft shots: hit as often as their accuracy number says.
+- Reach roll: one roll for soldiers and aliens alike.
+
+**How the code is restructured for the bench.** Decided in the fifth session
+(2026-11-13). The rules for each step are in `LORE.md`, "Fifth session
+(2026-11-13): dice, shot odds, battle rules and saves". The order inside
+package 0:
+1. Dice and shot odds, together.
+2. Battle rules, built in slices. Each slice leaves the game running:
+   - Slice 1: shooting and damage.
+   - Slice 2: movement and overwatch.
+   - Slice 3: morale.
+   - Slice 4: alien moves.
+   - Slice 5: Reach and explosives.
+3. Campaign state, then campaign actions (hire, build, research, make, buy,
+   sell).
+
+A finished battle hands the campaign one outcome record. Battle replays are
+planned for but not built now.
 
 ### Package 1. Groundwork
 
@@ -754,7 +856,7 @@ from pools pairs with phase 3, where the glowing fluid is drawn.
 - Self-test: safe. The economy changes, so the rules sheet
   (`MECHANICS.md`) is updated.
 
-### Package 3. Soldier strengths, fears, earned traits, changing portraits
+### Package 3. Soldier strengths, fears, earned traits, changing portraits, ribbons
 
 Pairs with graphics phase 4 (soldiers). Large. Needs 1a: without it the
 mission count is always zero.
@@ -833,20 +935,79 @@ portrait is shown.
   change for each earned trait.
 - The game works the portrait's state out from the soldier's history each
   time. It is never stored, so it can never go out of step.
-- **Two ways to draw it.**
-  1. *The game's own drawn face* changes its shapes: eyes, lines, posture.
-  2. *A player's picture* (from the soldier pool) cannot be redrawn. The
-     game lays overlays on it: lighting, grime, darker eyes, scars.
-- Darker eyes only work if the game knows where the eyes are. The crop
-  step in package 10b fixes that, by lining the face up with a guide.
-- The first way is built here. The second is built here too and tested on
-  a sample picture, then switched on for real pictures by 10b.
+- **How it is drawn** (changed in the sixth session, 2026-11-13). The
+  portrait is a picture of the soldier's 3D head, built from the soldier's
+  slider values (package 10). The stages and event marks apply to the
+  head: lighting, grime, darker eyes, scars. This replaces the earlier
+  plan of two ways (the game's own drawn face, and overlays on a player's
+  picture). Until the head builder (10b) exists, the game's own drawn face
+  stays.
+- Because the game builds the head, it knows where the eyes are. No crop
+  step is needed.
 - The state is plain numbers. Nothing about drawing goes into the rules.
+
+**3f. Ribbons and citations.** Medium to large. Fable for the ribbon and
+citation design, Opus for the counting and the rules, Sonnet for the file
+screen and the book of citations. Needs 1a and 3d. Added in the sixth
+session (2026-11-13). Pairs with graphics phase 4 for the ribbon designs.
+- **Ribbons replace jobs.** There are no classes and no fixed path. A
+  soldier grows by what they do, again and again.
+- **Ten ribbons to start:** rifle, shotgun, knife, explosives, medic,
+  scout (spotting enemies first), overwatch (reaction shots), Reach,
+  survivor (living through heavy damage gives a defence bonus over time)
+  and creatures. Ribbon names and designs are to settle.
+- **Five levels each.** A higher level replaces the lower one on the
+  ribbon board on the dress uniform.
+- **Creature ribbons.** Kills for beasts and machines. Captures for people
+  (Tender, Lash, Regent): taking them alive earns the ribbon. Saving
+  citizens on missions also earns a ribbon. Reason: living freed Tenders
+  make the finale easier, so the ribbons reward what the story wants.
+- **Only uses that matter count.** Healing a real wound, hitting an enemy,
+  a grenade that hurts something. Less is gained for repeating within one
+  battle.
+- **Level targets come from the test bench.** Reaching the top level
+  should take the whole campaign, not the first three months. The numbers
+  for each level are set with the test bench, then checked by playing.
+- **Favoured role.** A pool soldier's favoured role (package 10) gives a
+  head start on one ribbon. It changes no stats.
+- **Pool soldiers start clean.** No ribbons carry over between campaigns.
+  The pool page keeps the full service record (package 10).
+- **Hidden abilities (citations).** A mix of ribbons unlocks a special
+  ability the player can stumble into. Starting four, accepted by the
+  owner as a good starting point. Exact effects are to settle with the
+  test bench.
+  - RANGER (rifle plus scout): sees further, and gets one overwatch shot
+    each turn that costs no time units.
+  - BREACHER (shotgun plus explosives): the first shot after going
+    through a door or a blown wall costs no time units.
+  - GUARDIAN (medic plus overwatch): a free reaction shot at anything that
+    attacks a soldier they healed this battle.
+  - GHOST (knife plus scout): enemies that have not spotted them cannot
+    take reaction shots at them, and they leave no footprints (3g).
+  - More hidden abilities are wanted. Which ones is to settle.
+- **The book of citations.** A hidden ability stays hidden until one of
+  the player's soldiers earns it. Then it appears in the book with how it
+  was earned, and stays known in every later campaign.
+- **To settle:** how ribbons and citations relate to the earned traits in
+  3d.
+- Self-test: ribbon counting reads the events and rolls no dice, so it
+  should not shift the main dice. The citations' free shots touch time
+  units and reaction fire, so check them when they are built.
+
+**3g. Footprints.** Medium. Opus. Added in the sixth session
+(2026-11-13). Pairs with the weather work and with the older idea under
+"Ideas, Mechanics" (footprints in snow).
+- Units leave footprints that show in bad weather: snow, rain and the
+  like. A GHOST (3f) leaves none.
+- To settle: who can read tracks (soldiers, aliens or both), how long they
+  last, which weather and ground count.
+- Not scheduled beyond this until those are settled.
 
 **Self-test: at risk.** Dealing a strength and a fear to a recruit adds
 dice rolls, and every later roll would shift. The fix is a separate set of
 dice for these, seeded from the soldier's own number, so the main sequence
-does not move.
+does not move. To settle: how this fits the three kinds of dice decided in
+the fifth session (campaign, battle, visual).
 
 ### Package 4. Creature rules
 
@@ -1099,8 +1260,9 @@ and sound. Needs 1a-2.
   idea of copies using a lost soldier's own lines waits until soldiers
   have lines.
 - **Pool soldiers.** A lost soldier may be one the player made in the
-  soldier pool, with a real person's picture. Whether a copy may wear that
-  picture is to settle. Until the user answers, a copy uses the drawn face
+  soldier pool, possibly made from a real person's photo. Whether a copy may
+  wear that soldier's head is to settle (sixth session: the head is built
+  from slider values, not a stored picture). Until the user answers, a copy uses the drawn face
   only.
 - Self-test: safe.
 
@@ -1147,35 +1309,40 @@ Version 3.0. A design note only for now. No code and no graphics pairing.
 - It needs the plain records from packages 1, 3 and 6.
 - It needs the simulation split from the drawing. Both live in one file
   today. Package 0 (the test bench) does that split first.
-- Soldier pool pictures are private. What crosses between games must be
+- Soldier pool data (names, slider values) is private. What crosses between games must be
   decided before any soldier does.
 - Size: large. Model: Opus for the split, Fable for the design.
 
 ### Package 10. The soldier pool (the user's idea, 2026-11-13)
 
 A page reached from the game's start screen. The player creates soldiers
-there once, with pictures. Soldiers from the pool are pulled at random into
-every campaign started afterwards. So the player and their friends can
-turn up in any game without being made again.
+there once. Soldiers from the pool are pulled at random into every
+campaign started afterwards. So the player and their friends can turn up
+in any game without being made again.
 
-Pairs with graphics phase 4 (soldiers and portraits). Two medium parts.
+Pairs with graphics phase 4 (soldiers and portraits). Three parts.
+**Changed in the sixth session (2026-11-13):** soldiers are made in a
+character designer driven by hand, and a photo is an optional later step.
+This replaces the earlier plan of one picture per soldier with the stages
+laid over it. The old 10b (picture import and crop) is gone. The new 10b
+and 10c are below.
 
 **10a. Storage, screen, typing and arrival.** Medium. Opus for storage and
 arrival, Sonnet for the screen. Needs nothing, so it can be built first.
-- **What a pool soldier is.** A name, a look, a picture and a "start with
-  me" tick. Nothing else. Pictures cannot be added until 10b is built. A
-  pool soldier without a picture uses the game's drawn face.
+- **What a pool soldier is.** A name, a look, and a "start with me" tick.
+  The designer's fields (10b) are added to it later. Until 10b is built, a
+  pool soldier uses the game's drawn face and the existing look form.
 - **Dealt fresh.** The strength and the fear are random in every campaign
   and hidden like anyone else's. Their other numbers (aim, health and so
   on) are rolled as for any recruit. That last part is this plan's
   reading; `LORE.md` only names the strength and the fear.
-- **Where it is kept.** One small file listing the pool, plus a folder of
-  pictures. Both live in the player's own data folder on their machine
-  (on Linux, under `~/.local/share/defending-earth/`). Never in the
-  project folder.
+- **Where it is kept.** One small file listing the pool. It lives in the
+  player's own data folder on their machine (on Linux, under
+  `~/.local/share/defending-earth/`). Never in the project folder.
 - **The screen.** A new SOLDIER POOL button on the start screen opens the
   page: a list of pool soldiers, with add, edit and remove. The look form
-  from the existing soldier editor is reused, pointed at a pool entry.
+  from the existing soldier editor is reused, pointed at a pool entry,
+  until 10b replaces it.
 - **Typing a name.** The game has no text typing anywhere today. The
   soldier editor only has RANDOMIZE NAME. A small text box is new work.
   Once it exists, the ordinary soldier editor can use it too.
@@ -1187,7 +1354,14 @@ arrival, Sonnet for the screen. Needs nothing, so it can be built first.
     soldier in a campaign remembers which pool entry it came from.
   - To settle with the user: how often a pool soldier is offered, and
     what happens with more than 8 ticks.
-- **Privacy.** Names and pictures stay on the player's machine.
+- **Death and the service record** (sixth session). A pool soldier who
+  dies in a campaign stays in the pool for future campaigns. Each campaign
+  starts them clean: no ribbons carry over. The pool page keeps their full
+  service record: every ribbon and citation ever earned, campaigns served,
+  times fallen. So the pool file must also hold this record, and the
+  campaign must report it back when a campaign ends or a soldier falls.
+  The record needs ribbons (3f), so it fills in after 3f is built.
+- **Privacy.** Names and slider values stay on the player's machine.
   - The pool is switched off in all four debug runs (`--demo`,
     `--screenshot`, `--self-test`, `--ai-test`). Otherwise a private face
     could land in the screenshots folder, which is published, and the
@@ -1195,26 +1369,57 @@ arrival, Sonnet for the screen. Needs nothing, so it can be built first.
   - Nothing from the pool is ever written into the project folder.
 - Self-test: safe, because the pool is off there.
 
-**10b. Picture import and crop.** Medium. Opus. Needs 1a and 3e.
-- **Getting a picture in.** Drag a picture file onto the game window.
-  The window code the game is built on supports this on Linux, macOS and
-  Windows. It has not been tried in this game yet, and dragging is
-  awkward on a handheld. So there is also an import folder, inside the
-  player's own data folder: put a picture in it and pick it from a list.
-- **The crop step.** The player slides and scales the picture until the
-  face sits inside a guide oval. This tells the game where the eyes are,
-  which the "darker eyes" overlay needs.
-- **The game keeps its own copy**: a square picture saved in the pool's
-  picture folder. The original file is not touched or needed again.
-- **File types.** The game can read PNG and TGA pictures today, not JPG.
-  Phone photos are JPG. Reading JPG means adding one small outside
-  library (ready-made code written by someone else). To settle with the
-  user: add it, or accept PNG only.
-- **Showing it.** Today a portrait is drawn from a look alone. A picture
-  needs the game to keep loaded pictures ready, one per pool soldier, and
-  to hand the right one to each of the five places a portrait is shown.
-- **The six stages** from 3e are then laid over the picture: lighting,
-  grime, darker eyes, and a scar for each wound.
+**10b. The hand-driven character designer.** Medium. Opus for the head
+builder, Fable for the slider list, Sonnet for the screen. Needs 10a, 1a
+and 3e. Built before 10c.
+- **The face:** a detailed face with many sliders. The slider list is to
+  settle.
+- **The body:** simple. Build, height within a small range, skin, hair
+  style and colour, and a voice.
+- **Also set by the player:** name, nickname, a short background (a line
+  or two, flavour only), and a favoured role. The favoured role gives a
+  head start on one ribbon (3f). It changes no stats. Traits stay random
+  and hidden each campaign.
+- **Only slider values are saved.** The pool file stores the values, never
+  a picture.
+- **The head is built from the slider values.** The soldier's 3D head is
+  built once, when the soldier loads, so the engine needs nothing per
+  frame. The close-up portrait is a picture of that head.
+- **The six stages and event marks** from 3e apply to the head and its
+  portrait: lighting, grime, darker eyes, and a scar for each wound.
+  Wear applies to the head too.
+- **A soldier can be made with no photo at all.** The designer works fully
+  by hand.
+- **Research note** (facts from a web check on 2026-11-13, to re-check
+  before use):
+  - MPFB2 is an open slider-driven human maker for Blender. Its add-on
+    code is GPL-3.0 and its assets are CC0. It is the best open base.
+  - Traps: most well-known photo-to-3D-head research code depends on
+    non-commercial face data (Basel Face Model, Surrey model, older
+    FLAME), and several face model weight files are non-commercial.
+- Self-test: safe.
+
+**10c. The photo step.** To measure. Opus. Needs 10b. Built second, after
+the hand-driven sliders.
+- **Optional.** A photo sets the face sliders for the player, in fine
+  detail. The player can then change them by hand.
+- **Read once, thrown away.** The photo is read once. Only slider values
+  are saved. Nothing private is stored.
+- **The mapping is ours to write.** No open photo-to-slider tool was
+  found. The plan: find face landmarks in the photo, then set sliders to
+  match.
+- **Research note** (facts from a web check on 2026-11-13, to re-check
+  before use):
+  - The MediaPipe face landmarker has Apache-2.0 code. The licence of its
+    model file is NOT yet checked.
+  - The FLAME 2023 Open head model is CC BY 4.0. Every other FLAME version
+    is academic only.
+  - Most well-known photo-to-3D-head research code depends on
+    non-commercial face data. Check any code or weights before use.
+- **Getting a photo in.** How it gets into the game (drag onto the window,
+  an import folder) is not settled; the older notes on it are in "Still to
+  decide". Whether to read JPG, which phone photos are, is part of the same
+  question: the game reads PNG and TGA today.
 - Self-test: safe.
 
 ### Still to decide with the user
@@ -1266,9 +1471,10 @@ that needs them starts.
 15. Whether a captive can be both studied and freed (package 6).
 16. Whether a Tender counts for the ending if it is alive at base, or
     only if it is aboard the transport (package 8).
-17. Whether the game should read JPG pictures, or PNG only (package 10).
+17. Whether the game should read JPG pictures, or PNG only (package 10c; the photo is now optional and read once, see the sixth session).
 18. Whether a human worker copied from a pool soldier may wear that
-    person's real picture (packages 7 and 10).
+    person's face. Since the sixth session the face is slider values, not a
+    picture (packages 7 and 10).
 
 19. Whether water and shark fears are left out of the deal in a land
     campaign, or dealt and left asleep (package 3).
@@ -1285,7 +1491,8 @@ that needs them starts.
 
 *Still open from before:*
 25. What a joined multiplayer player controls, and what happens to pool
-    pictures when soldiers cross between games (package 9).
+    soldiers' heads (slider values) when soldiers cross between games
+    (package 9).
 
 *Added 2026-11-13 with the test bench and the scale sheet:*
 26. How many metres across a battlefield square is. It must be settled with
@@ -1293,6 +1500,34 @@ that needs them starts.
 27. The test bench's report file format and command-line options (package
     0). Its real size, once the tangle of rules and drawing has been
     measured.
+
+*Added 2026-11-13 with the fourth-session rule fixes (see `LORE.md`):*
+28. How the alien side decides which aliens go on overwatch.
+29. How far humans see in the dark.
+30. Whether weather also cuts sight.
+
+*Added 2026-11-13 with the fifth session (dice, shot odds, battle rules and
+saves; see `LORE.md`):*
+31. What the cinematic replay view is (package 0 plans for replays but does
+    not build them).
+32. The animation list itself: what to trim or add (see "Animation list" in
+    the design and animation catalogue).
+33. How many save slots there are.
+34. Which things in the way lower the odds (low wall, smoke, a tree,
+    another unit) and by how much (package 0).
+
+*Added 2026-11-13 with the sixth session (the character designer and ribbons;
+see `LORE.md`):*
+35. Ribbon names and designs: ten ribbons, five levels each (packages 3f and
+    graphics phase 4).
+36. More hidden abilities, and the exact effects of RANGER, BREACHER,
+    GUARDIAN and GHOST (package 3f, set with the test bench).
+37. Footprints: who reads them (soldiers, aliens or both), how long they
+    last, and which weather and ground count (package 3g).
+38. How ribbons and citations relate to the earned traits in 3d (package 3f).
+39. The face slider list (package 10b).
+40. The licence of the MediaPipe face landmarker's model file (package
+    10c). Not yet checked.
 
 ## Ideas (unsorted; we sort these into versions together)
 
@@ -1304,8 +1539,8 @@ scheduled in the game systems track:
 - Freeing captives to serve as soldiers: package 6.
 - Signpost missions, now five of them: package 7.
 - Melting panickers and the taker's pools: package 4.
-- Your own picture on a soldier, made once and used in every campaign: the
-  soldier pool, package 10.
+- Your own face on a soldier, made once and used in every campaign: the
+  soldier pool and its character designer, package 10.
 
 ### Lore
 Lore now lives in `LORE.md`: the enemy is the Registrar, a cataloguing
@@ -1363,6 +1598,9 @@ both listed there.
   is still snowing the tracks fade over time. Aliens can see and follow
   tracks, how well depending on the species' intelligence; the player can
   read alien tracks the same way.
+  Partly decided in the sixth session (2026-11-13): units leave footprints
+  in bad weather, and a GHOST leaves none. Who can read tracks, how long
+  they last and which weather counts are still to settle. See package 3g.
 
 ### Presentation
 - Your own face on the soldier's body in battle (the user's idea,
