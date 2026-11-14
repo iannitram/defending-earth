@@ -320,12 +320,16 @@ From `LORE.md`:
     of the six looks like is not designed yet.
   - **Marks from events** come on top of the stage: scars from wounds, and
     changes that come with earned traits.
-  - **Soldier pool pictures.** A soldier made on the soldier pool page has
-    one picture supplied by the player. The game lays the six stages over
-    that picture: lighting, grime, darker eyes, and scars from wounds.
-  - Pool pictures and names stay on the player's machine. They are never
-    put in the public repository. Screenshots kept in `shots/` are part of
-    the repository, so no pool picture may appear in one.
+  - **Soldier pool heads** (sixth session, 2026-11-13). A soldier made on
+    the soldier pool page is built in the character designer from slider
+    values. The game builds a 3D head from them once, when the soldier
+    loads. The close-up portrait is a picture of that head. The six stages
+    and event marks apply to the head: lighting, grime, darker eyes, and
+    scars from wounds. How wear shows on the head is to settle.
+  - Pool slider values and names stay on the player's machine. They are
+    never put in the public repository. No picture is stored for a pool
+    soldier. Screenshots kept in `shots/` are part of the repository, so no
+    pool soldier's head or portrait may appear in one.
 
 ### Base
 Chunky, serviced, lived-in hardware: cable trays, floor markings, spill

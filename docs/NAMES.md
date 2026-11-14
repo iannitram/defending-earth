@@ -446,6 +446,17 @@ are a working screen spelling. `LORE.md` writes them in plain words.
 | GUARDIAN | Citation | Medic plus overwatch. A free reaction shot at anything that attacks a soldier they healed this battle. Exact effects to settle |
 | GHOST | Citation | Knife plus scout. Enemies that have not spotted them cannot take reaction shots at them, and they leave no footprints. Exact effects to settle |
 
+### Stories players find themselves (seventh session, 2026-11-13)
+
+Working names. The capitals and wording are to settle with the user.
+
+| Name | Kind | What it is |
+|---|---|---|
+| DEPLOYMENTS | Term (the owner's word, planned) | A pool soldier's past campaigns, shown on their record. Returning veterans also get a small mark for them (design to settle), with no effect on stats. That DEPLOYMENTS names the past campaigns is the assistant's reading of a short answer, to confirm. The game already uses the word in other places on screen (READY FOR DEPLOYMENT on the craft screen), to settle whether that is a clash |
+| bond | Term (working name, to settle) | A tie between two soldiers who fight side by side. A bonded partner nearby steadies morale; a partner hurt or killed hits it hard. How it is shown is to settle |
+| moment of the battle | Debrief (working name, to settle) | The one moment per battle the debrief picks from the roll log and shows with the soldier's name. Also saved to their service record |
+| memorial wall | Base screen (working name, to settle) | Lists every fallen soldier: how, where and when they died, their ribbon board, and who they were bonded to. Kept in the finished record when a campaign ends |
+
 ### Creatures (third session)
 
 | Name | Kind | What it is |

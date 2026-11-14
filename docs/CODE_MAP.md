@@ -436,7 +436,7 @@ things without any error message.
 | Buildings `FACILITY_CATALOG` | `data.rs` 705–723 | Exactly 17. The count is written in the type, so adding a row means changing the number too. |
 | Research `RESEARCH_SURFACE` | `data.rs` 843–864 | Exactly 20. Same rule. Ids are keys. |
 | Workshop `WORKSHOP_BLUEPRINTS` | `data.rs` 903–919 | Exactly 14 (8 land, 6 sea). Same rule. The three harnesses add three rows. |
-| Player files | none yet | The soldier pool lives in the player's data folder, outside the repository. Its names and pictures must never be committed. See package 10. |
+| Player files | none yet | The soldier pool lives in the player's data folder, outside the repository. Its names and slider values must never be committed. See package 10. |
 | Self-test dice | `tactical.rs` 1697–1752, 1832–1857 | It uses soldier 0, a snap shot and one Tender (kind 0). Any new dice roll on that path changes its result. Then the stored results in `checks/` and `assets/selftest.json` must be re-made on purpose and compared. |
 
 Who does what follows the roadmap table: Fable does design, lore and art.
@@ -604,7 +604,7 @@ phase 3.
 ### Package 3. Soldier traits, fears, earned traits, changing faces
 
 Goes with graphics phase 4 (soldiers). Large. Fable writes the trait sheet
-and the six portrait looks, Opus the rules and the picture overlays, Sonnet
+and the six portrait looks, Opus the rules and the overlays on the head, Sonnet
 the soldier file screen and the callers. Needs 1a: without it the mission
 count is always 0.
 
@@ -681,17 +681,21 @@ count is always 0.
 - A small `PortraitState`: stage, scar count, earned-trait marks. It is
   worked out fresh from the 1a `history` each time. It is never stored.
 - `ui::portrait` (`ui.rs` 205) takes only a `Look` today. It will take the
-  `PortraitState` and either a `Look` or a picture.
+  `PortraitState` too. Changed in the sixth session (2026-11-13): the
+  portrait will be a picture of a 3D head built from the soldier's slider
+  values (package 10b), not a player's picture.
 - Callers to update: `tactical.rs` 3605 and 3753; `base.rs` 410, 429, 1819.
-- Two drawing paths:
-  - **The drawn face** changes its own shapes for each stage.
-  - **A pool picture** (package 10b) gets layers on top: lighting, grime,
-    darker eyes, scars. Darker eyes only land in the right place if the
-    crop step in 10b fixed where the eyes are.
+- Two drawing paths until 10b is built:
+  - **The drawn face** (what exists today) changes its own shapes for each
+    stage.
+  - **The built head** (package 10b) shows the stages and marks on the
+    head: lighting, grime, darker eyes, scars. The game builds the head,
+    so it knows where the eyes are and no crop step is needed. How wear
+    shows on the head is to settle.
 - How many missions each stage takes is not decided. Keep the five
   thresholds as named constants in one place.
 - No drawing state goes into the simulation.
-- Needs 1a (missions, times wounded), 3d (earned marks), 10b (pictures).
+- Needs 1a (missions, times wounded), 3d (earned marks), 10b (the head).
 
 **Limits for the package**
 - No fixed table is touched.
@@ -1052,9 +1056,9 @@ own.
   idea that a copy uses altered lines of the soldier it was read from
   waits until soldiers have lines.
 - **Pool soldiers.** A copy made from a pool soldier would wear a real
-  person's name and photo. Whether that is allowed is the user's call
+  person's name and face. Whether that is allowed is the user's call
   (open question 14). Until it is answered, build the copy with the drawn
-  face, not the photo.
+  face, not the pool soldier's face.
 
 ### Package 8. The Moon finale
 
@@ -1107,7 +1111,8 @@ Opus for the split, Fable for the design.
 ### Package 10. The soldier pool (new, from the third session)
 
 A page reached from the title screen. The player makes soldiers there
-once, with a name, a look and a picture. Every campaign started afterwards
+once, with a name, a look and (from 10b) a face made in the character
+designer. Every campaign started afterwards
 pulls them in. No earlier package covers this. Goes with graphics phase 4
 (soldiers).
 
@@ -1119,10 +1124,10 @@ pulls them in. No earlier package covers this. Goes with graphics phase 4
   On this machine (Linux) that is `~/.local/share/defending-earth/`. On
   Windows it is under `%APPDATA%`. On macOS it is under
   `~/Library/Application Support/`.
-- Inside it: one `pool.json` (names, looks, picture file names, the
-  "start with me" tick) and a `portraits/` folder (one square PNG per
-  soldier, saved by the game).
-- **Pool pictures and names must never be committed.** The repository is
+- Inside it: one `pool.json` (names, looks, designer slider values, the
+  "start with me" tick). No pictures are stored, so there is no
+  `portraits/` folder (sixth session, 2026-11-13).
+- **Pool data and names must never be committed.** The repository is
   public. Rules that keep it so:
   - The game never reads or writes pool data anywhere under the project
     folder. No "copy next to the game" fallback.
@@ -1133,7 +1138,7 @@ pulls them in. No earlier package covers this. Goes with graphics phase 4
     pool soldier would be published with the next commit. See the debug
     rule below.
 - A new small file, `src/pool.rs`, holds all the disk code: find the
-  folder, load, save, import a picture. Nothing in `tactical.rs` touches
+  folder, load, save. Nothing in `tactical.rs` touches
   the disk. The game already uses `serde_json`, which can write
   `pool.json`.
 - Finding the folder needs either one small new dependency (an outside
@@ -1143,9 +1148,9 @@ pulls them in. No earlier package covers this. Goes with graphics phase 4
 **10a. Storage, the pool page, typing, arrival** (medium; Opus for storage
 and arrival, Sonnet for the page)
 
-- `PoolSoldier`: a `pool_id`, name, `Look`, picture file name, "start with
-  me" tick. No stats and no traits: those are dealt fresh in every
-  campaign and hidden like anyone else's.
+- `PoolSoldier`: a `pool_id`, name, `Look`, "start with me" tick. The
+  designer's slider values (10b) are added later. No stats and no traits:
+  those are dealt fresh in every campaign and hidden like anyone else's.
 - A new `Screen::Pool` in the `Screen` list (`main.rs` 21). A "SOLDIER
   POOL" button on `draw_title` (`main.rs` 1567), beside the three buttons
   there now (1586–1593).
@@ -1183,41 +1188,53 @@ and arrival, Sonnet for the page)
 - Needs nothing else. It can be built before package 3; traits are added
   when 3a exists.
 
-**10b. Picture import and crop** (medium, Opus)
+**10b. The hand-driven character designer** (medium; Opus for the head
+builder, Fable for the slider list, Sonnet for the screen)
 
+Changed in the sixth session (2026-11-13). The old 10b (picture import
+and crop, one picture per soldier) is gone.
+
+- **The face:** a detailed face with many sliders. The slider list is to
+  settle.
+- **The body:** simple. Build, height within a small range, skin, hair
+  style and colour, and a voice.
+- **Also set by the player:** name, nickname, a short background (flavour
+  only), and a favoured role (a head start on one ribbon, 3f; no stats).
+- **Only slider values are saved** in `pool.json`. No picture is stored.
+- **The head is built from the slider values**, once, when the soldier
+  loads. The close-up portrait is a picture of that head. Today
+  `ui::portrait` takes only a `Look` (`ui.rs` 205) and no head builder
+  exists. How a built head is drawn and kept is to settle with the head
+  builder.
+- A soldier can be made with no photo at all.
+- Needs 10a, 1a and 3e. The six stages and marks (3e) apply to the head.
+
+**10c. The photo step** (to measure, Opus)
+
+- **Optional.** A photo sets the face sliders. The player can then change
+  them by hand. The photo is read once and thrown away. Only slider
+  values are saved.
+- **The mapping is ours to write.** No open photo-to-slider tool was
+  found. The plan is to find face landmarks in the photo, then set sliders
+  to match. Check the licence of any code or weights before use.
 - **File types.** The engine reads PNG and TGA only. Its picture reader is
   built without JPG (macroquad 0.4.16 asks for just those two). Phone
   photos are JPG. So either the game takes PNG only, or the picture reader
   is added as a dependency of our own with JPG switched on. Not decided
   (open question 16).
-- **Getting the file in.** Two ways:
+- **Getting the file in.** Not settled. Two ways:
   - Drag the file onto the game window. The engine has
     `get_dropped_files`, and miniquad 0.4.11 has code for it on Linux,
     macOS and Windows. The game has never used it, so it is untested here.
   - A fallback that needs no dragging: an `import/` folder inside the data
-    folder. The pool page lists the pictures found there.
-- **Crop** (suggested design). The player slides and scales the picture until the face sits
-  inside a guide oval, with the eyes on a guide line. The game then saves
-  its own square PNG into `portraits/`. The original file is not kept or
-  touched.
-- **Why the crop matters.** The six portrait stages (3e) lay darker eyes
-  and scars over the picture. They only land right if every picture has
-  the eyes in the same place.
-- **Drawing.** `Look` is a small copyable value and `ui::portrait` takes
-  only that (`ui.rs` 205). A picture has to be loaded onto the graphics
-  card before it can be drawn, and that loaded picture cannot ride along
-  inside `Look`. Keep a small store of loaded pictures, looked up by
-  `pool_id` and held with the other drawing state, so each picture is
-  loaded once.
-- A missing picture file falls back to the drawn face from the `Look`.
-- In battle the 3D soldier is still built from the `Look`. The picture is
-  for the portrait only.
-- Needs 10a. The stage overlays need 3e and 1a.
+    folder.
+- Needs 10b.
 
 | Part | What | Size | Who |
 |---|---|---|---|
 | 10a | Storage, page, typing, arrival | Medium | Opus for storage and arrival, Sonnet for the page |
-| 10b | Picture import and crop | Medium | Opus |
+| 10b | Hand-driven character designer | Medium | Opus for the head builder, Fable for the slider list, Sonnet for the screen |
+| 10c | Photo step | To measure | Opus |
 
 ### Order
 
@@ -1229,7 +1246,7 @@ after 1. Package 5a can start once 2d is in.
   package 6 and package 7.
 - 5b (the base interior) must be in before "the open door" in package 7.
 - The `goal` in 7a must be in before package 8.
-- 10a stands alone and can be built any time. 10b's overlays wait for 3e.
+- 10a stands alone and can be built any time. 10b waits for 3e and 1a. 10c comes after 10b.
 
 ### Still open (the user decides; ask through the question tool)
 
@@ -1254,10 +1271,10 @@ New questions the third session raises:
     shot.
 12. Whether living wild units stop a battle from ending.
 13. What a Cinder that survives a battle does between battles.
-14. Whether a copy may wear a pool soldier's real name and photo.
+14. Whether a copy may wear a pool soldier's real name and face.
 15. Whether a Tender counts for the finale if alive at base, or only if
     aboard the transport.
-16. Pool pictures: JPG as well, or PNG only.
+16. Photo step (10c): JPG as well, or PNG only.
 17. Whether the Glow fear reacts to a soldier's own cored weapon, which is
     filled with Glow.
 18. Whether each refugee species gains stats and rank as humans do.

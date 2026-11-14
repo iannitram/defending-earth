@@ -23,6 +23,8 @@ See `ROADMAP.md`.
 
 **2026-11-13:** a sixth lore session decided the character designer for the soldier pool (hand-driven sliders first, optional photo later, no photo stored), ribbons with hidden citations, and footprints (`LORE.md`, "Sixth session"). This replaces the one-picture-per-soldier plan. No code has changed.
 
+**2026-11-13:** a seventh lore session decided six ways for players to find their own stories: ribbon history, bonds, losing a bonded partner, a moment of the battle in each debrief, a memorial wall, and deployments for pool soldiers (`LORE.md`, "Seventh session"). Nothing is built; no code has changed.
+
 ## Third lore session (2026-11-13)
 
 - **Held and written down.** The decisions are in `LORE.md` under "Third
@@ -86,8 +88,8 @@ See `ROADMAP.md`.
     are dealt fresh in every campaign and hidden like anyone else's.
   - One picture per soldier. The game lays the six portrait stages over it.
     *Changed 2026-11-13 (sixth session): the portrait is now a picture of a 3D head built from slider values, and the stages apply to that head. A photo is optional and not stored.*
-  - Pool pictures and names stay on the player's machine. They are never
-    put in the public repository.
+  - Pool names and slider values stay on the player's machine. They are
+    never put in the public repository. No picture is stored.
   - It is not covered by packages 1 to 9 of the game systems track, so it
     needs a package of its own in `ROADMAP.md`.
   - Not built. Today the game has no save file (it only writes screenshots
@@ -126,15 +128,17 @@ See `ROADMAP.md`.
   3. What does a Cinder that survives a battle do between battles?
   4. A copy wears the face of the soldier it was read from. May a copy wear
      a pool soldier's real photo? (Sixth session: no picture is stored,
-     only slider values.) And may a pool picture ever be shown in
-     another player's game? (`ART_BIBLE.md` says a soldier's record can
-     later be shown in another player's game. `LORE.md` says pool pictures
-     stay on the player's machine.)
+     only slider values, so this mostly falls away.) And may a pool
+     soldier's head (built from slider values) ever be shown in another
+     player's game? (`ART_BIBLE.md` says a soldier's record can later be
+     shown in another player's game. `LORE.md` says pool data stays on the
+     player's machine.)
   5. Does the fear of the Glow react to a soldier's own cored weapon (its
      core is filled with Glow)?
-  6. Pool pictures: the game can read PNG files today but not JPG, which
-     is what phone photos are. Add JPG, or accept PNG only? (Sixth
-     session: a photo is now optional and read once; still to settle.)
+  6. The photo step (10c): the game can read PNG files today but not JPG,
+     which is what phone photos are. Add JPG, or accept PNG only? (Sixth
+     session: a photo is optional, read once and thrown away; still to
+     settle.)
   7. Does a freed Tender count for the ending if it is alive at base, or
      only if it is aboard the transport to the Moon?
 - **Documents not yet in step.** `LORE.md` keeps its older "Still to

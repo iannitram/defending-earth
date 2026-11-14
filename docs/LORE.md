@@ -822,6 +822,53 @@ Also to settle:
 - Who reads footprints, how long they last, which weather and ground
   count.
 
+### Seventh session (2026-11-13): stories players find themselves
+
+The owner decided six ways to give players their own stories on missions.
+Nothing is built. Anything not written here is to settle.
+
+**1. Ribbon history**
+- Every ribbon level remembers where and when it was earned: the mission,
+  the date, and the deed that tipped it over to that level.
+- The ribbon board reads like the soldier's history.
+
+**2. Bonds**
+- Soldiers form bonds by fighting side by side: shared missions, or one
+  saving or healing the other.
+- A bonded partner nearby steadies morale. A partner being hurt or killed
+  hits morale hard.
+- To settle: all the numbers (how fast a bond forms, how much morale moves,
+  how near is "nearby").
+- To settle: how a bond is shown to the player.
+
+**3. Losing a bonded partner**
+- It could go either way. A roll decides whether the survivor is shaken
+  for some missions, or hardened with a bonus.
+- To settle: which dice make that roll (campaign or battle), the odds, how
+  many missions it lasts, and what the bonus is.
+
+**4. Moment of the battle**
+- The debrief picks one moment per battle from the roll log. Examples: a
+  long-odds shot that hit, a rescue on the last time units, a lone
+  survivor.
+- It is shown with the soldier's name. It is also saved to that soldier's
+  service record.
+- To settle: how the moment is picked.
+
+**5. Memorial wall**
+- A screen in the base lists every fallen soldier: how, where and when they
+  died, their ribbon board, and who they were bonded to.
+- It is kept in the finished record when a campaign ends.
+
+**6. Deployments**
+- A pool soldier's past campaigns are shown on their record. They are
+  called DEPLOYMENTS (the owner's word).
+- To confirm: reading "Deployments" as the name for a pool soldier's past
+  campaigns is the assistant's reading of the owner's short answer.
+- Returning veterans also get a small visible nod for their deployments,
+  for example a mark on the dress uniform. It has no effect on stats.
+- To settle: the design of the mark.
+
 ## Sea campaign: deferred (2026-11-13)
 
 The user's decision: the second (sea) campaign is not designed further

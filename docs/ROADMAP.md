@@ -972,6 +972,10 @@ session (2026-11-13). Pairs with graphics phase 4 for the ribbon designs.
   head start on one ribbon. It changes no stats.
 - **Pool soldiers start clean.** No ribbons carry over between campaigns.
   The pool page keeps the full service record (package 10).
+- **Ribbon history** (seventh session). Every ribbon level remembers where
+  and when it was earned: the mission, the date, and the deed that tipped
+  it over. The ribbon board reads like the soldier's history. So the
+  counting must record the mission, the date and the deed at each level-up.
 - **Hidden abilities (citations).** A mix of ribbons unlocks a special
   ability the player can stumble into. Starting four, accepted by the
   owner as a good starting point. Exact effects are to settle with the
@@ -993,6 +997,24 @@ session (2026-11-13). Pairs with graphics phase 4 for the ribbon designs.
 - Self-test: ribbon counting reads the events and rolls no dice, so it
   should not shift the main dice. The citations' free shots touch time
   units and reaction fire, so check them when they are built.
+
+**Stories players find themselves (seventh session, 2026-11-13).** Four
+more items. Which package each belongs to is to settle. Nothing is built.
+- **Bonds.** Soldiers bond by fighting side by side. A bonded partner
+  nearby steadies morale; a partner hurt or killed hits it hard. Losing a
+  partner rolls shaken or hardened. Leans on the morale rules and on the
+  dice (package 0). All numbers, how a bond is shown, and which dice are to
+  settle.
+- **Moment of the battle.** The debrief picks one moment from the roll log
+  and saves it to the service record. Leans on the package 0 roll log. How
+  it is picked is to settle.
+- **Memorial wall.** A base screen of every fallen soldier, kept in the
+  finished record. Leans on the service record (package 10a) and on ribbon
+  history (3f).
+- **Deployments.** A pool soldier's past campaigns on their record, with a
+  small nod for returning veterans (for example a mark on the dress
+  uniform). No effect on stats. Leans on the service record and on package
+  10a. The mark's design is to settle.
 
 **3g. Footprints.** Medium. Opus. Added in the sixth session
 (2026-11-13). Pairs with the weather work and with the older idea under
@@ -1528,6 +1550,20 @@ see `LORE.md`):*
 39. The face slider list (package 10b).
 40. The licence of the MediaPipe face landmarker's model file (package
     10c). Not yet checked.
+
+*Added 2026-11-13 with the seventh session (stories players find themselves;
+see `LORE.md`):*
+41. Bonds: the numbers (how fast a bond forms, how much morale moves, how
+    near is "nearby"), and how a bond is shown to the player.
+42. Losing a bonded partner: which dice make the shaken-or-hardened roll
+    (campaign or battle), the odds, how many missions it lasts, and the
+    bonus.
+43. Moment of the battle: how the debrief picks the moment.
+44. The mark for returning veterans' deployments (for example on the dress
+    uniform). Also confirm "Deployments" as the name for a pool soldier's
+    past campaigns.
+45. Which package each of bonds, moment of the battle, memorial wall and
+    deployments belongs to.
 
 ## Ideas (unsorted; we sort these into versions together)
 
