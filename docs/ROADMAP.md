@@ -484,6 +484,90 @@ Three more, found while planning the third-session decisions:
 - There is no map of the inside of a base, so no battle can start there
   (package 5b).
 
+### Design fan-out, first round (2026-11-13)
+
+The first round of design jobs was run by the lead through the `claude`
+command line, at most four at once, each job writing only in its own
+folder. The lead judged every result by eye. Full notes for the next
+session are in `docs/HANDOFF.md`; the briefs are in `docs/briefs/`.
+
+**Done and accepted:** the scale sheet (S0); flashlights (G1) and flares
+(G2), which are the first two parts of graphics phase 3; first models of
+the Regent, Tender, Lash, Gorger, Kite, Bloat, Maul and Cinder (C01 to
+C08). Verdicts: `source_assets/blender/creatures/VERDICTS.md`.
+
+**Not started, in this order:**
+
+| Job | What | Model | Waits for |
+|---|---|---|---|
+| G3 | Fire | Fable | nothing |
+| G4 | Glow | Fable | G3 |
+| G5 | Night, overcast and storm skies | Fable | G4 |
+| K1 | Two-metre squares: rule code | Opus | G5 (all five touch `src/`, one at a time) |
+| D1 | Documents for the decisions | Sonnet | K1 |
+| C09 | The taker | Fable | nothing |
+| C10 | The builder | Fable | nothing |
+| R1 | Ribbons | Fable | nothing |
+| P1 | Fetch the body model | Sonnet | nothing |
+| H1 | Soldier kit | Fable | nothing |
+| H2 | The head | Fable | P1 |
+| H3 | Portraits | Fable | H2 |
+| R2 | Dress uniform and ribbon board | Fable | H2, H3, R1, P1 |
+| S1 | Size checks of every model | Sonnet | all creatures |
+
+#### What the first round showed (all proposed; to settle with the owner)
+
+**The model loader is the gate.** The game draws props as plain boxes
+(`draw_prop` in `src/tactical.rs`) and cannot load a Blender model. One
+script must bake each model's surface into pictures and export it, and the
+engine must load and draw it. Creatures, soldiers and props all wait on
+this. Already planned in phase 4; nothing else in the art can reach the
+screen before it.
+
+**A texture pass comes after the shape pass.** The first models carry
+shape and base surface only. Rich surface detail (moss, grass, wear, wet)
+is later work. Which creatures carry growth is lore and is the owner's to
+decide first.
+
+**Map recipes (new job, not yet scheduled).** The roadmap lists the art
+for buildings and street furniture and notes that the map generator gives
+every map the same layout. Nothing yet says how a place is put together.
+Proposed:
+- Buildings are assembled from a kit of parts sized to the 2 m square
+  (wall, window wall, door, roof edge, pump, canopy post, shelf, counter,
+  sign), not modelled whole. Roughly 40 to 80 pieces cover a town.
+- A recipe says what a place contains ("a fuel station is a canopy, 2 to 4
+  pumps, a shop of 3 by 4 squares, a sign by the road"). Clutter rules
+  place the small things ("desks face walls, lamps stand every 5 squares
+  along a road").
+- Recipes are rule code, not art, and sit beside the map generator fix.
+- Test first: whether macroquad can draw a town of repeated pieces inside
+  the 65,535 draw buffer limit. Repeated pieces must be drawn in batches
+  and far pieces need simpler versions. Build one test building end to
+  end and measure frame time before making the full kit.
+- Props carry less detail than creatures, so the creatures stand out.
+
+**Destruction pipeline (new job, not yet scheduled).** The roadmap says
+buildings "break in stages; burn; collapse". Today the rules have one
+step: an obstacle at 0 cover is cleared and vanishes. Proposed:
+1. Each breakable piece is modelled in states in one Blender file: whole,
+   damaged, wreck. This is the same idea as a creature's dead form.
+2. The change between states is a swap hidden behind a blast, smoke and
+   debris. The game does not blend one model into the next.
+3. Debris is one small shared set of chunks (metal, glass, wood,
+   masonry), not unique pieces per prop.
+4. Only a few things get real motion: a tree or lamp post falling, a wall
+   section dropping, a roof sagging. These need the animation system.
+5. Rules drive it: each piece needs a toughness, a flammability value
+   (nothing has one today) and what it does on breaking: nothing, burn,
+   or explode.
+6. Three states roughly triple the modelling for a piece, so the list of
+   what can break is chosen, not "everything".
+
+To settle with the owner: which props do something when destroyed, and
+whether wrecks stay on the map as new cover. Both are places where
+players find their own stories.
+
 ### 2.0 — Our version
 - One merged campaign: land and sea in the same war, balanced by playtest.
 - The Registrar storyline (`LORE.md`) replaces today's two-finale
@@ -1648,6 +1732,24 @@ in the code:*
     it becomes a grudge (package 3f).
 60. The luck ribbon's name (package 3f, NAMES.md).
 61. What the luck ribbon gives the soldier (package 3f).
+*To settle from the tenth session (the design fan-out, 2026-11-13):*
+62. The sky flare: its on-screen name, cost and numbers.
+63. Whether a lit soldier (flashlight on, or near a flare) is easier for
+    the enemy to spot.
+64. Rules for creatures larger than one square, and for forms that spill
+    past their squares (wild and dead Maul, the Bloat's stain, the Kite's
+    threads).
+65. The Maul: whether its 3.5 m height includes the spike, and whether a
+    dead Maul keeps the whole spike or a stump.
+66. Which creatures carry moss, grass or other growth (before the texture
+    pass).
+67. Map recipes and the destruction pipeline: whether to schedule them as
+    proposed, which props do something when destroyed, and whether wrecks
+    stay as cover.
+68. Flashlights: keep or delete the old glowing ground square drawn under
+    `--lights off`.
+69. Whether some soldiers spot the buried Gorger's faint sign better than
+    others.
 
 ## Ideas (unsorted; we sort these into versions together)
 

@@ -1,0 +1,11 @@
+{
+  "name": "regent",
+  "width_m": 1.801,
+  "depth_m": 1.801,
+  "height_m": 3.6,
+  "footprint_squares": [
+    1,
+    1
+  ],
+  "triangles": 30330
+}

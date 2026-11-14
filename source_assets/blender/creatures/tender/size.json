@@ -1,0 +1,11 @@
+{
+  "name": "tender",
+  "width_m": 0.414,
+  "depth_m": 0.543,
+  "height_m": 1.1,
+  "footprint_squares": [
+    1,
+    1
+  ],
+  "triangles": 36172
+}

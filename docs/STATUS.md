@@ -5,8 +5,7 @@ session) can pick it up. Plans are in `ROADMAP.md` (phase 1 has a numbered
 work order), the code is explained in `CODE_MAP.md`, look in `ART_BIBLE.md`,
 story in `LORE.md`, names in `NAMES.md`.
 
-**Right now:** graphics phases 1 and 2 are finished. Next is phase 3
-(flashlights, flares, fire). Lore: land roster settled and creature names
+**Right now:** graphics phases 1 and 2 are finished. Phase 3 is under way: flashlights and flares are built; fire, glow and the skies are next (see `HANDOFF.md`). Lore: land roster settled and creature names
 final; sea campaign deferred by the user until the land campaign is much
 further along. A second and a third lore session were held on 2026-11-13
 (see the two notes below). The third closed most of the open questions and
@@ -30,6 +29,8 @@ See `ROADMAP.md`.
 **2026-11-13 (after the eighth session):** friendly fire and shielding were decided and are not built. A miss can now hit anyone or anything near its path, with no warning on screen; the shooter may gain a bad trait, the victim may lose trust, and the squad takes a morale hit. Shielding counts toward GUARDIAN and bonds. This changes two earlier decisions (`LORE.md`, "Eighth session, later part"). No code has changed.
 
 **2026-11-13 (ninth session):** slice 1 of the battle rules is built: the shot rules return events and need no window. It has stray shots, cover hits, scenery damage, friendly-fire morale and the 50 to 150 percent damage roll. 33 unit tests pass and the self-test passes all three steps. Not committed yet. See `LORE.md`, "Ninth session".
+
+**2026-11-13 (tenth session, the design fan-out):** the first round of design jobs ran through the `claude` command line, judged by eye by the lead; the owner agreed with every verdict. Built: the scale sheet (`source_assets/scale/`), flashlights and flares in battles (graphics phase 3, first two of five parts), and first models of eight creatures (`source_assets/blender/creatures/`, verdicts in `VERDICTS.md` there). 33 unit tests and the self-test pass. Thirteen jobs were not started; their briefs are in `docs/briefs/`. `docs/HANDOFF.md` says what to do next.
 
 ## Third lore session (2026-11-13)
 
@@ -273,9 +274,10 @@ See `ROADMAP.md`.
 
 ## Next, in order
 
-1. **Graphics phase 3:** flashlights, flares, fire.
-2. Overcast, storm and night skies from Poly Haven HDRIs (downloads need the
-   Tailscale exit node on).
+1. **Read `docs/HANDOFF.md`.** It lists the thirteen design jobs not yet
+   run, in order, and what is waiting on the owner.
+2. **Graphics phase 3, the rest:** fire (G3), glow (G4), then night,
+   overcast and storm skies (G5). Flashlights and flares are built.
 3. Phases 4–9 as listed in `ROADMAP.md`, which now holds the full list of
    things to design and animate and which AI model does which part.
 4. The game systems track in `ROADMAP.md`, alongside the graphics phases.
@@ -290,11 +292,18 @@ See `ROADMAP.md`.
   overcast and storm skies); falling snow is sparse; crop rows are too
   regular and striped; the grass apron outside the map looks rippled like
   water; hours from 6pm to 9pm are labelled EVENING whatever the sun does.
-- Lighting: night
-  is close to black until flashlights exist (phase 3); trees, buildings,
+- Lighting: night is lit only by flashlights and flares; trees, buildings,
   crates and soldiers are still boxes; tree tops glint white at low sun;
   cliff edges show as dark zigzag walls; the mouse was not tested by hand
   against the new camera (name tags line up, and they share its maths).
+- Lights (phase 3 so far): a burning hand flare takes all four lamp
+  shadows, so flashlights cast none while it burns; the debug sky flare
+  never burns out; the cost per frame of flashlights and flares has not
+  been measured; pictures of flashlights in a dusk dust storm and at noon
+  were not taken; the old glowing ground square still draws under
+  `--lights off` (keep or delete: the owner's call).
+- Creature models are not in the game. The game cannot load a Blender
+  model yet (see "The model loader" in `ROADMAP.md`).
 - `--clock` on the globe moves the sun but not the date shown in the header.
 - Game (from the 0.9 check): punctuation after Y, P, w or y disappears in
   small text; the target panel covers the controls hint in the field view;
@@ -331,5 +340,5 @@ See `ROADMAP.md`.
   `gl_set_drawcall_buffer_capacity(65_535, 400_000)`. The first number must
   stay at or below 65,535 (the most points one draw batch can address), or
   shapes come out scrambled.
-- Blender 5.2 is driven by script; scenes `DE_bake_test` and `DE_sky_bake`
+- Blender 5.3 (a Flatpak) is driven by script; scenes `DE_bake_test` and `DE_sky_bake`
   are ours, `Scene` is the user's.

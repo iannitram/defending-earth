@@ -1,0 +1,34 @@
+{
+  "name": "maul",
+  "width_m": 3.6,
+  "depth_m": 3.8,
+  "height_m": 3.496,
+  "footprint_squares": [
+    2,
+    2
+  ],
+  "triangles": 23544,
+  "height_with_spike_m": 4.423,
+  "note": "width, depth and height are the stone body with its crystals; the spike stands above that; triangles count the whole state",
+  "states": {
+    "controlled": {
+      "width_m": 3.6,
+      "depth_m": 3.8,
+      "height_m": 3.496,
+      "triangles": 23544,
+      "height_with_spike_m": 4.423
+    },
+    "wild": {
+      "width_m": 4.012,
+      "depth_m": 3.875,
+      "height_m": 3.117,
+      "triangles": 19528
+    },
+    "dead": {
+      "width_m": 5.756,
+      "depth_m": 4.975,
+      "height_m": 1.999,
+      "triangles": 18398
+    }
+  }
+}

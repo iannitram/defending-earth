@@ -1,0 +1,24 @@
+{
+  "name": "lash",
+  "width_m": 1.9,
+  "depth_m": 5.135,
+  "height_m": 1.7,
+  "footprint_squares": [
+    1,
+    2
+  ],
+  "triangles": 30730,
+  "trunk_length_m": 3.502,
+  "back_height_m": 0.7,
+  "stance_width_m": 1.9,
+  "rifle_length_m": 2.6,
+  "depth_without_rifle_m": 3.67,
+  "lowest_point_m": -0.0,
+  "dead_form": {
+    "width_m": 4.396,
+    "depth_m": 2.832,
+    "height_m": 1.127,
+    "triangles": 30230,
+    "lowest_point_m": -0.01
+  }
+}

@@ -342,3 +342,29 @@ A frozen frame must pass as a still from aerial news footage. For each phase:
 at least three rounds of screenshots at different moments, each judged by
 naming the three weakest things, fixing them and re-shooting. Frame time is
 measured every round; under 50 fps, speed comes before features.
+
+
+### Lessons from the first round (2026-11-13)
+
+Found by judging the first lights and the first eight creature models.
+
+- **Night exposure is touchy.** A light strength taken from a brief burns
+  white. Divide by about 35, then judge a picture.
+- **Coloured lights wash out.** On this ground a red light turns
+  orange-white. Push the colour much further than looks right on paper.
+- **Low lights die fast.** A light 0.25 m up skims the ground and is gone
+  within 3 m. Lights that must reach across ground sit 0.8 m up or more.
+- **An evenly lit night becomes a dull day.** The camera brightens it.
+  Any whole-map night light needs the camera held back.
+- **Glowing orange goes salmon pink** in Blender's standard picture
+  settings. Cover most of a glowing core with a darker skin and let the
+  full glow show only in cracks.
+- **Two lenses side by side are eyes.** One patch on a round body is an
+  eye. Place lenses and patches so no view shows a face.
+- **A dead form needs its own outline.** Several dead forms read as the
+  live one lying down, or as a pile. Change the silhouette, not just the
+  colour.
+- **Thin parts vanish.** Parts under about 10 cm (legs, threads, marks on
+  cloth) do not read at game distance.
+- **Pale hide looks plastic in full sun.** Darker, rougher base surfaces
+  hold up better.

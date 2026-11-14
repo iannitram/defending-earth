@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "anchor": { "square_m": 2.0, "soldier_height_m": 1.8 },
+  "derived": {
+    "soldier_shoulder_width_m": 0.55,
+    "soldier_with_kit_width_m": 0.70,
+    "door_width_m": 1.0,
+    "door_height_m": 2.1,
+    "low_cover_height_m": 1.0,
+    "full_cover_height_m": 1.9,
+    "ceiling_height_m": 2.6
+  },
+  "things": {
+    "soldier": { "footprint": [1, 1], "height_m": 1.8, "width_m": 0.70, "depth_m": 0.45 },
+    "regent":  { "footprint": [1, 1], "height_m": 3.6, "width_m": 1.8, "depth_m": 1.8 },
+    "tender":  { "footprint": [1, 1], "height_m": 1.1, "width_m": 0.6, "depth_m": 0.6 },
+    "lash":    { "footprint": [1, 2], "height_m": 1.7, "width_m": 1.9, "depth_m": 3.5,
+                 "trunk_length_m": 3.5, "back_height_m": 0.7, "rifle_length_m": 2.6 },
+    "gorger":  { "footprint": [1, 5], "footprint_head_out": [1, 1], "length_m": 10.0,
+                 "body_diameter_m": 1.1, "tail_diameter_m": 0.5, "height_out_of_ground_m": 3.0,
+                 "sign_patch_m": 2.0, "sign_heave_m": 0.04 },
+    "kite":    { "footprint": [1, 1], "span_m": 1.8, "length_m": 1.5, "flight_height_m": 6.0 },
+    "bloat":   { "footprint": [1, 1], "diameter_m": 1.5, "underside_height_m": 1.2, "feeler_length_m": 0.8 },
+    "maul":    { "footprint": [2, 2], "height_m": 3.5, "width_m": 3.6, "depth_m": 3.8,
+                 "spike_proud_m": 1.0, "spike_side_m": 0.22, "spike_collar_diameter_m": 0.7 },
+    "cinder":  { "footprint": [1, 1], "sizes_m": [0.3, 0.6, 1.0] },
+    "taker":   { "footprint": [1, 1], "closed_size_m": 1.2, "core_cube_m": 0.4,
+                 "ring_diameter_m": 1.4, "hover_height_m": 1.0, "scout_span_m": 1.8, "scout_hover_height_m": 4.0 },
+    "builder": { "footprint": [2, 2], "spread_m": 3.6, "leg_length_m": 2.6,
+                 "core_sphere_m": 0.5, "closed_diameter_m": 1.8 }
+  },
+  "cheats": [
+    "The Lash's rifle barrel may reach past its two squares. It blocks nothing.",
+    "The Kite and the Bloat hang in the air above the one square they occupy.",
+    "A buried Gorger covers no square. Head out it covers one, on the surface five.",
+    "The taker's turning ring segments may reach 0.1 m past its square.",
+    "The Regent, Tender and soldier stand inside one square with room to spare."
+  ],
+  "not_yet": [
+    "Weapon ranges in metres, throw distance and Moon jump height: worked out when the rules are moved to 2 m squares.",
+    "Vehicles, craft, base modules and buildings: added in their own phases."
+  ]
+}

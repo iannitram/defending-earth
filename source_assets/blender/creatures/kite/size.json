@@ -1,0 +1,16 @@
+{
+  "name": "kite",
+  "width_m": 1.791,
+  "depth_m": 2.188,
+  "height_m": 1.623,
+  "footprint_squares": [
+    1,
+    1
+  ],
+  "triangles": 29403,
+  "span_m": 1.8,
+  "length_m": 1.5,
+  "flight_height_m": 6.0,
+  "thread_length_m": 1.5,
+  "dead_triangles": 28593
+}

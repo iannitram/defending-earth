@@ -302,6 +302,113 @@ fn sh_basis(d: Vec3) -> [f32; 9] {
     ]
 }
 
+impl Light {
+    /// How bright a white, level surface is under this light (the measure
+    /// the battle uses to hold glowing parts and to decide when it is dark).
+    pub fn level(&self) -> f32 {
+        let amb = self.sh[0] * 0.282095 + self.sh[1] * 0.488603;
+        let lit = self.look.sun * self.sun_dir.y.max(0.0) + amb;
+        lit.x * 0.2126 + lit.y * 0.7152 + lit.z * 0.0722
+    }
+}
+
+/// `Light::level` under a clear, moonless sky with the sun `deg` degrees
+/// above the horizon (negative: below). `morning` picks the side of the day.
+pub fn clear_level_at(deg: f32, morning: bool, ground: Vec3) -> f32 {
+    let el = deg.to_radians();
+    let pos = sky::SkyPos { elevation: el, azimuth: 0.0 };
+    let (a, b, t) = sky::clear_sky_blend(pos, if morning { 360.0 } else { 1080.0 });
+    let look = state_look(a, 0.0).lerp(state_look(b, 0.0), t);
+    let dir = vec3(el.cos(), el.sin().max(0.045), 0.0).normalize();
+    Light::new(dir, look, ground).level()
+}
+
+// ------------------------------------------------------------------- lamps
+
+/// Most moving lights the scene shader takes in one frame.
+pub const MAX_LAMPS: usize = 24;
+/// Most of them that cast shadows.
+pub const MAX_LAMP_SHADOWS: usize = 4;
+/// Side of one lamp's depth picture; four are packed 2 by 2 in one texture.
+pub const LAMP_SHADOW_RES: u32 = 1024;
+
+/// A light other than the sun and sky: a flashlight, a flare, a fire.
+/// Drawing only. A lamp with `outer` at or below 0 is a point light.
+#[derive(Clone, Copy, Debug)]
+pub struct Lamp {
+    pub pos: Vec3,
+    /// Unit vector along the centre line (cone lights only).
+    pub dir: Vec3,
+    pub colour: Vec3,
+    /// How bright a white surface facing the lamp is at 1 m, on the same
+    /// scale as the rest of the scene (noon sunlit white is about 11).
+    pub strength: f32,
+    /// Metres. The light fades smoothly to nothing here.
+    pub reach: f32,
+    /// Full brightness inside this angle from the centre line (radians).
+    pub inner: f32,
+    /// Nothing outside this angle (radians). 0 or less: a point light.
+    pub outer: f32,
+    /// The light starts this far from the lamp (fading in over the second
+    /// half), so it does not burn out whatever carries it.
+    pub start: f32,
+    /// May cast shadows (cone lights only; the four nearest get them).
+    pub shadows: bool,
+    /// Shows as a beam where the air is thick (cone lights only).
+    pub beam: bool,
+}
+
+impl Lamp {
+    pub fn point(pos: Vec3, colour: Vec3, strength: f32, reach: f32) -> Lamp {
+        Lamp { pos, dir: Vec3::NEG_Y, colour, strength, reach, inner: 0.0, outer: 0.0, start: 0.0, shadows: false, beam: false }
+    }
+
+    /// Cone light. `inner` and `outer` are angles from the centre line in radians.
+    pub fn cone(pos: Vec3, dir: Vec3, colour: Vec3, strength: f32, reach: f32, inner: f32, outer: f32) -> Lamp {
+        Lamp { pos, dir: dir.normalize_or_zero(), colour, strength, reach, inner, outer, start: 0.0, shadows: true, beam: true }
+    }
+
+    fn is_cone(&self) -> bool {
+        self.outer > 0.0
+    }
+
+    /// Share of the lamp's strength that reaches a point `d` metres away and
+    /// `angle` radians off the centre line. The scene shader uses the same
+    /// rule; this copy lets the game work a strength out from a wanted result.
+    pub fn falloff(&self, d: f32, angle: f32) -> f32 {
+        if d >= self.reach || d <= 0.0 {
+            return 0.0;
+        }
+        let ss = |a: f32, b: f32, x: f32| {
+            let t = ((x - a) / (b - a)).clamp(0.0, 1.0);
+            t * t * (3.0 - 2.0 * t)
+        };
+        let cone = if self.is_cone() { ss(self.outer.cos(), self.inner.cos(), angle.cos()) } else { 1.0 };
+        let x = d / self.reach;
+        let win = (1.0 - x * x * x * x).powi(2);
+        let begin = if self.start > 0.0 { ss(self.start * 0.5, self.start, d) } else { 1.0 };
+        cone * win * begin / (d * d).max(0.04)
+    }
+}
+
+/// A flare hanging high over the site: one light for the whole map, with
+/// no reach limit. Drawing only.
+#[derive(Clone, Copy, Debug)]
+pub struct SkyLamp {
+    pub pos: Vec3,
+    pub colour: Vec3,
+    /// How bright a white surface facing it is at 1 m (it dims with the
+    /// square of the distance, so give it the wanted brightness times the
+    /// height squared).
+    pub strength: f32,
+    /// Take over the sun's shadow picture, so the whole map gets shadows
+    /// thrown from the flare. For when the sun is down.
+    pub shadows: bool,
+}
+
+/// The four-view shadows of a point lamp start this far from it (metres).
+const ROUND_NEAR: f32 = 0.15;
+
 /// Lens and operator settings for `finish`.
 #[derive(Clone, Copy, Debug)]
 pub struct Lens {
@@ -338,6 +445,23 @@ impl Camera for MatCam {
     }
     fn viewport(&self) -> Option<(i32, i32, i32, i32)> {
         None
+    }
+}
+
+/// A camera that draws into one rectangle of its target (a lamp's depth picture).
+struct TileCam(Mat4, (i32, i32, i32, i32));
+impl Camera for TileCam {
+    fn matrix(&self) -> Mat4 {
+        self.0
+    }
+    fn depth_enabled(&self) -> bool {
+        true
+    }
+    fn render_pass(&self) -> Option<macroquad::texture::RenderPass> {
+        None
+    }
+    fn viewport(&self) -> Option<(i32, i32, i32, i32)> {
+        Some(self.1)
     }
 }
 
@@ -408,6 +532,23 @@ pub struct Gfx {
     ground_map: Texture2D,
     ground_rect: Vec4,
     ground_tex: [Texture2D; 5],
+    /// This frame's lamps, shadow casters first (see `set_lamps`).
+    lamps: Vec<Lamp>,
+    lamp_shadow_n: usize,
+    /// Lamp 0 is a point lamp that uses all four depth pictures, one for
+    /// each sideways quarter round it (see `set_lamps_round`).
+    lamp_round: bool,
+    /// The flare over the site, if one burns (see `set_sky_lamp`).
+    sky_lamp: Option<SkyLamp>,
+    lamp_vp: [Mat4; MAX_LAMP_SHADOWS],
+    lamp_shadow: Target,
+    lamp_depth: Texture2D,
+    beam_mat: Material,
+    /// How much light the air throws back per metre (weather), and its haze.
+    air: f32,
+    /// R = smoke on each tile, G = the tile's height (0..8 m).
+    air_map: Texture2D,
+    air_rect: Vec4,
 }
 
 pub const SHADOW_RES: u32 = 4096;
@@ -434,6 +575,17 @@ impl Gfx {
             ..Default::default()
         });
         let shadow = make_target(SHADOW_RES, SHADOW_RES, TextureFormat::RGBA8, Some(sd), FilterMode::Nearest);
+
+        let ld = gl.quad_context.new_render_texture(TextureParams {
+            width: LAMP_SHADOW_RES * 2,
+            height: LAMP_SHADOW_RES * 2,
+            format: TextureFormat::Depth32,
+            wrap: TextureWrap::Clamp,
+            min_filter: FilterMode::Nearest,
+            mag_filter: FilterMode::Nearest,
+            ..Default::default()
+        });
+        let lamp_shadow = make_target(LAMP_SHADOW_RES * 2, LAMP_SHADOW_RES * 2, TextureFormat::RGBA8, Some(ld), FilterMode::Nearest);
 
         let bloom_a = make_target(w / 2, h / 2, TextureFormat::RGBA16F, None, FilterMode::Linear);
         let bloom_b = make_target(w / 2, h / 2, TextureFormat::RGBA16F, None, FilterMode::Linear);
@@ -465,8 +617,16 @@ impl Gfx {
                     UniformDesc::new("shadow_px", UniformType::Float2),
                     UniformDesc::new("ground_rect", UniformType::Float4),
                     UniformDesc::new("surf", UniformType::Float4),
+                    UniformDesc::new("lamp_pos", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_dir", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_col", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_cone", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_vp", UniformType::Mat4).array(MAX_LAMP_SHADOWS),
+                    UniformDesc::new("lamp_n", UniformType::Float4),
+                    UniformDesc::new("sky_pos", UniformType::Float4),
+                    UniformDesc::new("sky_col", UniformType::Float4),
                 ],
-                textures: ["ShadowMap", "GroundMap", "GrassA", "GrassB", "Soil", "Mud", "Gravel"].iter().map(|s| s.to_string()).collect(),
+                textures: ["ShadowMap", "GroundMap", "GrassA", "GrassB", "Soil", "Mud", "Gravel", "LampShadow"].iter().map(|s| s.to_string()).collect(),
             },
         )
         .expect("scene shader");
@@ -510,6 +670,37 @@ impl Gfx {
             },
         )
         .expect("shadow shader");
+
+        // Beams add light to the picture; they hide nothing and write no depth.
+        let beam_mat = load_material(
+            ShaderSource::Glsl { vertex: BEAM_VS, fragment: BEAM_FS },
+            MaterialParams {
+                pipeline_params: PipelineParams {
+                    depth_test: Comparison::LessOrEqual,
+                    depth_write: false,
+                    cull_face: mq::CullFace::Nothing,
+                    color_blend: Some(mq::BlendState::new(
+                        mq::Equation::Add,
+                        mq::BlendFactor::One,
+                        mq::BlendFactor::One,
+                    )),
+                    ..Default::default()
+                },
+                uniforms: vec![
+                    UniformDesc::new("cam_pos", UniformType::Float3),
+                    UniformDesc::new("air", UniformType::Float4),
+                    UniformDesc::new("air_rect", UniformType::Float4),
+                    UniformDesc::new("lamp_pos", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_dir", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_col", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_cone", UniformType::Float4).array(MAX_LAMPS),
+                    UniformDesc::new("lamp_vp", UniformType::Mat4).array(MAX_LAMP_SHADOWS),
+                    UniformDesc::new("lamp_n", UniformType::Float4),
+                ],
+                textures: vec!["LampShadow".to_string(), "AirMap".to_string()],
+            },
+        )
+        .expect("beam shader");
 
         let post = |fs: &str, uniforms: Vec<UniformDesc>, textures: Vec<&str>| {
             load_material(
@@ -575,7 +766,216 @@ impl Gfx {
                 grain_tex(include_bytes!("../assets/ground/dry_mud_field_001.png")),
                 grain_tex(include_bytes!("../assets/ground/gravel_road.png")),
             ],
+            lamps: Vec::new(),
+            lamp_shadow_n: 0,
+            lamp_round: false,
+            sky_lamp: None,
+            lamp_vp: [Mat4::IDENTITY; MAX_LAMP_SHADOWS],
+            lamp_shadow,
+            lamp_depth: Texture2D::from_miniquad_texture(ld),
+            beam_mat,
+            air: 0.0,
+            air_map: Texture2D::from_rgba8(1, 1, &[0, 0, 0, 255]),
+            air_rect: Vec4::ZERO,
         }
+    }
+
+    /// Hand over this frame's lamps. Call before `scene_begin`, every frame
+    /// (an empty list switches them all off). If there are more than
+    /// `MAX_LAMPS`, the ones nearest `focus` (the point the camera looks at)
+    /// are kept. The four cone lamps nearest `focus` that ask for shadows
+    /// get them.
+    pub fn set_lamps(&mut self, lamps: &[Lamp], focus: Vec3) {
+        self.set_lamps_round(lamps, focus, None);
+    }
+
+    /// Like `set_lamps`, but `round` may name one point lamp in the list (by
+    /// its place in it) that casts shadows all round: a flare on the ground.
+    /// It takes all four depth pictures, one for each sideways quarter, so
+    /// while it burns the cone lamps cast no shadows. Things steeply above
+    /// or below it are not shadowed. It is always kept, whatever `focus` is.
+    pub fn set_lamps_round(&mut self, lamps: &[Lamp], focus: Vec3, round: Option<usize>) {
+        let ok = |l: &Lamp| l.strength > 0.0 && l.reach > 0.0;
+        let pick = round.filter(|&i| i < lamps.len() && !lamps[i].is_cone() && ok(&lamps[i]));
+        let mut all: Vec<Lamp> = lamps.iter().enumerate().filter(|(i, l)| Some(*i) != pick && ok(l)).map(|(_, l)| *l).collect();
+        all.sort_by(|a, b| a.pos.distance_squared(focus).total_cmp(&b.pos.distance_squared(focus)));
+        self.lamp_round = false;
+        if let Some(i) = pick {
+            let l = lamps[i];
+            all.truncate(MAX_LAMPS - 1);
+            all.insert(0, l);
+            self.lamps = all;
+            self.lamp_round = true;
+            self.lamp_shadow_n = MAX_LAMP_SHADOWS;
+            // the shaders pick the picture the same way: +x, +z, -x, -z
+            let proj = Mat4::perspective_rh_gl(std::f32::consts::FRAC_PI_2 + 0.035, 1.0, ROUND_NEAR, l.reach.max(ROUND_NEAR + 1.0));
+            for (k, d) in [Vec3::X, Vec3::Z, Vec3::NEG_X, Vec3::NEG_Z].into_iter().enumerate() {
+                self.lamp_vp[k] = proj * Mat4::look_at_rh(l.pos, l.pos + d, Vec3::Y);
+            }
+            return;
+        }
+        all.truncate(MAX_LAMPS);
+        let mut casters = Vec::new();
+        let mut rest = Vec::new();
+        for l in all {
+            if l.shadows && l.is_cone() && casters.len() < MAX_LAMP_SHADOWS {
+                casters.push(l);
+            } else {
+                rest.push(l);
+            }
+        }
+        self.lamp_shadow_n = casters.len();
+        casters.extend(rest);
+        self.lamps = casters;
+        for (k, l) in self.lamps.iter().take(self.lamp_shadow_n).enumerate() {
+            let up = if l.dir.y.abs() > 0.99 { Vec3::Z } else { Vec3::Y };
+            let view = Mat4::look_at_rh(l.pos, l.pos + l.dir, up);
+            // a square picture that holds the whole cone, with a little spare
+            let fov = (l.outer * 2.0 + 0.07).min(2.8);
+            let near = l.start.max(0.25);
+            self.lamp_vp[k] = Mat4::perspective_rh_gl(fov, 1.0, near, l.reach.max(near + 1.0)) * view;
+        }
+    }
+
+    /// How many lamp depth pictures are drawn this frame (0 to 4).
+    pub fn lamp_shadow_count(&self) -> usize {
+        self.lamp_shadow_n
+    }
+
+    /// The flare over the site this frame, or `None`. Call before
+    /// `shadow_begin`, every frame. With `shadows` set, `shadow_begin`
+    /// draws the big shadow picture from the flare, not from the sun.
+    pub fn set_sky_lamp(&mut self, lamp: Option<SkyLamp>) {
+        self.sky_lamp = lamp.filter(|l| l.strength > 0.0);
+    }
+
+    /// The sky flare's light on white, level ground right under it.
+    fn sky_level(&self) -> Vec3 {
+        match self.sky_lamp {
+            Some(s) => s.colour * s.strength / (s.pos.y * s.pos.y).max(1.0),
+            None => Vec3::ZERO,
+        }
+    }
+
+    /// Draw the depth pictures for the lamps that cast shadows. `draw` is
+    /// called once for each such lamp and must draw everything that casts,
+    /// the same meshes as in the sun's shadow pass. Call after `set_lamps`
+    /// and before `scene_begin`. Does nothing when no lamp casts.
+    pub fn lamp_shadows(&mut self, mut draw: impl FnMut()) {
+        let res = LAMP_SHADOW_RES as i32;
+        for k in 0..self.lamp_shadow_n {
+            let tile = ((k as i32 % 2) * res, (k as i32 / 2) * res, res, res);
+            set_camera(&TileCam(self.lamp_vp[k], tile));
+            bind(Some(self.lamp_shadow.pass));
+            if k == 0 {
+                clear_background(WHITE);
+            }
+            gl_use_material(&self.shadow_mat);
+            draw();
+        }
+    }
+
+    /// What is in the air for beams to show up in. `scatter` is the share of
+    /// a beam's light thrown back per metre by the weather (0 in clear air).
+    /// `map` is a small picture laid over the site, one texel per tile:
+    /// R = smoke (0..255), G = tile height (0..255 for 0..8 m), with its
+    /// world-space x/z `origin` and `size` like `set_ground_map`.
+    pub fn set_air(&mut self, scatter: f32, map: Option<(u16, u16, &[u8], Vec2, Vec2)>) {
+        self.air = scatter.max(0.0);
+        match map {
+            Some((w, h, rgba, origin, size)) => {
+                // same size as last frame: refill the picture, do not make a new one
+                if self.air_map.width() == w as f32 && self.air_map.height() == h as f32 {
+                    self.air_map.update(&Image { bytes: rgba.to_vec(), width: w, height: h });
+                } else {
+                    let t = Texture2D::from_rgba8(w, h, rgba);
+                    t.set_filter(FilterMode::Linear);
+                    self.air_map = t;
+                }
+                self.air_rect = vec4(origin.x, origin.y, 1.0 / size.x, 1.0 / size.y);
+            }
+            None => self.air_rect = Vec4::ZERO,
+        }
+    }
+
+    fn lamp_uniforms(&self, mt: &Material) {
+        let mut pos = [Vec4::ZERO; MAX_LAMPS];
+        let mut dir = [Vec4::ZERO; MAX_LAMPS];
+        let mut col = [Vec4::ZERO; MAX_LAMPS];
+        let mut cone = [Vec4::ZERO; MAX_LAMPS];
+        for (k, l) in self.lamps.iter().enumerate() {
+            pos[k] = l.pos.extend(l.reach);
+            dir[k] = l.dir.extend(l.start);
+            col[k] = (l.colour * l.strength).extend(0.0);
+            cone[k] = if l.is_cone() { vec4(l.inner.min(l.outer).cos(), l.outer.cos(), 0.0, 0.0) } else { vec4(1.0, -2.0, 0.0, 0.0) };
+        }
+        mt.set_uniform_array("lamp_pos", &pos[..]);
+        mt.set_uniform_array("lamp_dir", &dir[..]);
+        mt.set_uniform_array("lamp_col", &col[..]);
+        mt.set_uniform_array("lamp_cone", &cone[..]);
+        mt.set_uniform_array("lamp_vp", &self.lamp_vp[..]);
+        let (cones, round) = if self.lamp_round { (0.0, 1.0) } else { (self.lamp_shadow_n as f32, 0.0) };
+        mt.set_uniform("lamp_n", vec4(self.lamps.len() as f32, cones, round, 0.0));
+        mt.set_texture("LampShadow", self.lamp_depth.clone());
+    }
+
+    /// Draw the lamps' beams where the air is thick enough to show them
+    /// (weather set by `set_air`, or smoke in its map). Call after the lit
+    /// scene and the see-through things, before `finish`. The beams add
+    /// light; in clear air with no smoke nothing is drawn. `smoke` says
+    /// whether the air map holds any smoke this frame.
+    pub fn beams(&mut self, light: &Light, smoke: bool) {
+        if self.air <= 0.0 && !(smoke && self.air_rect.z > 0.0) {
+            return;
+        }
+        let mut v: Vec<Vertex> = Vec::new();
+        let mut ix: Vec<u16> = Vec::new();
+        const SEG: usize = 12;
+        for (k, l) in self.lamps.iter().enumerate() {
+            if l.beam && !l.is_cone() {
+                // a point lamp glows all round: a box that holds its whole reach
+                let b = v.len() as u16;
+                for c in 0..8u16 {
+                    let s = vec3(if c & 1 == 0 { -1.0 } else { 1.0 }, if c & 2 == 0 { -1.0 } else { 1.0 }, if c & 4 == 0 { -1.0 } else { 1.0 });
+                    v.push(Vertex { position: l.pos + s * l.reach, uv: vec2(k as f32, 0.0), color: [255, 255, 255, 255], normal: vec4(0.0, 1.0, 0.0, 0.0) });
+                }
+                for q in [[0u16, 1, 3, 2], [4, 6, 7, 5], [0, 4, 5, 1], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]] {
+                    ix.extend_from_slice(&[b + q[0], b + q[1], b + q[2], b + q[0], b + q[2], b + q[3]]);
+                }
+                continue;
+            }
+            if !(l.beam && l.is_cone()) || l.outer > 1.3 {
+                continue;
+            }
+            // a 12-sided cone that holds the round one with a little spare
+            let side = if l.dir.y.abs() > 0.99 { Vec3::X } else { l.dir.cross(Vec3::Y).normalize() };
+            let upv = side.cross(l.dir);
+            let r = l.reach * l.outer.tan() * 1.07;
+            let end = l.pos + l.dir * l.reach;
+            let b = v.len() as u16;
+            let vert = |p: Vec3| Vertex { position: p, uv: vec2(k as f32, 0.0), color: [255, 255, 255, 255], normal: vec4(0.0, 1.0, 0.0, 0.0) };
+            v.push(vert(l.pos));
+            v.push(vert(end));
+            for s in 0..SEG {
+                let a = s as f32 / SEG as f32 * std::f32::consts::TAU;
+                v.push(vert(end + (side * a.cos() + upv * a.sin()) * r));
+            }
+            for s in 0..SEG as u16 {
+                let (p, q) = (b + 2 + s, b + 2 + (s + 1) % SEG as u16);
+                ix.extend_from_slice(&[b, p, q, b + 1, q, p]);
+            }
+        }
+        if v.is_empty() {
+            return;
+        }
+        let mt = &self.beam_mat;
+        self.lamp_uniforms(mt);
+        mt.set_uniform("cam_pos", self.cam_pos);
+        mt.set_uniform("air", vec4(self.air, light.look.haze, self.frame as f32, if smoke { 1.0 } else { 0.0 }));
+        mt.set_uniform("air_rect", self.air_rect);
+        mt.set_texture("AirMap", self.air_map.clone());
+        gl_use_material(mt);
+        draw_mesh(&Mesh { vertices: v, indices: ix, texture: None });
     }
 
     /// Give the ground its colours and surface types as a small map laid
@@ -600,6 +1000,19 @@ impl Gfx {
         let proj = Mat4::orthographic_rh_gl(-radius, radius, -radius, radius, dist - radius * 1.6, dist + radius * 1.6);
         self.light_vp = proj * view;
         self.shadow_texel_m = 2.0 * radius / SHADOW_RES as f32;
+        if let Some(s) = self.sky_lamp.filter(|s| s.shadows) {
+            // the picture is drawn from the flare, looking down at the site
+            let to = centre - s.pos;
+            let d0 = to.length().max(1.0);
+            let up = if (to.y / d0).abs() > 0.99 { Vec3::Z } else { Vec3::Y };
+            let fov = (2.0 * (radius / d0).atan()).clamp(0.2, 2.6);
+            let far = d0 + radius;
+            // near plane set so depth steps near the ground are as fine as the sun's
+            let k = d0 * d0 / (3.2 * radius);
+            let near = (k * far / (far + k)).min(d0 * 0.6).max(1.0);
+            self.light_vp = Mat4::perspective_rh_gl(fov, 1.0, near, far) * Mat4::look_at_rh(s.pos, centre, up);
+            self.shadow_texel_m = 2.0 * d0 * (fov * 0.5).tan() / SHADOW_RES as f32;
+        }
         set_camera(&MatCam(self.light_vp));
         bind(Some(self.shadow.pass));
         clear_background(WHITE);
@@ -638,6 +1051,17 @@ impl Gfx {
         mt.set_uniform("surf", vec4(light.snow, light.sand, light.time, light.rain));
         mt.set_texture("ShadowMap", self.shadow_depth.clone());
         mt.set_texture("GroundMap", self.ground_map.clone());
+        self.lamp_uniforms(mt);
+        match self.sky_lamp {
+            Some(s) => {
+                mt.set_uniform("sky_pos", s.pos.extend(if s.shadows { 2.0 } else { 1.0 }));
+                mt.set_uniform("sky_col", (s.colour * s.strength).extend(0.0));
+            }
+            None => {
+                mt.set_uniform("sky_pos", Vec4::ZERO);
+                mt.set_uniform("sky_col", Vec4::ZERO);
+            }
+        }
         for (name, t) in ["GrassA", "GrassB", "Soil", "Mud", "Gravel"].iter().zip(self.ground_tex.iter()) {
             mt.set_texture(name, t.clone());
         }
@@ -657,7 +1081,8 @@ impl Gfx {
         let mt = &self.overlay_mat;
         mt.set_uniform("cam_pos", self.cam_pos);
         mt.set_uniform("haze_col", (hs + ha) * 0.5);
-        let l = if glow > 0.0 { Vec3::splat(glow) } else { lit };
+        // smoke, rain and markers are lit by a flare over the site too
+        let l = if glow > 0.0 { Vec3::splat(glow) } else { lit + self.sky_level() };
         mt.set_uniform("level", vec4(l.x, l.y, l.z, lk.haze));
         gl_use_material(mt);
     }
@@ -738,6 +1163,7 @@ uniform mat4 Projection;
 uniform mat4 light_vp;
 uniform vec3 sun_dir;
 uniform vec2 shadow_px;
+uniform vec4 sky_pos;
 out vec3 v_pos;
 out vec3 v_n;
 out vec4 v_col;
@@ -750,7 +1176,9 @@ void main() {
     v_mat = normal.w;
     v_col = color0 / 255.0;
     // look the shadow up a little off the surface, more at grazing angles
-    float graze = 1.0 - clamp(dot(normalize(normal.xyz), sun_dir), 0.0, 1.0);
+    // (the shadow picture belongs to the sky flare when sky_pos.w is 2)
+    vec3 sdir = sky_pos.w > 1.5 ? normalize(sky_pos.xyz - w.xyz) : sun_dir;
+    float graze = 1.0 - clamp(dot(normalize(normal.xyz), sdir), 0.0, 1.0);
     v_lp = light_vp * vec4(w.xyz + normalize(normal.xyz) * shadow_px.y * (1.5 + 5.0 * graze), 1.0);
     gl_Position = Projection * w;
 }
@@ -781,6 +1209,15 @@ uniform vec3 zenith;
 uniform vec3 horizon;
 uniform vec4 params;      // haze per metre, diffusion, wetness, frame
 uniform vec2 shadow_px;   // 1/resolution, metres per texel
+uniform sampler2D LampShadow;   // four lamp depth pictures, 2 by 2
+uniform vec4 lamp_pos[24];      // place, reach in metres
+uniform vec4 lamp_dir[24];      // centre line, distance the light starts at
+uniform vec4 lamp_col[24];      // brightness of a white surface at 1 m
+uniform vec4 lamp_cone[24];     // cos of the inner and outer angle (outer -2: point light)
+uniform mat4 lamp_vp[4];
+uniform vec4 lamp_n;            // lamps this frame, how many cone lamps cast shadows, 1 if lamp 0 casts all round
+uniform vec4 sky_pos;           // flare over the site; w: 0 none, 1 burning, 2 burning and owns ShadowMap
+uniform vec4 sky_col;           // brightness of a white surface 1 m from it
 out vec4 frag;
 
 float hash(vec2 p) {
@@ -811,13 +1248,15 @@ vec3 irradiance(vec3 n) {
 }
 
 float shadow(vec3 n, float ndl) {
+    if (v_lp.w <= 0.0) return 1.0;
     vec3 p = v_lp.xyz / v_lp.w * 0.5 + 0.5;
     if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0 || p.z > 1.0) return 1.0;
     float bias = mix(0.0009, 0.00025, clamp(ndl, 0.0, 1.0));
     float ang = hash(gl_FragCoord.xy) * 6.2831853;
     mat2 rot = mat2(cos(ang), -sin(ang), sin(ang), cos(ang));
     // penumbra: sun's half-degree disc, widened by sky diffusion
-    float rad = (1.6 + params.y * 40.0) * shadow_px.x;
+    // (a flare is a point: its shadows stay hard under any sky)
+    float rad = (1.6 + (sky_pos.w > 1.5 ? 0.0 : params.y) * 40.0) * shadow_px.x;
     float s = 0.0;
     const vec2 taps[12] = vec2[12](
         vec2(-0.326, -0.406), vec2(-0.840, -0.074), vec2(-0.696, 0.457), vec2(-0.203, 0.621),
@@ -829,6 +1268,79 @@ float shadow(vec3 n, float ndl) {
     }
     vec2 e = min(p.xy, 1.0 - p.xy);
     return mix(1.0, s / 12.0, smoothstep(0.0, 0.04, min(e.x, e.y)));
+}
+
+// Is this point lit by shadow-casting lamp `i`, or behind something? 0..1.
+float lamp_shadow(int i, vec3 p, vec3 ng, float d) {
+    // look the depth up a few texels off the surface; a texel grows with distance
+    vec4 lp = lamp_vp[i] * vec4(p + ng * (0.012 + 0.004 * d), 1.0);
+    if (lp.w <= 0.0) return 1.0;
+    vec3 q = lp.xyz / lp.w * 0.5 + 0.5;
+    if (q.x < 0.0 || q.x > 1.0 || q.y < 0.0 || q.y > 1.0 || q.z > 1.0) return 1.0;
+    vec2 org = vec2(float(i - (i / 2) * 2), float(i / 2)) * 0.5;
+    float ang = hash(gl_FragCoord.xy + 17.0) * 6.2831853;
+    vec2 rx = vec2(cos(ang), sin(ang)) * (1.4 / 1024.0);
+    vec2 ry = vec2(-rx.y, rx.x);
+    float s = 0.0;
+    for (int k = 0; k < 4; k++) {
+        vec2 o = (k == 0) ? rx : (k == 1) ? -rx : (k == 2) ? ry : -ry;
+        vec2 uv = clamp(q.xy + o, vec2(1.0 / 1024.0), vec2(1.0 - 1.0 / 1024.0));
+        float dep = texture(LampShadow, org + uv * 0.5).r;
+        s += (q.z - 0.00003 > dep) ? 0.0 : 1.0;
+    }
+    return s * 0.25;
+}
+
+// Light from the lamps (flashlights, flares, fires) leaving this surface.
+// Falls with the square of distance, fades out smoothly at the lamp's reach.
+vec3 lamps(vec3 alb, vec3 n, vec3 ng, vec3 v, float rough, float f0, float trans, float wet) {
+    vec3 sum = vec3(0.0);
+    int cnt = int(lamp_n.x + 0.5);
+    int ns = int(lamp_n.y + 0.5);
+    for (int i = 0; i < cnt; i++) {
+        vec3 to = lamp_pos[i].xyz - v_pos;
+        float d2 = dot(to, to);
+        float reach = lamp_pos[i].w;
+        if (d2 >= reach * reach) continue;
+        float d = sqrt(d2);
+        vec3 l = to / max(d, 1e-4);
+        float cone = 1.0;
+        if (lamp_cone[i].y > -1.5) {
+            float ca = dot(-l, lamp_dir[i].xyz);
+            if (ca <= lamp_cone[i].y) continue;
+            cone = smoothstep(lamp_cone[i].y, lamp_cone[i].x, ca);
+        }
+        float ndl = dot(n, l);
+        float gndl = dot(ng, l);
+        float diff = max(ndl, 0.0) * step(0.0, gndl + trans) + trans * max(-ndl, 0.0) * 0.6;
+        if (diff <= 0.0) continue;
+        float x = d / reach;
+        float win = 1.0 - x * x * x * x;
+        float start = lamp_dir[i].w;
+        float fall = win * win / max(d2, 0.04);
+        if (start > 0.0) fall *= smoothstep(start * 0.5, start, d);
+        if (fall <= 0.0) continue;
+        float sh = 1.0;
+        if (i < ns) sh = lamp_shadow(i, v_pos, gndl < 0.0 ? -ng : ng, d);
+        else if (i == 0 && lamp_n.z > 0.5) {
+            // a flare on the ground: the depth picture of the quarter this point lies in
+            int k = abs(to.x) >= abs(to.z) ? (to.x < 0.0 ? 0 : 2) : (to.z < 0.0 ? 1 : 3);
+            sh = lamp_shadow(k, v_pos, gndl < 0.0 ? -ng : ng, d);
+        }
+        vec3 e = lamp_col[i].rgb * (cone * fall * sh);
+        sum += alb * e * diff;
+        // wet surfaces throw a soft highlight back
+        if (wet > 0.0 && ndl > 0.0) {
+            vec3 h = normalize(v + l);
+            float a = max(rough, 0.5);
+            a *= a;
+            float ndh = max(dot(n, h), 0.0);
+            float dd = a * a / (3.14159265 * pow(ndh * ndh * (a * a - 1.0) + 1.0, 2.0));
+            float fres = f0 + (1.0 - f0) * pow(1.0 - max(dot(h, v), 0.0), 5.0);
+            sum += e * dd * fres * ndl * 0.4 * wet;
+        }
+    }
+    return sum;
 }
 
 // Photographed surface grain without visible repeats: the same texture is
@@ -858,6 +1370,7 @@ void main() {
     float dist = length(view);
     vec3 v = view / dist;
     if (dot(n, v) < 0.0 && v_mat > 0.5 && v_mat < 2.5) n = -n;
+    vec3 ng = n;
 
     vec3 alb = to_lin(v_col.rgb);
     float ao = v_col.a;
@@ -1037,7 +1550,8 @@ void main() {
     } else {
         float ndl = dot(n, sun_dir);
         float geo_ndl = dot(normalize(v_n), sun_dir);
-        float sh_ = (sun_col.r + sun_col.g + sun_col.b > 0.0001) ? shadow(n, geo_ndl) : 0.0;
+        // (while a sky flare owns the shadow picture, moonlight falls unshadowed)
+        float sh_ = (sun_col.r + sun_col.g + sun_col.b > 0.0001) ? (sky_pos.w > 1.5 ? 1.0 : shadow(n, geo_ndl)) : 0.0;
         // overcast: the "sun" is a bright patch of cloud, so shadows go faint
         float direct_vis = mix(sh_, mix(sh_, 1.0, 0.75), params.y);
         vec3 direct = sun_col * max(ndl, 0.0) * direct_vis * step(0.0, geo_ndl + trans);
@@ -1058,6 +1572,30 @@ void main() {
         vec3 skyr = mix(horizon, zenith, pow(max(r.y, 0.0), 0.45));
         skyr += haze_sun * pow(max(dot(normalize(vec3(r.x, 0.0, r.z) + 1e-4), normalize(vec3(sun_dir.x, 0.0, sun_dir.z) + 1e-4)), 0.0), 3.0) * pow(1.0 - max(r.y, 0.0), 4.0);
         col += skyr * fres * (1.0 - rough) * (1.0 - rough) * ao;
+
+        // flashlights, flares, fires: added before haze and exposure
+        if (lamp_n.x > 0.5) col += lamps(alb, n, ng, v, rough, f0, trans, wet);
+
+        // a flare hanging over the site lights everything, with no reach limit
+        if (sky_pos.w > 0.5) {
+            vec3 to = sky_pos.xyz - v_pos;
+            float d2 = max(dot(to, to), 1.0);
+            vec3 l = to * inversesqrt(d2);
+            float sndl = dot(n, l);
+            float sgeo = dot(ng, l);
+            float vis = sky_pos.w > 1.5 ? shadow(n, sgeo) : 1.0;
+            vec3 e = sky_col.rgb * (vis / d2);
+            col += alb * e * (max(sndl, 0.0) * step(0.0, sgeo + trans) + trans * max(-sndl, 0.0) * 0.6);
+            if (wet > 0.0 && sndl > 0.0) {
+                vec3 hh = normalize(v + l);
+                float aa = max(rough, 0.5);
+                aa *= aa;
+                float nh = max(dot(n, hh), 0.0);
+                float dd = aa * aa / (3.14159265 * pow(nh * nh * (aa * aa - 1.0) + 1.0, 2.0));
+                float fr = f0 + (1.0 - f0) * pow(1.0 - max(dot(hh, v), 0.0), 5.0);
+                col += e * dd * fr * sndl * 0.4 * wet;
+            }
+        }
     }
 
     // aerial perspective along the view ray
@@ -1094,6 +1632,160 @@ void main() {
     vec3 c = pow(v_col.rgb, vec3(2.2)) * level.rgb;
     float t = 1.0 - exp(-distance(v_pos, cam_pos) * level.w);
     frag = vec4(mix(c, haze_col, t), v_col.a);
+}
+"#;
+
+// A lamp's beam in thick air. The mesh is only a rough cone around the
+// beam; the shader works out where the view ray enters and leaves the real
+// cone, walks that stretch, and adds up the light the air throws back.
+const BEAM_VS: &str = r#"#version 330
+in vec3 position;
+in vec2 texcoord;
+in vec4 color0;
+uniform mat4 Model;
+uniform mat4 Projection;
+out vec3 v_pos;
+out float v_idx;
+void main() {
+    vec4 w = Model * vec4(position, 1.0);
+    v_pos = w.xyz;
+    v_idx = texcoord.x;
+    gl_Position = Projection * w;
+}
+"#;
+
+const BEAM_FS: &str = r#"#version 330
+in vec3 v_pos;
+in float v_idx;
+uniform sampler2D LampShadow;
+uniform sampler2D AirMap;       // R smoke, G tile height (0..8 m)
+uniform vec3 cam_pos;
+uniform vec4 air;               // weather scatter per metre, haze per metre, frame, smoke present
+uniform vec4 air_rect;
+uniform vec4 lamp_pos[24];
+uniform vec4 lamp_dir[24];
+uniform vec4 lamp_col[24];
+uniform vec4 lamp_cone[24];
+uniform mat4 lamp_vp[4];
+uniform vec4 lamp_n;
+out vec4 frag;
+
+float hash(vec3 p) {
+    p = fract(p * 0.1031);
+    p += dot(p, p.zyx + 31.32);
+    return fract((p.x + p.y) * p.z);
+}
+vec2 air_at(vec2 xz) {
+    if (air_rect.z <= 0.0) return vec2(0.0, -1000.0);
+    vec4 m = texture(AirMap, (xz - air_rect.xy) * air_rect.zw);
+    return vec2(m.r, m.g * 8.0);
+}
+float lit(int i, vec3 p) {
+    vec4 lp = lamp_vp[i] * vec4(p, 1.0);
+    if (lp.w <= 0.0) return 1.0;
+    vec3 q = lp.xyz / lp.w * 0.5 + 0.5;
+    if (q.x < 0.0 || q.x > 1.0 || q.y < 0.0 || q.y > 1.0 || q.z > 1.0) return 1.0;
+    vec2 org = vec2(float(i - (i / 2) * 2), float(i / 2)) * 0.5;
+    vec2 uv = clamp(q.xy, vec2(1.0 / 1024.0), vec2(1.0 - 1.0 / 1024.0));
+    return (q.z - 0.00003 > texture(LampShadow, org + uv * 0.5).r) ? 0.0 : 1.0;
+}
+void main() {
+    int i = int(v_idx + 0.5);
+    vec3 apex = lamp_pos[i].xyz;
+    float reach = lamp_pos[i].w;
+    vec3 u = lamp_dir[i].xyz;
+    float co = lamp_cone[i].y;
+    vec3 rd = v_pos - cam_pos;
+    float tf = length(rd);
+    rd /= tf;
+    vec3 oc = cam_pos - apex;
+
+    // the stretch of the view ray inside the lamp's reach
+    float b = dot(oc, rd);
+    float h = b * b - (dot(oc, oc) - reach * reach);
+    if (h <= 0.0) discard;
+    h = sqrt(h);
+    float t0 = max(-b - h, 0.0);
+    float t1 = -b + h;
+
+    // and inside the cone (a point lamp, co below -1.5, has none: it glows all round)
+    bool point = co < -1.5;
+    if (!point) {
+        float c2 = co * co;
+        float du = dot(rd, u);
+        float ou = dot(oc, u);
+        float A = du * du - c2;
+        float B = 2.0 * (du * ou - c2 * dot(rd, oc));
+        float C = ou * ou - c2 * dot(oc, oc);
+        float disc = B * B - 4.0 * A * C;
+        if (disc <= 0.0 || abs(A) < 1e-6) discard;
+        float sq = sqrt(disc);
+        float ra = (-B - sq) / (2.0 * A);
+        float rb = (-B + sq) / (2.0 * A);
+        float lo = min(ra, rb);
+        float hi = max(ra, rb);
+        if (A < 0.0) {
+            if (ou + du * 0.5 * (lo + hi) <= 0.0) discard;
+            t0 = max(t0, lo);
+            t1 = min(t1, hi);
+        } else {
+            if (ou + du * (lo - 1.0) > 0.0) t1 = min(t1, lo);
+            else if (ou + du * (hi + 1.0) > 0.0) t0 = max(t0, hi);
+            else discard;
+        }
+    }
+    if (t1 <= t0) discard;
+
+    // The rough cone is drawn with both its near and its far side, so each
+    // pixel comes here twice. The near side walks the first half of the
+    // stretch and the far side the second, so something standing in the
+    // beam hides only what is behind it. Where the beam runs into the
+    // ground the far side is buried, and the near side walks it all.
+    bool near_side = abs(tf - t0) < abs(tf - t1);
+    vec3 p_in = cam_pos + rd * t0;
+    vec3 p_out = cam_pos + rd * t1;
+    float g_out = air_at(p_out.xz).y;
+    if (p_out.y < g_out) {
+        if (!near_side) discard;
+        t1 = t0 + (t1 - t0) * clamp((p_in.y - g_out) / max(p_in.y - p_out.y, 1e-4), 0.0, 1.0);
+    } else {
+        float tm = 0.5 * (t0 + t1);
+        if (near_side) t1 = tm; else t0 = tm;
+    }
+    if (t1 <= t0) discard;
+
+    const int STEPS = 8;
+    float dt = (t1 - t0) / float(STEPS);
+    // each pixel starts its walk at a different point, a new one each frame:
+    // the beam reads as light on drops and dust, not as a smooth shape
+    float j = hash(vec3(gl_FragCoord.xy, air.z));
+    int ns = int(lamp_n.y + 0.5);
+    float start = lamp_dir[i].w;
+    float sum = 0.0;
+    for (int k = 0; k < STEPS; k++) {
+        vec3 p = cam_pos + rd * (t0 + (float(k) + j) * dt);
+        vec3 q = p - apex;
+        float d2 = dot(q, q);
+        float d = sqrt(d2);
+        float cone = point ? 1.0 : smoothstep(co, lamp_cone[i].x, dot(q, u) / max(d, 1e-3));
+        float x = min(d / reach, 1.0);
+        float win = 1.0 - x * x * x * x;
+        float fall = win * win / max(d2, 0.25);
+        if (start > 0.0) fall *= smoothstep(start * 0.5, start, d);
+        if (cone * fall <= 0.0) continue;
+        vec2 am = air_at(p.xz);
+        if (p.y < am.y) continue;
+        float dens = air.x;
+        // smoke lies in the two metres or so above the ground it is on
+        if (air.w > 0.5) dens += am.x * 0.004 * smoothstep(am.y + 2.4, am.y + 1.4, p.y);
+        if (dens <= 0.0) continue;
+        float sh = 1.0;
+        if (i < ns) sh = lit(i, p);
+        else if (i == 0 && lamp_n.z > 0.5) sh = lit(abs(q.x) >= abs(q.z) ? (q.x > 0.0 ? 0 : 2) : (q.z > 0.0 ? 1 : 3), p);
+        sum += cone * fall * dens * sh;
+    }
+    vec3 c = lamp_col[i].rgb * sum * dt * exp(-tf * air.y);
+    frag = vec4(c, 1.0);
 }
 "#;
 

@@ -1,3 +1,6 @@
 /target/
 *.blend1
 .DS_Store
+__pycache__/
+source_assets/blender/creatures/*/renders/*
+!source_assets/blender/creatures/*/renders/contact.png

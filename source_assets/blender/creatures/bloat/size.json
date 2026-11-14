@@ -1,0 +1,11 @@
+{
+  "name": "bloat",
+  "width_m": 1.501,
+  "depth_m": 1.51,
+  "height_m": 2.47,
+  "footprint_squares": [
+    1,
+    1
+  ],
+  "triangles": 35148
+}

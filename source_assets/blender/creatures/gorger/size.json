@@ -1,0 +1,11 @@
+{
+  "name": "gorger",
+  "width_m": 1.849,
+  "depth_m": 9.985,
+  "height_m": 1.534,
+  "footprint_squares": [
+    1,
+    5
+  ],
+  "triangles": 29892
+}

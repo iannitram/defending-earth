@@ -185,6 +185,12 @@ pub struct Battle {
     pub gfx_ready: bool,
     /// Debug camera preset (`--view`).
     pub dbg_view: u8,
+    /// Drawing only: frames drawn since it got dark (0 while it is light).
+    /// The flashlights switch on as this passes each soldier's own wait.
+    pub lamp_dark: u32,
+    /// Drawing only: frames in a row that were not dark (so one flash of
+    /// lightning does not switch the flashlights off).
+    pub lamp_bright: u32,
     /// Friendly-fire hits and stray kills this battle (R11). Handed to `Game.last_incidents` at the end.
     pub incidents: Vec<Incident>,
 }
@@ -945,7 +951,7 @@ impl Battle {
             inventory_open: false, inventory_selected_slot: 0, inventory_clicked: false,
             view_level: 2, psi_open: false, psi_target: None, probed_alien: None,
             lvl_up_clicked: false, lvl_down_clicked: false, psi_clicked: false,
-            uw_audio_timer: 0.0, gfx_ready: false, dbg_view: g.dbg_view,
+            uw_audio_timer: 0.0, gfx_ready: false, dbg_view: g.dbg_view, lamp_dark: 0, lamp_bright: 0,
             incidents: Vec::new(),
         };
         // soldiers
@@ -3105,7 +3111,7 @@ fn build_scene(b: &Battle, g: &Game, cam: &Camera3D) -> SceneMeshes {
                 Color { r: 0.0, g: 0.0, b: 0.0, a: 0.20 });
         }
     }
-    for u in &b.units {
+    for (ui, u) in b.units.iter().enumerate() {
         let tx = u.x.round() as i32; let ty = u.y.round() as i32;
         let t = tile_at(b, tx, ty);
         if t.h > b.view_level { continue; }
@@ -3122,8 +3128,9 @@ fn build_scene(b: &Battle, g: &Game, cam: &Camera3D) -> SceneMeshes {
         }
         mb.mat = gfx::mat::BUILT;
         if u.side == Side::Alien { mb.mat = gfx::mat::SKIN; draw_alien(&mut mb, b, g, u, base, sun, ambient); }
-        else { draw_soldier(&mut mb, b, g, u, base, sun, ambient, cam_pos, fog); }
+        else { draw_soldier(&mut mb, b, g, u, base, sun, ambient, cam_pos, fog, flashlight_on(b, g.dbg_lights, ui)); }
     }
+    draw_flare_solids(&mut mb, b, g, cam);
     draw_weather(&mut mb, b, cam);
     mb.finish()
 }
@@ -3562,7 +3569,7 @@ fn skin_color(i: u8) -> Color {
     }
 }
 
-fn draw_soldier(mb: &mut MB, _b: &Battle, g: &Game, u: &Unit, base: Vec3, sun: Vec3, ambient: f32, cam_pos: Vec3, fog: Color) {
+fn draw_soldier(mb: &mut MB, _b: &Battle, g: &Game, u: &Unit, base: Vec3, sun: Vec3, ambient: f32, cam_pos: Vec3, fog: Color, lamp_on: bool) {
     let armored = u.armor > 0;
     let arm_def = &ARMORS[u.armor as usize % ARMORS.len()];
     let uniform = if armored {
@@ -3729,8 +3736,23 @@ fn draw_soldier(mb: &mut MB, _b: &Battle, g: &Game, u: &Unit, base: Vec3, sun: V
         }
     }
 
-    // 7. TACTICAL FLASHLIGHT ILLUMINATION (Night or Deep Sea missions)
-    if ambient < 0.38 {
+    // 7. FLASHLIGHT. The light itself is a `gfx::Lamp` (see `flashlights`);
+    // here only the lamp's face is drawn: a tiny bright point seen from the
+    // front, with a dark back so it does not show from behind.
+    if lamp_on {
+        let f = vec3(yaw.sin(), 0.0, yaw.cos());
+        let r = vec3(yaw.cos(), 0.0, -yaw.sin()) * 0.03;
+        let up = vec3(0.0, 0.03, 0.0);
+        let c = base + f * FLASH_FWD + vec3(0.0, FLASH_UP, 0.0);
+        mb.mat = gfx::mat::EMISSIVE;
+        mb.emit(&[c - r - up, c + r - up, c + r + up, c - r + up], f, Color::new(FLASH_COLOUR.x, FLASH_COLOUR.y, FLASH_COLOUR.z, 1.0), &[1.0], 1.0);
+        mb.mat = gfx::mat::METAL;
+        let k = c - f * 0.006;
+        mb.emit(&[k - r - up, k + r - up, k + r + up, k - r + up], -f, Color::new(0.10, 0.10, 0.11, 1.0), &[1.0], 1.0);
+    }
+    // The old stand-in (a glowing square on the ground) is kept only for
+    // `--lights off`, so that mode draws exactly what the game drew before.
+    if g.dbg_lights == 2 && ambient < 0.38 {
         let f_dir = vec3(yaw.sin(), 0.0, yaw.cos());
         let light_spot = base + f_dir * 1.8 + vec3(0.0, 0.02, 0.0);
         let beam_c = Color::new(0.85, 0.92, 1.0, (0.38 - ambient) * 0.7);
@@ -4084,6 +4106,466 @@ fn ground_map(b: &Battle) -> Vec<u8> {
     m
 }
 
+// ------------------------------------------------------------ flashlights
+// Drawing only. Nothing here is read by a rule.
+
+/// The lamp sits this far above the soldier's feet and in front (metres).
+const FLASH_UP: f32 = 1.2;
+const FLASH_FWD: f32 = 0.3;
+/// The beam points where the soldier faces, tilted down by this much.
+const FLASH_TILT_DEG: f32 = 4.0;
+/// Full brightness inside the first angle from the centre line, nothing
+/// outside the second (degrees).
+const FLASH_INNER_DEG: f32 = 9.0;
+const FLASH_OUTER_DEG: f32 = 20.0;
+const FLASH_REACH: f32 = 32.0;
+/// A slightly cool white.
+const FLASH_COLOUR: Vec3 = Vec3::new(0.92, 0.96, 1.0);
+/// The lamp's strength is worked out from this: how bright white, flat
+/// ground is in the beam this many metres ahead of the soldier.
+const FLASH_POOL: f32 = 0.07;
+const FLASH_POOL_AT: f32 = 10.0;
+/// The light starts this far in front of the lamp, so it does not burn out
+/// the soldier's own weapon. Nothing nearer casts a shadow in it either.
+const FLASH_START: f32 = 1.0;
+/// The flashlights come on when the sun is this far below the horizon
+/// (degrees), or when the battlefield is as dark as a clear sky is then.
+const FLASH_SUN_DEG: f32 = -2.0;
+/// Share of the weather's haze that shows up as a beam in the air.
+const BEAM_SCATTER: f32 = 0.3;
+
+/// How thick the weather makes the air, per metre (the same numbers
+/// `scene_light` uses for the haze the weather adds). 0 in clear air.
+fn air_thickness(b: &Battle) -> f32 {
+    if b.underwater { return 0.0; }
+    let heavy = weather_heavy(b);
+    match b.weather {
+        1 => if heavy { 0.0030 } else { 0.0016 },
+        2 | 3 => if heavy { 0.0040 } else { 0.0020 },
+        _ => 0.0,
+    }
+}
+
+/// Smoke and ground height per tile, for beams (`gfx::Gfx::set_air`).
+fn air_map(b: &Battle) -> Vec<u8> {
+    let mut m = vec![0u8; (TW * TH * 4) as usize];
+    for y in 0..TH { for x in 0..TW {
+        let t = &b.tiles[tile_idx(x, y)];
+        let o = ((y * TW + x) * 4) as usize;
+        m[o] = t.smoke.min(15) * 17;
+        m[o + 1] = (t.h as f32 * 0.62 / 8.0 * 255.0).clamp(0.0, 255.0) as u8;
+        m[o + 3] = 255;
+    }}
+    m
+}
+
+/// Is it dark enough on this battlefield for flashlights? True when the
+/// sun is more than 2 degrees below the horizon, or when weather has made
+/// the light as dim as a clear sky is at that point.
+fn is_dark(b: &Battle, g: &Game, light: &gfx::Light) -> bool {
+    if b.underwater { return false; }
+    let (year, day) = g.dbg_clock.map(|c| (c.year, c.day)).unwrap_or((g.date.year, g.date.day as i32));
+    let m = sky::Moment::new(year, b.mission.month as i32 + 1, day.clamp(1, 28), b.mission.minute_of_day as f32);
+    if m.sun_at(b.mission.lat, b.mission.lon).elevation.to_degrees() < FLASH_SUN_DEG { return true; }
+    let morning = m.solar_minute(b.mission.lon) < 720.0;
+    light.level() <= gfx::clear_level_at(FLASH_SUN_DEG, morning, light.ground)
+}
+
+/// Is this unit's flashlight on this frame? `mode` is `--lights`: 0 auto,
+/// 1 on, 2 off. In auto each soldier waits 3 to 9 frames after dark, a
+/// wait fixed by the soldier's number, so they do not all switch on at once.
+fn flashlight_on(b: &Battle, mode: u8, i: usize) -> bool {
+    let u = &b.units[i];
+    if u.side != Side::Player || !u.alive { return false; }
+    match mode {
+        1 => true,
+        2 => false,
+        _ => b.lamp_dark >= 3 + (i as u32 * 3) % 7,
+    }
+}
+
+/// This frame's flashlights: one for each living soldier of ours whose
+/// lamp is on and who is drawn (not above the viewed level).
+fn flashlights(b: &Battle, mode: u8) -> Vec<gfx::Lamp> {
+    let mut out = Vec::new();
+    if mode == 2 { return out; }
+    let tilt = FLASH_TILT_DEG.to_radians();
+    let mut lamp = gfx::Lamp::cone(Vec3::ZERO, Vec3::Z, FLASH_COLOUR, 1.0, FLASH_REACH, FLASH_INNER_DEG.to_radians(), FLASH_OUTER_DEG.to_radians());
+    lamp.start = FLASH_START;
+    // strength: what makes white, flat ground FLASH_POOL bright at FLASH_POOL_AT
+    let ahead = FLASH_POOL_AT - FLASH_FWD;
+    let d = (ahead * ahead + FLASH_UP * FLASH_UP).sqrt();
+    let off = ((FLASH_UP / ahead).atan() - tilt).abs();
+    let share = lamp.falloff(d, off) * (FLASH_UP / d);
+    if share <= 0.0 { return out; }
+    lamp.strength = FLASH_POOL / share;
+    for (i, u) in b.units.iter().enumerate() {
+        if !flashlight_on(b, mode, i) { continue; }
+        let t = tile_at(b, u.x.round() as i32, u.y.round() as i32);
+        if t.h > b.view_level { continue; }
+        let f = vec3(u.facing.sin(), 0.0, u.facing.cos());
+        lamp.pos = world_pos(u.x, u.y, t.h) + f * FLASH_FWD + vec3(0.0, FLASH_UP, 0.0);
+        lamp.dir = (f * tilt.cos() - Vec3::Y * tilt.sin()).normalize();
+        out.push(lamp);
+    }
+    out
+}
+
+// ----------------------------------------------------------------- flares
+// Drawing only. Nothing here is read by a rule. Flares as things a soldier
+// carries and throws are not built yet: for now the only flares are the
+// ones the debug flag `--fx` asks for (`hand_flares`, `sky_flare`).
+
+/// `--fx` bits.
+const FX_FLARE: u8 = 1;
+const FX_SKYFLARE: u8 = 2;
+
+// The hand flare.
+/// Its light sits this far above the ground it lies on (metres).
+const FLARE_LIGHT_UP: f32 = 0.8;
+/// A hard red.
+const FLARE_COLOUR: Vec3 = Vec3::new(1.0, 0.13, 0.09);
+/// The light fades to nothing this far out (metres).
+const FLARE_REACH: f32 = 14.0;
+/// The strength is worked out from this: how bright white, flat ground is
+/// this many metres from the flare (8 on the brief's scale, divided by 35).
+const FLARE_GROUND: f32 = 0.5;
+const FLARE_GROUND_AT: f32 = 2.0;
+/// Fast flicker: this share of the light comes and goes, this many times a second.
+const FLARE_FLICKER: f32 = 0.15;
+const FLARE_FLICKER_HZ: f32 = 11.0;
+/// Slow swell on top: this share, about this many times a second.
+const FLARE_SWELL: f32 = 0.05;
+const FLARE_SWELL_HZ: f32 = 2.0;
+/// The white-hot spot is this far across (metres). It is drawn at 40 on
+/// the brightness scale (the `EMISSIVE` material's fixed level).
+const FLARE_CORE: f32 = 0.06;
+/// Sparks: how many places there are for one, how long one lives (seconds),
+/// how high the highest fly (metres), how big one is drawn (metres).
+const FLARE_SPARKS: u32 = 10;
+const FLARE_SPARK_LIFE: f32 = 0.33;
+const FLARE_SPARK_UP: f32 = 0.3;
+const FLARE_SPARK_SIZE: f32 = 0.025;
+/// Smoke column: gone by this height (metres), rising this fast (metres a
+/// second), this many soft patches, this thick at the foot and at the top
+/// (metres across, halved), this opaque at its thickest, and blown this far
+/// sideways by the top (metres).
+const FLARE_SMOKE_TOP: f32 = 4.0;
+const FLARE_SMOKE_RISE: f32 = 0.9;
+const FLARE_SMOKE_PUFFS: u32 = 18;
+const FLARE_SMOKE_R0: f32 = 0.04;
+const FLARE_SMOKE_R1: f32 = 0.34;
+const FLARE_SMOKE_ALPHA: f32 = 0.20;
+const FLARE_SMOKE_LEAN: f32 = 1.3;
+/// The scorched spot under it is this far across (metres, halved).
+const FLARE_SCORCH_R: f32 = 0.22;
+/// The debug hand flare lies this many squares from the middle of the map,
+/// toward where the camera stands when a battle starts (its starting turn).
+const FLARE_DEBUG_SQUARES: f32 = 4.0;
+const FLARE_DEBUG_YAW: f32 = 0.72;
+
+// The sky flare.
+/// It starts this high over the map and sinks this fast (metres, metres a second).
+const SKY_START_H: f32 = 70.0;
+const SKY_SINK: f32 = 1.2;
+/// It never comes lower than this above the ground (metres). When it burns
+/// out is a rule, and not built yet.
+const SKY_FLOOR: f32 = 2.0;
+/// It swings this far to each side (metres), once every this many seconds.
+const SKY_SWING: f32 = 2.0;
+const SKY_SWING_SECS: f32 = 5.0;
+/// The wind carries it this fast (metres a second).
+const SKY_DRIFT: f32 = 0.4;
+/// A warm white with a little red.
+const SKY_COLOUR: Vec3 = Vec3::new(1.0, 0.86, 0.78);
+/// Open ground under it is this share as bright as under an overcast day,
+/// when the flare is this high (metres).
+const SKY_SHARE: f32 = 1.0 / 40.0;
+const SKY_SHARE_AT: f32 = 45.0;
+/// Stops the camera holds back while a sky flare lights the night, so it still reads as night.
+const SKY_NIGHT_STOPS: f32 = -1.5;
+/// Flicker: this share of the light, changing between these two rates (times a second).
+const SKY_FLICKER: f32 = 0.08;
+const SKY_FLICKER_HZ: (f32, f32) = (6.0, 9.0);
+/// The white-hot point is drawn this far across (metres), at 40 on the scale.
+const SKY_CORE: f32 = 0.3;
+/// The parachute: this far across, hanging this far above the flare (metres).
+const SKY_CHUTE: f32 = 1.0;
+const SKY_CHUTE_UP: f32 = 1.6;
+/// Its smoke trail: this long (metres), this many soft patches, this opaque at the flare.
+const SKY_SMOKE_LEN: f32 = 7.0;
+const SKY_SMOKE_PUFFS: u32 = 12;
+const SKY_SMOKE_ALPHA: f32 = 0.22;
+/// The debug sky flare is at this height when the battle starts (metres).
+const SKY_DEBUG_H: f32 = 45.0;
+
+/// Sparks and lit smoke are drawn against this brightness: a vertex colour
+/// of full white comes out this bright (white-hot).
+const FX_LEVEL: f32 = 40.0;
+/// Share of the light that falls on smoke which it throws back.
+const FX_SMOKE_WHITE: f32 = 0.6;
+
+/// A smooth number between 0 and 1 that takes a new random value `hz`
+/// times a second. Never a regular pulse.
+fn flicker_noise(t: f32, hz: f32, seed: u32) -> f32 {
+    let x = t.max(0.0) * hz;
+    let i = x.floor();
+    let f = x - i;
+    let u = f * f * (3.0 - 2.0 * f);
+    let a = hashf(i as u32, seed);
+    a + (hashf(i as u32 + 1, seed) - a) * u
+}
+
+/// A hand flare burning on the ground: where it lies, and a number of its own.
+struct HandFlare { pos: Vec3, seed: u32 }
+
+/// A sky flare: where it hangs now, the point its parachute is at, and how
+/// long it has burned (seconds).
+struct SkyFlare { pos: Vec3, chute: Vec3, age: f32 }
+
+/// The hand flares burning this frame. Only the debug one for now.
+fn hand_flares(b: &Battle, g: &Game) -> Vec<HandFlare> {
+    let mut out = Vec::new();
+    if b.underwater || g.dbg_fx & FX_FLARE == 0 { return out; }
+    let (cx, cy) = (TW / 2, TH / 2);
+    let tx = cx + (FLARE_DEBUG_YAW.sin() * FLARE_DEBUG_SQUARES).round() as i32;
+    let ty = cy + (FLARE_DEBUG_YAW.cos() * FLARE_DEBUG_SQUARES).round() as i32;
+    // the nearest open square to that one, so it never lies inside a rock or a wall
+    let mut best: Option<(i32, i32, i32)> = None;
+    for y in 0..TH { for x in 0..TW {
+        if b.tiles[tile_idx(x, y)].obstacle != 0 { continue; }
+        let d = (x - tx) * (x - tx) + (y - ty) * (y - ty);
+        if best.map_or(true, |(bd, _, _)| d < bd) { best = Some((d, x, y)); }
+    }}
+    if let Some((_, x, y)) = best {
+        out.push(HandFlare { pos: world_pos(x as f32, y as f32, b.tiles[tile_idx(x, y)].h), seed: 7 });
+    }
+    out
+}
+
+/// How bright a hand flare is this instant, around 1: a fast flicker on a slow swell.
+fn hand_flare_flicker(b: &Battle, f: &HandFlare) -> f32 {
+    let fast = 1.0 - FLARE_FLICKER + FLARE_FLICKER * flicker_noise(b.time, FLARE_FLICKER_HZ, f.seed);
+    let slow = 1.0 + FLARE_SWELL * (flicker_noise(b.time, FLARE_SWELL_HZ, f.seed + 100) * 2.0 - 1.0);
+    fast * slow
+}
+
+/// The strength a hand flare's lamp needs so that white, flat ground
+/// `FLARE_GROUND_AT` metres away is `FLARE_GROUND` bright.
+fn hand_flare_strength() -> f32 {
+    let lamp = gfx::Lamp::point(Vec3::ZERO, FLARE_COLOUR, 1.0, FLARE_REACH);
+    let d = (FLARE_GROUND_AT * FLARE_GROUND_AT + FLARE_LIGHT_UP * FLARE_LIGHT_UP).sqrt();
+    let share = lamp.falloff(d, 0.0) * (FLARE_LIGHT_UP / d);
+    if share > 0.0 { FLARE_GROUND / share } else { 0.0 }
+}
+
+/// The lamps of this frame's hand flares.
+fn hand_flare_lamps(b: &Battle, flares: &[HandFlare]) -> Vec<gfx::Lamp> {
+    let s = hand_flare_strength();
+    flares.iter().map(|f| {
+        let mut lamp = gfx::Lamp::point(f.pos + vec3(0.0, FLARE_LIGHT_UP, 0.0), FLARE_COLOUR, s * hand_flare_flicker(b, f), FLARE_REACH);
+        // glows in rain, snow, dust and smoke
+        lamp.beam = true;
+        lamp
+    }).collect()
+}
+
+/// The sky flare hanging over this battlefield, if there is one. Only the
+/// debug one for now: over the middle of the map and `SKY_DEBUG_H` up when
+/// the battle starts, then sinking, swinging and drifting like any other.
+fn sky_flare(b: &Battle, g: &Game) -> Option<SkyFlare> {
+    if b.underwater || g.dbg_fx & FX_SKYFLARE == 0 { return None; }
+    let age0 = (SKY_START_H - SKY_DEBUG_H) / SKY_SINK;
+    let age = age0 + b.time;
+    let (cx, cy) = (TW / 2, TH / 2);
+    let mid = world_pos(cx as f32, cy as f32, b.tiles[tile_idx(cx, cy)].h);
+    let wind = wind_dir(b);
+    let side = vec3(-wind.z, 0.0, wind.x);
+    let ph = age / SKY_SWING_SECS * std::f32::consts::TAU;
+    // a pendulum across the wind, with a smaller, slower sway along it
+    let swing = side * (ph.sin() * SKY_SWING) + wind * ((ph * 0.37 + 1.0).sin() * SKY_SWING * 0.25);
+    let h = (SKY_START_H - SKY_SINK * age).max(SKY_FLOOR);
+    let hang = mid + wind * (SKY_DRIFT * (age - age0)) + vec3(0.0, h, 0.0);
+    Some(SkyFlare { pos: hang + swing, chute: hang + swing * 0.35 + vec3(0.0, SKY_CHUTE_UP, 0.0), age })
+}
+
+/// How bright the sky flare is this instant, around 1.
+fn sky_flare_flicker(f: &SkyFlare) -> f32 {
+    let n = 0.5 * (flicker_noise(f.age, SKY_FLICKER_HZ.0, 31) + flicker_noise(f.age, SKY_FLICKER_HZ.1, 32));
+    1.0 - SKY_FLICKER + SKY_FLICKER * n
+}
+
+/// How bright white, level, open ground is under an overcast day sky (the
+/// sun 45 degrees up behind the cloud), as the scene shader lights it.
+fn overcast_ground() -> f32 {
+    static LEVEL: std::sync::OnceLock<f32> = std::sync::OnceLock::new();
+    *LEVEL.get_or_init(|| {
+        let look = gfx::state_look(sky::SkyState::Overcast, 0.0);
+        let l = gfx::Light::new(vec3(0.5, 0.7071, 0.5), look, Vec3::splat(0.15));
+        let c = l.look.sun * (l.sun_dir.y / std::f32::consts::PI) + l.sh[0] * 0.282095 + l.sh[1] * 0.488603;
+        c.x * 0.2126 + c.y * 0.7152 + c.z * 0.0722
+    })
+}
+
+/// The sky flare as the lighting pipeline wants it. `sun_down` says whether
+/// it may take the sun's shadow picture.
+fn sky_flare_lamp(f: &SkyFlare, sun_down: bool) -> gfx::SkyLamp {
+    let strength = overcast_ground() * SKY_SHARE * SKY_SHARE_AT * SKY_SHARE_AT * sky_flare_flicker(f);
+    gfx::SkyLamp { pos: f.pos, colour: SKY_COLOUR, strength, shadows: sun_down }
+}
+
+/// Is the sun below the horizon on this battlefield?
+fn sun_is_down(b: &Battle, g: &Game) -> bool {
+    if b.underwater { return false; }
+    let (year, day) = g.dbg_clock.map(|c| (c.year, c.day)).unwrap_or((g.date.year, g.date.day as i32));
+    let m = sky::Moment::new(year, b.mission.month as i32 + 1, day.clamp(1, 28), b.mission.minute_of_day as f32);
+    m.sun_at(b.mission.lat, b.mission.lon).elevation < 0.0
+}
+
+/// The solid parts of the flares: the hand flare's body, white-hot spot and
+/// scorched ground; the sky flare's white-hot point and parachute.
+fn draw_flare_solids(mb: &mut MB, b: &Battle, g: &Game, cam: &Camera3D) {
+    let fwd = (cam.target - cam.position).normalize();
+    let right = fwd.cross(Vec3::Y).normalize();
+    let up = right.cross(fwd);
+    let old = mb.mat;
+    for f in hand_flares(b, g) {
+        let k = hand_flare_flicker(b, &f);
+        // scorched ground: an uneven dark patch, lit like any other surface
+        mb.mat = gfx::mat::BUILT;
+        let c = f.pos + vec3(0.0, 0.012, 0.0);
+        let rim = |i: u32| {
+            let a = i as f32 / 10.0 * std::f32::consts::TAU;
+            c + vec3(a.cos(), 0.0, a.sin()) * (FLARE_SCORCH_R * (0.7 + 0.5 * hashf(i % 10, f.seed + 5)))
+        };
+        for i in 0..10 { mb.emit(&[c, rim(i + 1), rim(i)], Vec3::Y, Color::new(0.045, 0.04, 0.035, 1.0), &[1.0], 1.0); }
+        // the spent tube, lying on the ground
+        let yaw = hashf(f.seed, 9) * std::f32::consts::TAU;
+        let along = vec3(yaw.sin(), 0.0, yaw.cos());
+        mb.bx(f.pos + vec3(0.0, 0.03, 0.0) - along * 0.09, vec3(0.035, 0.035, 0.18), yaw, Color::new(0.30, 0.07, 0.06, 1.0), 1.0);
+        // the white-hot spot at its burning end: a little brighter and dimmer with the flicker
+        mb.mat = gfx::mat::EMISSIVE;
+        let w = (0.55 + 0.45 * k).min(1.0);
+        mb.bx(f.pos + vec3(0.0, 0.035 + FLARE_CORE * 0.5, 0.0) + along * 0.02, Vec3::splat(FLARE_CORE), yaw, Color::new(w, w * 0.93, w * 0.88, 1.0), 1.0);
+    }
+    if let Some(f) = sky_flare(b, g) {
+        let k = sky_flare_flicker(&f);
+        mb.mat = gfx::mat::EMISSIVE;
+        let r = SKY_CORE * 0.5;
+        mb.emit(&[f.pos - right * r - up * r, f.pos + right * r - up * r, f.pos + right * r + up * r, f.pos - right * r + up * r], -fwd, Color::new(k, k * 0.97, k * 0.93, 1.0), &[1.0], 1.0);
+        // the parachute: a small dark dome
+        mb.mat = gfx::mat::BUILT;
+        let top = f.chute + vec3(0.0, SKY_CHUTE * 0.3, 0.0);
+        let rim = |i: u32| {
+            let a = i as f32 / 8.0 * std::f32::consts::TAU;
+            f.chute + vec3(a.cos(), 0.0, a.sin()) * (SKY_CHUTE * 0.5)
+        };
+        for i in 0..8 {
+            let (p, q) = (rim(i), rim(i + 1));
+            let n = ((p + q) * 0.5 - f.chute + vec3(0.0, SKY_CHUTE * 0.8, 0.0)).normalize();
+            mb.emit(&[top, q, p], n, Color::new(0.10, 0.11, 0.10, 1.0), &[1.0], 1.0);
+        }
+    }
+    mb.mat = old;
+}
+
+/// The flares' sparks and smoke: see-through things that take their light
+/// from the flares, drawn against `FX_LEVEL`. Empty when no flare burns.
+fn flare_fx(b: &Battle, g: &Game, cam: &Camera3D, light: &gfx::Light) -> Vec<Mesh> {
+    let hands = hand_flares(b, g);
+    let sky_f = sky_flare(b, g);
+    let mut buf = Buf::default();
+    if hands.is_empty() && sky_f.is_none() { return buf.finish(); }
+    let fwd = (cam.target - cam.position).normalize();
+    let right = fwd.cross(Vec3::Y).normalize();
+    let up = right.cross(fwd);
+    let wind = wind_dir(b);
+    let side = vec3(-wind.z, 0.0, wind.x);
+    // light falling on a puff of smoke at `p`: the sky and sun, plus each flare
+    let amb = light.sh[0] * 0.282095 + light.sh[1] * 0.488603;
+    let day = light.look.sun * (light.sun_dir.y.max(0.0) / std::f32::consts::PI) + amb;
+    let hand_s = hand_flare_strength();
+    let hand_k: Vec<f32> = hands.iter().map(|f| hand_flare_flicker(b, f)).collect();
+    let sky_l = sky_f.as_ref().map(|f| sky_flare_lamp(f, false));
+    let lit_at = |p: Vec3| -> Vec3 {
+        let mut c = day;
+        for (f, k) in hands.iter().zip(&hand_k) {
+            let d2 = (f.pos + vec3(0.0, FLARE_LIGHT_UP, 0.0)).distance_squared(p);
+            let x = (d2.sqrt() / FLARE_REACH).min(1.0);
+            c += FLARE_COLOUR * (hand_s * k * (1.0 - x * x * x * x).powi(2) / d2.max(0.04));
+        }
+        if let Some(s) = &sky_l { c += s.colour * (s.strength / s.pos.distance_squared(p).max(1.0)); }
+        c
+    };
+    // vertex colours are stored after gamma; full white is FX_LEVEL
+    let enc = |c: Vec3| -> [u8; 3] {
+        let e = |v: f32| ((v / FX_LEVEL).clamp(0.0, 1.0).powf(1.0 / 2.2) * 255.0) as u8;
+        [e(c.x), e(c.y), e(c.z)]
+    };
+    let vert = |p: Vec3, c: [u8; 3], a: f32| Vertex { position: p, uv: Vec2::ZERO, color: [c[0], c[1], c[2], (a.clamp(0.0, 1.0) * 255.0) as u8], normal: vec4(0.0, 1.0, 0.0, 0.0) };
+    // one soft patch of smoke: `a` opaque at the centre, nothing at the rim
+    let puff = |buf: &mut Buf, p: Vec3, ax: Vec3, ay: Vec3, a: f32| {
+        let c = enc(lit_at(p) * FX_SMOKE_WHITE);
+        let base = buf.room(9);
+        buf.v.push(vert(p, c, a));
+        for k in 0..8 {
+            let t = k as f32 * std::f32::consts::FRAC_PI_4;
+            buf.v.push(vert(p + ax * t.cos() + ay * t.sin(), c, 0.0));
+        }
+        for k in 0..8u16 { buf.i.extend_from_slice(&[base, base + 1 + k, base + 1 + (k + 1) % 8]); }
+    };
+    for f in &hands {
+        // smoke: patches that rise, widen, thin out and lean with the wind
+        for i in 0..FLARE_SMOKE_PUFFS {
+            let x = i as f32 / FLARE_SMOKE_PUFFS as f32 + b.time * FLARE_SMOKE_RISE / FLARE_SMOKE_TOP;
+            let (round, u) = (x.floor() as u32, x.fract());
+            let y = u * FLARE_SMOKE_TOP;
+            let r = FLARE_SMOKE_R0 + (FLARE_SMOKE_R1 - FLARE_SMOKE_R0) * u;
+            // each patch wanders a little off the line, more the higher it is
+            let wob = side * ((hashf(i + round * 31, f.seed + 1) - 0.5) * 0.5 * u) + wind * ((hashf(i + round * 31, f.seed + 2) - 0.5) * 0.4 * u);
+            let p = f.pos + vec3(0.0, 0.08 + y, 0.0) + wind * (FLARE_SMOKE_LEAN * u * u) + wob;
+            let a = FLARE_SMOKE_ALPHA * (1.0 - u).powf(1.5) * (u / 0.04).min(1.0);
+            puff(&mut buf, p, right * r, up * (r + 0.2), a);
+        }
+        // sparks: each place throws one, waits a moment, throws the next
+        for i in 0..FLARE_SPARKS {
+            let period = FLARE_SPARK_LIFE * (1.0 + 0.5 * hashf(i, f.seed + 3));
+            let x = b.time / period + hashf(i, f.seed + 4);
+            let (round, age) = (x.floor() as u32, x.fract() * period);
+            if age > FLARE_SPARK_LIFE { continue; }
+            let key = i + round * 17;
+            let ang = hashf(key, f.seed + 6) * std::f32::consts::TAU;
+            // thrown up fast enough to top out at the wanted height, pulled back by gravity
+            let top = FLARE_SPARK_UP * (0.35 + 0.65 * hashf(key, f.seed + 7));
+            let vy = (2.0 * 9.8 * top).sqrt();
+            let vh = 0.25 + 0.9 * hashf(key, f.seed + 8);
+            let p = f.pos + vec3(ang.cos() * vh * age, 0.07 + (vy * age - 4.9 * age * age).max(0.0), ang.sin() * vh * age);
+            // white at first, red as it cools
+            let cool = age / FLARE_SPARK_LIFE;
+            let c = enc(vec3(1.0, 1.0 - 0.6 * cool, 1.0 - 0.8 * cool) * (FX_LEVEL * (1.0 - 0.7 * cool)));
+            let s = FLARE_SPARK_SIZE * 0.5;
+            let base = buf.room(4);
+            for (dx, dy) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
+                buf.v.push(vert(p + right * (s * dx) + up * (s * dy), c, 1.0));
+            }
+            buf.i.extend_from_slice(&[base, base + 1, base + 2, base, base + 2, base + 3]);
+        }
+    }
+    if let Some(f) = &sky_f {
+        // the trail: smoke left behind above the sinking flare, carried off by the wind
+        for i in 0..SKY_SMOKE_PUFFS {
+            let x = i as f32 / SKY_SMOKE_PUFFS as f32 + f.age * SKY_SINK / SKY_SMOKE_LEN;
+            let (round, u) = (x.floor() as u32, x.fract());
+            let r = 0.12 + 0.75 * u;
+            let wob = side * ((hashf(i + round * 29, 41) - 0.5) * 0.9 * u);
+            let p = f.pos + vec3(0.0, 0.25 + u * SKY_SMOKE_LEN, 0.0) + wind * (1.6 * u * u) + wob;
+            let a = SKY_SMOKE_ALPHA * (1.0 - u).powf(1.3) * (u / 0.05).min(1.0);
+            puff(&mut buf, p, right * r, up * (r + 0.35), a);
+        }
+    }
+    buf.finish()
+}
+
 /// The light on this battlefield: from the mission's date, time and place
 /// on land; a fixed hand-made look under water.
 fn scene_light(b: &Battle, g: &Game) -> gfx::Light {
@@ -4143,6 +4625,23 @@ pub fn draw(g: &mut Game) {
     let w = screen_width(); let h = screen_height();
     let cam = make_camera(&b);
     let light = scene_light(&b, g);
+    // flashlights: count the frames since dark (drawing only)
+    if is_dark(&b, g, &light) {
+        b.lamp_dark = b.lamp_dark.saturating_add(1);
+        b.lamp_bright = 0;
+    } else {
+        b.lamp_bright = b.lamp_bright.saturating_add(1);
+        if b.lamp_bright > 30 { b.lamp_dark = 0; }
+    }
+    let mut lamps = flashlights(&b, g.dbg_lights);
+    // flares (drawing only): hand flares join the lamps, the one nearest
+    // the point the camera looks at casts shadows all round
+    let hands = hand_flares(&b, g);
+    let first_flare = lamps.len();
+    lamps.extend(hand_flare_lamps(&b, &hands));
+    let round = (first_flare..lamps.len()).min_by(|&i, &j| lamps[i].pos.distance_squared(cam.target).total_cmp(&lamps[j].pos.distance_squared(cam.target)));
+    let sky_lamp = sky_flare(&b, g).map(|f| sky_flare_lamp(&f, sun_is_down(&b, g)));
+    let fx = flare_fx(&b, g, &cam, &light);
     let sm = build_scene(&b, g, &cam);
     let mut gfx = g.gfx.take().unwrap_or_else(|| gfx::Gfx::new(w as u32, h as u32));
     if !b.gfx_ready {
@@ -4151,12 +4650,30 @@ pub fn draw(g: &mut Game) {
         b.gfx_ready = true;
     }
     let centre = vec3((TW as f32 * 0.5 - 0.5) * TILE, 0.6, (TH as f32 * 0.5 - 0.5) * TILE);
+    gfx.set_lamps_round(&lamps, cam.target, round);
+    gfx.set_sky_lamp(sky_lamp);
+    let smoke = !lamps.is_empty() && b.tiles.iter().any(|t| t.smoke > 0);
+    if lamps.is_empty() {
+        gfx.set_air(0.0, None);
+    } else {
+        let half = TILE * 0.5;
+        gfx.set_air(air_thickness(&b) * BEAM_SCATTER, Some((TW as u16, TH as u16, &air_map(&b), vec2(-half, -half), vec2(TW as f32 * TILE, TH as f32 * TILE))));
+    }
     gfx.shadow_begin(&light, centre, 34.0);
     for m in &sm.lit { draw_mesh(m); }
+    // the four nearest flashlights cast shadows of their own
+    gfx.lamp_shadows(|| for m in &sm.lit { draw_mesh(m); });
     gfx.scene_begin(&cam, &light);
     for m in &sm.lit { draw_mesh(m); }
     gfx.overlay_begin(&light, 0.0);
     for m in &sm.over { draw_mesh(m); }
+    // beams show only where rain, snow, dust or smoke is in the air
+    gfx.beams(&light, smoke);
+    // the flares' sparks and smoke, lit by the flares themselves
+    if !fx.is_empty() {
+        gfx.overlay_begin(&light, FX_LEVEL);
+        for m in &fx { draw_mesh(m); }
+    }
     // Lamps and fire are fixed-brightness things; the camera opens up at
     // night, so hold them to a few stops over the scene or they burn white.
     let amb = light.sh[0] * 0.282095 + light.sh[1] * 0.488603;
@@ -4168,7 +4685,7 @@ pub fn draw(g: &mut Game) {
     draw_selection_ring(&b);
     gfx.overlay_begin(&light, 20.0 * glow_k);
     draw_effects_3d(&b);
-    let lens = gfx::Lens { ev_bias: light.snow * 0.5, adapt_secs: if g.screenshot.is_some() { 0.0 } else { 1.5 }, vignette_stops: 0.25, ..Default::default() };
+    let lens = gfx::Lens { ev_bias: light.snow * 0.5 + if sky_lamp.map_or(false, |l| l.shadows) { SKY_NIGHT_STOPS } else { 0.0 }, adapt_secs: if g.screenshot.is_some() { 0.0 } else { 1.5 }, vignette_stops: 0.25, ..Default::default() };
     gfx.finish(get_frame_time(), &lens);
     g.gfx = Some(gfx);
     draw_effects(&b, &cam, &g.ui);
@@ -4970,7 +5487,7 @@ mod odds_tests {
             reload_clicked: false, kneel_clicked: false, grenade_clicked: false, smoke_clicked: false, medkit_clicked: false,
             inventory_open: false, inventory_selected_slot: 0, inventory_clicked: false, view_level: 2, psi_open: false,
             psi_target: None, probed_alien: None, lvl_up_clicked: false, lvl_down_clicked: false, psi_clicked: false,
-            uw_audio_timer: 0.0, gfx_ready: false, dbg_view: 0, incidents: Vec::new(),
+            uw_audio_timer: 0.0, gfx_ready: false, dbg_view: 0, lamp_dark: 0, lamp_bright: 0, incidents: Vec::new(),
         }
     }
 

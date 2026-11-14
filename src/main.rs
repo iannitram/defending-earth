@@ -460,6 +460,10 @@ pub struct Game {
     pub dbg_view: u8,
     /// Debug: seconds to run before `--screenshot` saves (`--t`).
     pub dbg_t: f32,
+    /// Debug: soldiers' flashlights, 0 auto (on in the dark), 1 always on, 2 always off (`--lights`).
+    pub dbg_lights: u8,
+    /// Debug: effects to show in a battle, one bit each (`--fx`): 1 a hand flare, 2 a sky flare.
+    pub dbg_fx: u8,
 }
 
 /// A seed from the system clock (nanoseconds since 1970).
@@ -506,7 +510,7 @@ impl Game {
             equip_scroll: 0,
             demo: false,
             last_kills: 0, last_lost: 0, last_shots: 0, last_hits: 0, last_mission: String::new(), last_reward: 0,
-            gfx: None, dbg_clock: None, dbg_weather: None, dbg_frametime: false, dbg_biome: None, dbg_site: None, dbg_seed: None, dbg_view: 0, dbg_t: 0.0,
+            gfx: None, dbg_clock: None, dbg_weather: None, dbg_frametime: false, dbg_biome: None, dbg_site: None, dbg_seed: None, dbg_view: 0, dbg_t: 0.0, dbg_lights: 0, dbg_fx: 0,
         };
         // Title and demo paths run without a new campaign, so seed from the clock here too.
         g.campaign_seed = clock_seed();
@@ -2347,6 +2351,17 @@ async fn main() {
             "--view" => { game.dbg_view = match val.as_str() { "wide" => 1, "tele" => 2, "low" => 3, _ => 0 }; }
             "--t" => { game.dbg_t = val.parse().unwrap_or(0.0); }
             "--frametime" => { game.dbg_frametime = true; }
+            "--lights" => { game.dbg_lights = match val.as_str() { "on" => 1, "off" => 2, _ => 0 }; }
+            // effects to show, separated by commas, e.g. --fx flare,skyflare
+            "--fx" => {
+                for name in val.split(',').map(|n| n.trim()).filter(|n| !n.is_empty()) {
+                    match name {
+                        "flare" => game.dbg_fx |= 1,
+                        "skyflare" => game.dbg_fx |= 2,
+                        _ => eprintln!("--fx: unknown effect '{}'", name),
+                    }
+                }
+            }
             _ => {}
         }
     }

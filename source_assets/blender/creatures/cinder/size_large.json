@@ -1,0 +1,11 @@
+{
+  "name": "cinder",
+  "width_m": 1.143,
+  "depth_m": 1.173,
+  "height_m": 1.049,
+  "footprint_squares": [
+    1,
+    1
+  ],
+  "triangles": 3748
+}

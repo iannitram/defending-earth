@@ -1090,6 +1090,148 @@ to the incident record when explosives are rebuilt (slice 5).
 distant enemy, are tales players tell. The luck ribbon (R12) is the owner's
 choice; nothing was added unasked.*
 
+### Tenth session (2026-11-13): the design fan-out
+
+Question rounds held before any design brief is written. Answers are the
+owner's. Nothing here is built yet.
+
+**Round 1: scope, depth and the anchor**
+- **What this design pass covers:** the scale sheet first, then the ten
+  land creatures, soldiers, ribbons and the dress uniform, and the graphics
+  phase 3 lights and fire.
+- **How far each thing goes:** a written design sheet, a Blender model
+  built by script at true size, and check pictures, including a size
+  picture beside a soldier. Rigs and motions wait for the animation system.
+- **A battlefield square is 2 m across.** This is the scale sheet's anchor
+  (it closes roadmap question 26). A soldier is 1.8 m tall. The code still
+  uses 1.65 m until the change is built.
+
+**Round 2: creatures**
+- **Reference pictures.** The owner put eight pictures in `reference/`
+  (Reed Stalkers, The Maul, The Tenders, The Kite, The Regent, the two
+  Gorger sheets of which one is really the taker, and the Lathe sheet).
+  They are idea references only, as before: our models are made from the
+  descriptions in this file, not copied from the pictures.
+- **The Lash is confirmed.** The many-legged marksman picture (file "Reed
+  Stalkers") is the Lash. This closes "Lash confirmation".
+- **The Bloat's look.** One thin-skinned gas bladder: a single stretched,
+  see-through amber-grey sac about 1.5 m across, veined in red, with the
+  dark frame showing as ribs through the skin and a few limp hanging
+  feelers. It looks ready to pop.
+- **The Maul's control spike.** A black, exact, square-sided stake driven
+  down into the top of the back, between the crystal clusters. It stands
+  about 1 m proud, with a broken ring segment as a collar and amber
+  lenses. It is seen from the high camera from every side.
+- **Cinders show no Registrar marks at all.** No ring segments, no lenses,
+  no frame. Pure living stone.
+- **Big units cover several squares.** A big creature takes up more than
+  one battlefield square in the rules, instead of standing on one square
+  with its body overhanging. Which creature covers how many is settled in
+  round 3. The rule change itself (movement, sight, cover) is not built
+  and needs its own plan.
+
+**Round 3: sizes, signs and what waits**
+- **Which squares each creature covers** (squares are 2 m):
+  - Maul: 2 by 2 squares. About 3.6 m wide and 3.5 m tall.
+  - Lathe: 2 by 2 squares, with its blade legs spread.
+  - Lash: 1 square wide by 2 long. A trunk about 3.5 m long.
+  - Gorger: 1 square while only its head is out of the ground. 1 by 5
+    squares when it lies fully on the surface or dead. About 10 m long.
+  - Regent: 1 square, but 3.6 m tall.
+  - Tender, Kite, Bloat, the taker and the Cinder: 1 square each.
+- **Buried Gorger signs are faint, and fair once you know.** A patch about
+  one square wide where the soil slowly heaves a few centimetres, with a
+  thin wisp of dust every few seconds. Easy to miss the first time, clear
+  to a player who is looking for it.
+- **Refugee harnesses wait.** They are designed after the Regent, Tender
+  and Lash bodies are judged and accepted, not in this pass.
+- **Sky photographs.** The owner is on a network that does not need the
+  Tailscale exit node, so the overcast, storm and night skies are in this
+  pass if the download site answers.
+
+**Round 4: soldiers**
+- **The head is built on MPFB2's free base and shapes.** Its body and face
+  shapes are CC0 and get a credit in `CREDITS.md`. Its add-on code is GPL
+  and is not shipped with the game.
+- **About 24 face sliders, in six groups of four:** head shape, brow and
+  eyes, nose, mouth and lips, jaw and chin, cheeks and ears. Plus age and
+  weight. The exact list goes into the head's design sheet for the owner
+  to check. (This closes the size of roadmap question 39; the list itself
+  is confirmed when the sheet is shown.)
+- **The six portrait stages: wear builds on the same face.** The face
+  shape never changes. Only skin, eyes, grime and light do.
+  1. New: clean, even light, eyes wide and off-centre.
+  2. Blooded: first grime, jaw set.
+  3. Seasoned: weathered skin, steady eyes.
+  4. Worn: dark under the eyes, hollower cheeks.
+  5. Hard: lines set, flat mouth, harder side light.
+  6. The stare: eyes fixed past the camera, colour drained.
+- **The starting soldier wears one plain multinational kit.** Muted
+  grey-green fatigues, plate carrier, helmet with a cover, pouches and a
+  pack. Our own design, no flag, no real pattern. One look for every
+  biome; snow and desert covers can come later. Uniforms by country stay
+  an idea.
+
+**Round 5: ribbons and the dress uniform**
+- **The eleven ribbon names:** RIFLE, SHOTGUN, KNIFE, EXPLOSIVES, MEDIC,
+  SCOUT, OVERWATCH, REACH, SURVIVOR, CREATURES and CHARMED. CHARMED is the
+  luck ribbon. (This closes roadmap questions 35, for names, and 60.)
+- **How a ribbon shows its five levels: same cloth, added metal.** Each
+  ribbon is a woven bar in its own two or three colours. Level 1 is bare
+  cloth. Levels 2 to 4 add one, two, then three small dull-metal studs.
+  Level 5 gets a thin metal frame round the whole bar.
+- **Three names are final:** RIBBON BOARD, CITATION and BOOK OF CITATIONS.
+- **The dress uniform.** A plain present-day service dress: dark
+  grey-green jacket, shirt and tie, no flag or real insignia, with the
+  ribbon board on the left chest. It is shown as a head-and-chest picture
+  on the soldier's file, on the pool page's service record, and for the
+  fallen on the memorial wall. The wall itself is not scheduled yet; only
+  its picture style is fixed.
+
+**Round 6: lights**
+- **Two flares.** A hand flare is thrown like a grenade and burns where it
+  lands for several turns: a hard red-white light, white-hot at the core,
+  with drifting smoke, lighting about six squares around it. A sky flare
+  is fired upward, hangs under a small parachute and lights most of the
+  map for a few turns. The sky flare is a second item and a new rule. Its
+  on-screen name, cost and exact numbers are to settle.
+- **The flashlight is on the weapon and comes on in the dark.** A light
+  under the barrel that points where the soldier faces. It comes on by
+  itself at night and indoors. The beam shows as a cone only in rain, fog,
+  smoke or dust. Whether a lit soldier is easier for the enemy to spot is
+  to settle.
+- **The Glow is yellow-green.** A sick yellow-green that nothing else on
+  the battlefield has. Amber stays the colour of Registrar hardware.
+  Orange stays fire, the Maul and Cinders.
+- **Light steadies the fear of the dark** (planned for the fear rules in
+  package 3, not built now). A soldier who fears the dark is steadied by
+  standing in light: a flare, a flashlight beam or a fire. Light from fire
+  does not help a soldier who also fears fire. The numbers are to settle.
+
+*Emergent stories: who carries the flares, and a flare burning out while a
+soldier who fears the dark is still out there, are tales players will tell.
+The owner chose this; nothing was added unasked.*
+
+**After the rounds: what was built, and what the owner said (2026-11-13)**
+
+- The lead judged every result by eye. The owner agreed with all of the
+  lead's verdicts. They are in
+  `source_assets/blender/creatures/VERDICTS.md`.
+- No lore was decided in the build. Where a brief was silent the run
+  stopped and the lead chose; those choices are build choices, listed in
+  `VERDICTS.md`, and the owner may overturn any of them.
+- The owner's reference pictures in `reference/` were made by the owner
+  with picture-generator prompts. The owner said they are safe to make
+  public (2026-11-13).
+- To settle, raised by the build and not yet answered: the sky flare's
+  name, cost and numbers; whether a lit soldier is easier to spot; rules
+  for creatures and forms larger than their squares; whether the Maul's
+  3.5 m includes its spike, and whether a dead Maul keeps the whole spike;
+  which creatures carry moss, grass or other growth; which props do
+  something when destroyed and whether wrecks stay as cover; whether some
+  soldiers spot the buried Gorger's sign better than others. The numbered
+  list is in `ROADMAP.md`, "Still to decide with the user", items 62 to 69.
+
 ## Sea campaign: deferred (2026-11-13)
 
 The user's decision: the second (sea) campaign is not designed further

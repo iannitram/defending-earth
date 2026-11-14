@@ -65,8 +65,15 @@ biome from the world map there, season from the latitude and the month),
 `--biome <n>` (forces the ground type; see the biome list under
 `tactical.rs`), `--seed <n>`, `--view wide|tele|low`, `--t <seconds before
 the screenshot>`, `--frametime` (readout on screen and `FRAMETIME avg`
-printed at exit). `--biome` and `--weather` do nothing under water, and
-`--site` there only moves the place.
+printed at exit), `--lights auto|on|off` (the soldiers' flashlights: `auto`
+switches them on in the dark and is the default, `on` forces them on at any
+hour, `off` forces them off and draws the battle as it was before
+flashlights existed), `--fx <list>` (effects to show in a battle, separated
+by commas: `flare` puts one burning hand flare on the ground four squares
+from the middle of the map, toward the camera's starting side; `skyflare`
+hangs one sky flare over the middle of the map, 45 m up and sinking; later
+jobs add more names). `--biome`, `--weather` and `--fx` do nothing under
+water, and `--site` there only moves the place.
 
 The lab has its own flags: `--view wide|tele|site|low|top`, `--clock`,
 `--lat`, `--lon`, `--cover` (cloud, 0–1), `--storm` (0–1), `--wet` (0–1),
@@ -92,9 +99,16 @@ Defending Earth/
   assets/               shipped files: earth_albedo/data/lights.png, fonts
                         (ui.ttf, ui_bold.ttf), selftest.json,
                         ground/*.png (5 packed Poly Haven grains), sky/looks.txt
-  source_assets/        originals and bake scripts: blender/ (sky/make_looks.py),
+  source_assets/        originals and bake scripts: blender/ (sky/make_looks.py,
+                        creatures/<name>/ first models: build.py, render.py,
+                        model.blend, sheet.md, rounds.md, size.json,
+                        renders/contact.png; VERDICTS.md), scale/ (the scale
+                        sheet: scale_sheet.json, scale_lib.py, size_chart.py),
                         polyhaven/ (make_ground.py), nasa_black_marble/
-  docs/                 the five documents above, this file, lore_refs/ (user's pictures)
+  docs/                 the five documents above, this file, HANDOFF.md (what
+                        the next session does), briefs/ (the design job briefs),
+                        lore_refs/ (user's pictures)
+  reference/            the owner's creature reference pictures
   checks/               self-test outputs
   shots/                screenshots (phase 1 and the last round of phase 2)
   MECHANICS.md, mechanics.json   rules reference
@@ -246,9 +260,13 @@ Frame order, exactly as `examples/lightlab.rs` does it:
 let mut light = gfx::light_at(moment, lat, lon, cover, storm, ground_albedo);
 light.wet = wet;                              // 0 dry .. 1 soaked
 // the battle also sets light.snow, .sand, .rain, .time (see below)
+gfx.set_lamps(&lamps, focus);                 // battle only: this frame's moving lights
+gfx.set_air(scatter, Some(air_map));          // battle only: how thick the air is, for beams
 gfx.shadow_begin(&light, centre, radius);     // draw everything that casts
+gfx.lamp_shadows(|| draw_casters());          // battle only: same meshes, once per shadow lamp
 gfx.scene_begin(&cam, &light);                // draw the same meshes again, lit
 gfx.overlay_begin(&light, 0.0);               // see-through, lit, matte (smoke, markers)
+gfx.beams(&light, any_smoke);                 // battle only: lamp beams in rain, dust, smoke
 gfx.overlay_begin(&light, 6.0);               // glowing (fire 6, tracer 20)
 gfx.finish(dt, &Lens { .. });                 // exposure, bloom, lens → screen
 // then HUD with ordinary macroquad 2D calls
@@ -282,7 +300,66 @@ gfx.finish(dt, &Lens { .. });                 // exposure, bloom, lens → scree
 - Sky colours: `state_look` reads measured values from `assets/sky/looks.txt`
   for dawn…dusk; night, overcast and storm are hand-set in
   `state_look_hand` (1302) until Poly Haven HDRIs replace them.
-- Limits: miniquad allows 12 texture slots, the scene material uses 7.
+- Moving lights. A `Lamp` is one small light that moves: a flashlight
+  now, later a fire or a muzzle flash. (`Light` already means the sun and
+  sky, so the small ones are called lamps.) It holds `pos`, `dir`,
+  `colour`, `strength` (how bright a white surface facing it is at 1 m),
+  `reach` (metres; the light fades smoothly to nothing there), `inner` and
+  `outer` (the cone's two angles, in radians: full brightness inside the
+  first, nothing outside the second), `start` (metres in front of the lamp
+  where the light begins), `shadows` and `beam` (switches). `Lamp::cone`
+  makes a cone light, `Lamp::point` one that shines every way.
+  `Lamp::falloff(d, angle)` is the same dimming rule the shader uses.
+- `set_lamps(&lamps, focus)` keeps at most 24 (`MAX_LAMPS`), the ones
+  nearest `focus` (the point the camera looks at). The 4 nearest cone
+  lamps (`MAX_LAMP_SHADOWS`) cast shadows. `lamp_shadows(draw)` draws the
+  casters once for each of them into one 2048×2048 depth picture, a
+  1024×1024 quarter each. With no lamps it does nothing and costs nothing.
+- The scene shader adds every lamp's light before exposure: it dims with
+  the square of the distance, with the angle the light strikes the surface
+  at, and it puts a soft highlight on wet ground. With no lamps the shader
+  skips all of it.
+- `set_air(scatter, map)` and `beams(&light, smoke)`: a lamp's beam shows
+  as a soft cone only where something is in the air. `scatter` is the
+  weather's thickness per metre (0 in clear air). `map` is one texel per
+  tile: R = smoke, G = ground height (0 to 8 m). `beams` draws nothing
+  when the air is clear and there is no smoke.
+- The battle's flashlights are in `tactical.rs` under "flashlights":
+  the numbers (`FLASH_*`), `is_dark`, `flashlight_on`, `flashlights`.
+  Nothing there is read by a rule.
+- Flares (drawing only, 2026-11-13). Two additions, both off unless asked
+  for, so a frame without flares is drawn exactly as before:
+  - `set_lamps_round(&lamps, focus, round)` is `set_lamps` with one more
+    answer: `round` names one point lamp that casts shadows all round (a
+    hand flare on the ground). It takes all four lamp depth pictures, one
+    for each sideways quarter (+x, +z, −x, −z), so while it burns the
+    flashlights cast no shadows. Things steeply above or below it (more
+    than 45°) are not shadowed. A point lamp with `beam` set also glows in
+    rain, snow, dust and smoke (`beams` draws a box round its reach).
+  - `SkyLamp { pos, colour, strength, shadows }` and `set_sky_lamp(Some(..))`
+    (call before `shadow_begin`): one light with no reach limit, for a
+    flare hanging over the site. It dims with the square of the distance.
+    With `shadows` set, `shadow_begin` draws the big shadow picture from
+    the flare (a view that widens downward, not the sun's straight one),
+    the flare's shadows stay hard, and moonlight falls unshadowed. The
+    see-through pass (`overlay_begin(.., 0.0)`) adds the flare's light too.
+  - The battle's side is in `tactical.rs` under "flares": every number
+    (`FLARE_*` the hand flare, `SKY_*` the sky flare, `FX_*`), the lists
+    `hand_flares` and `sky_flare` (only the `--fx` debug flares so far; a
+    later rules job fills them), `draw_flare_solids` (body, white-hot spot,
+    scorch, parachute; called from `build_scene`) and `flare_fx` (sparks and
+    lit smoke, drawn in `draw` after the beams in a pass of their own at
+    `FX_LEVEL`). Nothing there is read by a rule.
+  - **Tuned by eye by the lead (2026-11-13); do not change without
+    looking at a picture.** `FLASH_POOL` 0.07 (a strength from a brief
+    must be divided by about 35 for this camera). Hand flare:
+    `FLARE_LIGHT_UP` 0.8, `FLARE_COLOUR` (1.0, 0.13, 0.09), `FLARE_GROUND`
+    0.5. Sky flare: `SKY_SHARE` 1/40, and `SKY_NIGHT_STOPS` -1.5, which
+    holds the camera back while a sky flare lights the night (added to
+    the lens `ev_bias` in the battle draw); without it the auto-exposure
+    turns the flare-lit night into a dull day and burns the flashlights
+    white.
+- Limits: miniquad allows 12 texture slots, the scene material uses 8.
   Shadow map 4096 (`SHADOW_RES`) covering `radius` metres around `centre`
   (lab uses 36, the battle 34).
 - Lab camera for the look: range 420 m, field of view 3.4–19.5°,
