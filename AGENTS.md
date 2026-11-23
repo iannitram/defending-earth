@@ -70,3 +70,5 @@ are listed in `docs/CODE_MAP.md`.
 - Several data tables are fixed-order: rows may be renamed but not
   reordered, inserted or removed. `docs/NAMES.md` marks them.
 - The draw-call buffer size in `src/gfx.rs` must stay at or below 65,535.
+
+**Upstream and peers:** see `PEERS.md` at the repo root. When I say "upstream", I mean the repo in its Upstream section; reuse a peer's code only as that file allows.
